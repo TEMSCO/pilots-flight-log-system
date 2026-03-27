@@ -1,42 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Pilot Log Login</title>
+  <title>FORCE TEST</title>
 </head>
-<body>
-  <h2>Pilot Log Login</h2>
-  <input id="email" placeholder="Email"><br><br>
-  <input id="password" type="password" placeholder="Password"><br><br>
-  <button onclick="login()">Login</button>
+<body style="background:red; color:white; font-size:40px;">
 
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
-  <!-- INLINE APP (FIX) -->
-  <script>
-    const supabase = window.supabase.createClient(
-      "https://xjisftmfjsjomgsjzkod.supabase.co",
-      "sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS"
-    );
-
-    async function login() {
-      console.log("Login clicked");
-
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (error) {
-        alert(error.message);
-      } else {
-        window.location.href = "/pilot.html";
-      }
-    }
-  </script>
+THIS IS THE NEW VERSION
 
 </body>
 </html>
