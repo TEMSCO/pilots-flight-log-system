@@ -1,6 +1,6 @@
 const supabase = window.supabase.createClient(
-  "https://YOUR_PROJECT_ID.supabase.co",
-  "YOUR_PUBLISHED_KEY"
+https://xjisftmfjsjomgsjzkod.supabase.co
+sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS
 );
 
 async function login() {
