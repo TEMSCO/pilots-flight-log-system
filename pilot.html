@@ -46,25 +46,26 @@
     }
 
     async function loadLogs() {
-      const { data, error } = await sb
-        .from("logs")
-        .select("*");
+  const { data, error } = await sb
+    .from("logs")
+    .select("*");
 
-      const list = document.getElementById("logList");
-      list.innerHTML = "";
+  const list = document.getElementById("logList");
+  const totalDisplay = document.getElementById("totalHours");
 
-      if (data) {
-        data.forEach(log => {
-          const li = document.createElement("li");
-          li.textContent = `${log.date} - ${log.aircraft} - ${log.hours} hrs`;
-          list.appendChild(li);
-        });
-      }
-    }
+  list.innerHTML = "";
 
-    // Load logs when page opens
-    loadLogs();
-  </script>
+  let total = 0;
 
-</body>
-</html>
+  if (data) {
+    data.forEach(log => {
+      const li = document.createElement("li");
+      li.textContent = `${log.date} - ${log.aircraft} - ${log.hours} hrs`;
+      list.appendChild(li);
+
+      total += parseFloat(log.hours) || 0;
+    });
+  }
+
+  totalDisplay.innerText = total.toFixed(1);
+}
