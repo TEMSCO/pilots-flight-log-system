@@ -22,13 +22,17 @@
   <h3>Total Hours: <span id="totalHours">0</span></h3>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
-  <script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+<script>
+  window.addEventListener("load", () => {
+
     const sb = window.supabase.createClient(
       "https://xjisftmfjsjomgsjzkod.supabase.co",
       "sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS"
     );
 
-   window.addLog = async function () {
+    window.addLog = async function () {
       const date = document.getElementById("date").value;
       const aircraft = document.getElementById("aircraft").value;
       const hours = document.getElementById("hours").value;
@@ -38,34 +42,44 @@
         .insert([{ date, aircraft, hours }]);
 
       if (error) {
+        console.error(error);
         document.getElementById("status").innerText = error.message;
       } else {
         document.getElementById("status").innerText = "Flight saved!";
-        loadLogs(); // refresh list
+        window.loadLogs();
       }
-    }
+    };
 
-   window.loadLogs = async function () {
-  const { data, error } = await sb
-    .from("logs")
-    .select("*");
+    window.loadLogs = async function () {
+      const { data, error } = await sb
+        .from("logs")
+        .select("*");
 
-  const list = document.getElementById("logList");
-  const totalDisplay = document.getElementById("totalHours");
+      const list = document.getElementById("logList");
+      const totalDisplay = document.getElementById("totalHours");
 
-  list.innerHTML = "";
+      list.innerHTML = "";
 
-  let total = 0;
+      let total = 0;
 
-  if (data) {
-    data.forEach(log => {
-      const li = document.createElement("li");
-      li.textContent = `${log.date} - ${log.aircraft} - ${log.hours} hrs`;
-      list.appendChild(li);
+      if (data) {
+        data.forEach(log => {
+          const li = document.createElement("li");
+          li.textContent = `${log.date} - ${log.aircraft} - ${log.hours} hrs`;
+          list.appendChild(li);
 
-      total += parseFloat(log.hours) || 0;
-    });
-  }
+          const hoursNum = parseFloat(log.hours);
+          if (!isNaN(hoursNum)) {
+            total += hoursNum;
+          }
+        });
+      }
 
-  totalDisplay.innerText = total.toFixed(1);
-}
+      totalDisplay.innerText = total.toFixed(1);
+    };
+
+    // load data when page opens
+    window.loadLogs();
+
+  });
+</script>
