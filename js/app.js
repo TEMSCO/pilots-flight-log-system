@@ -1,8 +1,5 @@
-const supabase = window.supabase.createClient(
-  'YOUR_SUPABASE_URL',
-  'YOUR_ANON_KEY'
-);
-
+https://xjisftmfjsjomgsjzkod.supabase.co
+sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS
 async function login() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
