@@ -28,7 +28,7 @@
       "sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS"
     );
 
-    async function addLog() {
+   window.addLog = async function () {
       const date = document.getElementById("date").value;
       const aircraft = document.getElementById("aircraft").value;
       const hours = document.getElementById("hours").value;
@@ -45,7 +45,7 @@
       }
     }
 
-    async function loadLogs() {
+   window.loadLogs = async function () {
   const { data, error } = await sb
     .from("logs")
     .select("*");
