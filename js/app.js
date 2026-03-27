@@ -1,4 +1,5 @@
-"https://xjisftmfjsjomgsjzkod.supabase.co",
+const supabase = window.supabase.createClient(
+  "https://xjisftmfjsjomgsjzkod.supabase.co",
   "sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS"
 );
 
