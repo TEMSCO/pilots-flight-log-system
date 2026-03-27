@@ -4,10 +4,15 @@ async function login() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email, password
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
   });
 
-  if (error) alert(error.message);
-  else window.location = "pilot.html";
+  if (error) {
+    alert(error.message);
+  } else {
+    // force redirect after successful login
+    window.location.href = "/pilot.html";
+  }
 }
