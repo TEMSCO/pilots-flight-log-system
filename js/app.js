@@ -1,6 +1,11 @@
-https://xjisftmfjsjomgsjzkod.supabase.co
-sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS
+const supabase = window.supabase.createClient(
+  "https://YOUR_PROJECT_ID.supabase.co",
+  "YOUR_PUBLISHED_KEY"
+);
+
 async function login() {
+  console.log("Login clicked");
+
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
@@ -12,7 +17,6 @@ async function login() {
   if (error) {
     alert(error.message);
   } else {
-    // force redirect after successful login
     window.location.href = "/pilot.html";
   }
 }
