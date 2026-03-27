@@ -17,6 +17,9 @@
 
   <p id="status"></p>
 
+  <h3>Saved Flights</h3>
+  <ul id="logList"></ul>
+
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
   <script>
@@ -38,8 +41,29 @@
         document.getElementById("status").innerText = error.message;
       } else {
         document.getElementById("status").innerText = "Flight saved!";
+        loadLogs(); // refresh list
       }
     }
+
+    async function loadLogs() {
+      const { data, error } = await sb
+        .from("logs")
+        .select("*");
+
+      const list = document.getElementById("logList");
+      list.innerHTML = "";
+
+      if (data) {
+        data.forEach(log => {
+          const li = document.createElement("li");
+          li.textContent = `${log.date} - ${log.aircraft} - ${log.hours} hrs`;
+          list.appendChild(li);
+        });
+      }
+    }
+
+    // Load logs when page opens
+    loadLogs();
   </script>
 
 </body>
