@@ -6,7 +6,41 @@
 <body>
 
   <h1>Pilot Dashboard</h1>
-  <p>Login successful ✅</p>
+
+  <h3>Add Flight Log</h3>
+
+  <input id="date" type="date"><br><br>
+  <input id="aircraft" placeholder="Aircraft"><br><br>
+  <input id="hours" placeholder="Flight Hours"><br><br>
+
+  <button onclick="addLog()">Save Flight</button>
+
+  <p id="status"></p>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+  <script>
+    const sb = window.supabase.createClient(
+      "https://xjisftmfjsjomgsjzkod.supabase.co",
+      "sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS"
+    );
+
+    async function addLog() {
+      const date = document.getElementById("date").value;
+      const aircraft = document.getElementById("aircraft").value;
+      const hours = document.getElementById("hours").value;
+
+      const { error } = await sb
+        .from("logs")
+        .insert([{ date, aircraft, hours }]);
+
+      if (error) {
+        document.getElementById("status").innerText = error.message;
+      } else {
+        document.getElementById("status").innerText = "Flight saved!";
+      }
+    }
+  </script>
 
 </body>
 </html>
