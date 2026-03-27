@@ -1,6 +1,6 @@
 const supabase = window.supabase.createClient(
-https://xjisftmfjsjomgsjzkod.supabase.co
-sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS
+"https://xjisftmfjsjomgsjzkod.supabase.co",
+"sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS..."
 );
 
 async function login() {
