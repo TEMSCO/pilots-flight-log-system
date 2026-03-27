@@ -1,43 +1,26 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Pilot Log Login</title>
-</head>
-<body>
-  <h2>Pilot Log Login</h2>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
-  <input id="email" placeholder="Email"><br><br>
-  <input id="password" type="password" placeholder="Password"><br><br>
+<script>
+  const sb = window.supabase.createClient(
+    "https://xjisftmfjsjomgsjzkod.supabase.co",
+    "sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS"
+  );
 
-  <button onclick="login()">Login</button>
+  async function login() {
+    console.log("Login clicked");
 
-  <!-- Supabase -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
-  <script>
-    const supabase = window.supabase.createClient(
-      "https://xjisftmfjsjomgsjzkod.supabase.co",
-      "sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS"
-    );
+    const { data, error } = await sb.auth.signInWithPassword({
+      email,
+      password
+    });
 
-    async function login() {
-      console.log("Login clicked");
-
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (error) {
-        alert(error.message);
-      } else {
-        window.location.href = "/pilot.html";
-      }
+    if (error) {
+      alert(error.message);
+    } else {
+      window.location.href = "/pilot.html";
     }
-  </script>
-
-</body>
-</html>
+  }
+</script>
