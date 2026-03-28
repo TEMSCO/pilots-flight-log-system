@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Pilot Logbook Replica</title>
+  <title>Flight Log - Paint Mode</title>
 
   <style>
     body {
@@ -13,116 +13,77 @@
 
     h2 { text-align: center; }
 
-    .timeline {
-      display: grid;
-      grid-template-columns: 80px repeat(24, 1fr);
-      gap: 2px;
-      margin-bottom: 10px;
-      font-size: 10px;
-      text-align: center;
-    }
-
-    .timeline div {
-      background: #1e293b;
-      padding: 4px;
-      border-radius: 2px;
-    }
-
-    .row {
-      display: grid;
-      grid-template-columns: 80px 1fr;
-      margin-bottom: 10px;
-      align-items: center;
-    }
-
-    .label {
-      font-weight: bold;
-    }
-
-    .slider {
-      width: 100%;
-    }
-
-    .flight {
-      accent-color: #22c55e;
-    }
-
-    .duty {
-      accent-color: #facc15;
-    }
-
-    input {
-      padding: 6px;
-      border-radius: 5px;
-      border: none;
-      margin: 5px;
-    }
-
-    .top-row {
+    .controls {
       display: flex;
       gap: 10px;
       margin-bottom: 15px;
     }
 
     button {
-      padding: 10px;
-      background: #22c55e;
+      padding: 8px 12px;
       border: none;
       border-radius: 6px;
-      width: 100%;
       cursor: pointer;
     }
 
-    .log {
-      margin-top: 20px;
+    .flight-btn { background: #22c55e; }
+    .duty-btn { background: #facc15; color: black; }
+    .clear-btn { background: #ef4444; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 80px repeat(24, 1fr);
+      gap: 2px;
+    }
+
+    .cell {
+      height: 25px;
       background: #1e293b;
-      padding: 10px;
-      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .header {
+      font-size: 10px;
+      text-align: center;
+      background: #334155;
+    }
+
+    .label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .flight { background: #22c55e; }
+    .duty { background: #facc15; }
+
+    .totals {
+      margin-top: 15px;
     }
   </style>
 </head>
 
 <body>
 
-<h2>✈️ Flight & Duty Log (Replica B2)</h2>
+<h2>✈️ Flight & Duty Log (Paint Mode)</h2>
 
-<!-- START / STOP -->
-<div class="top-row">
-  <input id="start" type="time">
-  <input id="stop" type="time">
-  <input id="aircraft" placeholder="Aircraft">
+<div class="controls">
+  <button class="flight-btn" onclick="mode='flight'">Flight Mode</button>
+  <button class="duty-btn" onclick="mode='duty'">Duty Mode</button>
+  <button class="clear-btn" onclick="clearGrid()">Clear</button>
 </div>
 
-<!-- TIMELINE HEADER -->
-<div class="timeline">
-  <div></div>
-  <script>
-    for (let i = 1; i <= 24; i++) {
-      document.write("<div>" + i + "</div>");
-    }
-  </script>
-</div>
+<div class="grid" id="grid"></div>
 
-<!-- FLIGHT ROW -->
-<div class="row">
-  <div class="label">FLT</div>
-  <input type="range" min="0" max="14" step="0.1" id="flightSlider" class="slider flight">
-</div>
-
-<!-- DUTY ROW -->
-<div class="row">
-  <div class="label">DUTY</div>
-  <input type="range" min="0" max="14" step="0.1" id="dutySlider" class="slider duty">
-</div>
-
-<div class="row">
-  <div class="label">Duty Total</div>
-  <div id="dutyTotal">0.0</div>
+<div class="totals">
+  Flight: <span id="flightTotal">0</span> hrs |
+  Duty: <span id="dutyTotal">0</span> hrs
 </div>
 
 <button onclick="saveLog()">Save Entry</button>
 
-<div class="log" id="logList"></div>
+<div id="logList"></div>
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
@@ -132,60 +93,91 @@ const sb = window.supabase.createClient(
   "sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS"
 );
 
-// CALCULATE DUTY
-function calculateDuty() {
-  const start = startInput.value;
-  const stop = stopInput.value;
+let mode = "flight";
+let mouseDown = false;
 
-  if (!start || !stop) return;
+const grid = document.getElementById("grid");
 
-  const s = new Date("1970-01-01T" + start);
-  const e = new Date("1970-01-01T" + stop);
-
-  let diff = (e - s) / 3600000;
-  if (diff < 0) diff += 24;
-
-  if (diff > 14) {
-    alert("⚠️ Max duty is 14 hours");
-    diff = 14;
-  }
-
-  dutyTotal.innerText = diff.toFixed(1);
-  dutySlider.value = diff;
-
-  // lock flight slider
-  flightSlider.max = diff;
-  if (flightSlider.value > diff) {
-    flightSlider.value = diff;
-  }
+// HEADER ROW
+grid.innerHTML += "<div></div>";
+for (let i = 1; i <= 24; i++) {
+  grid.innerHTML += `<div class="header">${i}</div>`;
 }
 
-const startInput = document.getElementById("start");
-const stopInput = document.getElementById("stop");
-const dutyTotal = document.getElementById("dutyTotal");
-const flightSlider = document.getElementById("flightSlider");
-const dutySlider = document.getElementById("dutySlider");
+// CREATE ROWS
+["FLT", "DUTY"].forEach(type => {
+  grid.innerHTML += `<div class="label">${type}</div>`;
 
-startInput.onchange = calculateDuty;
-stopInput.onchange = calculateDuty;
+  for (let i = 0; i < 24; i++) {
+    const cell = document.createElement("div");
+    cell.className = "cell";
+
+    cell.onmousedown = () => {
+      mouseDown = true;
+      paint(cell);
+    };
+
+    cell.onmouseover = () => {
+      if (mouseDown) paint(cell);
+    };
+
+    grid.appendChild(cell);
+  }
+});
+
+document.body.onmouseup = () => mouseDown = false;
+
+// PAINT FUNCTION
+function paint(cell) {
+  cell.classList.remove("flight", "duty");
+  cell.classList.add(mode);
+  calculateTotals();
+}
+
+// CLEAR GRID
+function clearGrid() {
+  document.querySelectorAll(".cell").forEach(c => {
+    c.classList.remove("flight", "duty");
+  });
+  calculateTotals();
+}
+
+// CALCULATE TOTALS
+function calculateTotals() {
+  let flight = 0;
+  let duty = 0;
+
+  const cells = document.querySelectorAll(".cell");
+
+  cells.forEach((c, i) => {
+    const row = Math.floor(i / 24);
+
+    if (row === 0 && c.classList.contains("flight")) flight++;
+    if (row === 1 && c.classList.contains("duty")) duty++;
+  });
+
+  // each cell = 1 hour
+  if (duty > 14) {
+    alert("⚠️ Duty exceeds 14 hours");
+  }
+
+  if (flight > duty) {
+    alert("⚠️ Flight cannot exceed duty");
+  }
+
+  document.getElementById("flightTotal").innerText = flight;
+  document.getElementById("dutyTotal").innerText = duty;
+}
 
 // SAVE
 async function saveLog() {
   const { data: userData } = await sb.auth.getUser();
   const user = userData.user;
 
+  const flight = parseFloat(flightTotal.innerText);
   const duty = parseFloat(dutyTotal.innerText);
-  const flight = parseFloat(flightSlider.value);
-
-  if (flight > duty) {
-    alert("Flight cannot exceed duty");
-    return;
-  }
 
   const { error } = await sb.from("logs").insert([{
-    start: startInput.value,
-    stop: stopInput.value,
-    aircraft1: aircraft.value,
     flt1: flight,
     duty: duty,
     user_id: user.id
@@ -211,11 +203,7 @@ async function loadLogs() {
   if (data) {
     data.forEach(log => {
       logList.innerHTML += `
-        <div>
-          ${log.start}-${log.stop} |
-          FLT: ${log.flt1} |
-          DUTY: ${log.duty}
-        </div>
+        <div>FLT: ${log.flt1} | DUTY: ${log.duty}</div>
       `;
     });
   }
