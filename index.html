@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Pilot Logbook FAA Replica</title>
+  <title>Pilot Logbook Replica</title>
 
   <style>
     body {
@@ -13,38 +13,63 @@
 
     h2 { text-align: center; }
 
-    .grid {
+    .timeline {
       display: grid;
-      grid-template-columns: 100px repeat(3, 1fr) 120px;
-      gap: 5px;
-      align-items: center;
+      grid-template-columns: 80px repeat(24, 1fr);
+      gap: 2px;
       margin-bottom: 10px;
+      font-size: 10px;
+      text-align: center;
     }
 
-    .label { font-weight: bold; }
+    .timeline div {
+      background: #1e293b;
+      padding: 4px;
+      border-radius: 2px;
+    }
 
-    input {
-      padding: 6px;
-      border-radius: 5px;
-      border: none;
-      width: 100%;
+    .row {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+
+    .label {
+      font-weight: bold;
     }
 
     .slider {
       width: 100%;
     }
 
-    .flight-slider {
+    .flight {
       accent-color: #22c55e;
     }
 
+    .duty {
+      accent-color: #facc15;
+    }
+
+    input {
+      padding: 6px;
+      border-radius: 5px;
+      border: none;
+      margin: 5px;
+    }
+
+    .top-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
     button {
-      margin-top: 10px;
       padding: 10px;
-      width: 100%;
       background: #22c55e;
       border: none;
       border-radius: 6px;
+      width: 100%;
       cursor: pointer;
     }
 
@@ -59,34 +84,38 @@
 
 <body>
 
-<h2>✈️ Flight & Duty Log (FAA Replica)</h2>
+<h2>✈️ Flight & Duty Log (Replica B2)</h2>
 
-<!-- HEADER ROW -->
-<div class="grid">
-  <div class="label">Start</div>
+<!-- START / STOP -->
+<div class="top-row">
   <input id="start" type="time">
-
-  <input id="aircraft1" placeholder="Aircraft 1">
-  <input id="aircraft2" placeholder="Aircraft 2">
-  <input id="aircraft3" placeholder="Aircraft 3">
-
-  <div class="label">Stop</div>
   <input id="stop" type="time">
+  <input id="aircraft" placeholder="Aircraft">
+</div>
+
+<!-- TIMELINE HEADER -->
+<div class="timeline">
+  <div></div>
+  <script>
+    for (let i = 1; i <= 24; i++) {
+      document.write("<div>" + i + "</div>");
+    }
+  </script>
 </div>
 
 <!-- FLIGHT ROW -->
-<div class="grid">
+<div class="row">
   <div class="label">FLT</div>
-
-  <input type="range" min="0" max="14" step="0.1" id="flt1" class="slider flight-slider">
-  <input type="range" min="0" max="14" step="0.1" id="flt2" class="slider flight-slider">
-  <input type="range" min="0" max="14" step="0.1" id="flt3" class="slider flight-slider">
-
-  <div></div>
+  <input type="range" min="0" max="14" step="0.1" id="flightSlider" class="slider flight">
 </div>
 
-<!-- DUTY DISPLAY -->
-<div class="grid">
+<!-- DUTY ROW -->
+<div class="row">
+  <div class="label">DUTY</div>
+  <input type="range" min="0" max="14" step="0.1" id="dutySlider" class="slider duty">
+</div>
+
+<div class="row">
   <div class="label">Duty Total</div>
   <div id="dutyTotal">0.0</div>
 </div>
@@ -103,10 +132,10 @@ const sb = window.supabase.createClient(
   "sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS"
 );
 
-// ✈️ CALCULATE DUTY
+// CALCULATE DUTY
 function calculateDuty() {
-  const start = document.getElementById("start").value;
-  const stop = document.getElementById("stop").value;
+  const start = startInput.value;
+  const stop = stopInput.value;
 
   if (!start || !stop) return;
 
@@ -116,69 +145,57 @@ function calculateDuty() {
   let diff = (e - s) / 3600000;
   if (diff < 0) diff += 24;
 
-  // FAA LIMIT
   if (diff > 14) {
-    alert("⚠️ Duty exceeds 14-hour FAA limit");
+    alert("⚠️ Max duty is 14 hours");
     diff = 14;
   }
 
-  document.getElementById("dutyTotal").innerText = diff.toFixed(1);
+  dutyTotal.innerText = diff.toFixed(1);
+  dutySlider.value = diff;
 
-  // LOCK FLIGHT SLIDERS
-  ["flt1","flt2","flt3"].forEach(id => {
-    const slider = document.getElementById(id);
-    slider.max = diff;
-
-    if (parseFloat(slider.value) > diff) {
-      slider.value = diff;
-    }
-  });
+  // lock flight slider
+  flightSlider.max = diff;
+  if (flightSlider.value > diff) {
+    flightSlider.value = diff;
+  }
 }
 
-document.getElementById("start").onchange = calculateDuty;
-document.getElementById("stop").onchange = calculateDuty;
+const startInput = document.getElementById("start");
+const stopInput = document.getElementById("stop");
+const dutyTotal = document.getElementById("dutyTotal");
+const flightSlider = document.getElementById("flightSlider");
+const dutySlider = document.getElementById("dutySlider");
 
-// 💾 SAVE
+startInput.onchange = calculateDuty;
+stopInput.onchange = calculateDuty;
+
+// SAVE
 async function saveLog() {
   const { data: userData } = await sb.auth.getUser();
   const user = userData.user;
 
-  const duty = parseFloat(document.getElementById("dutyTotal").innerText);
+  const duty = parseFloat(dutyTotal.innerText);
+  const flight = parseFloat(flightSlider.value);
 
-  const totalFlight =
-    parseFloat(flt1.value || 0) +
-    parseFloat(flt2.value || 0) +
-    parseFloat(flt3.value || 0);
-
-  // VALIDATION
-  if (totalFlight > duty) {
-    alert("⚠️ Flight time cannot exceed duty time");
+  if (flight > duty) {
+    alert("Flight cannot exceed duty");
     return;
   }
 
-  const entry = {
-    start: start.value,
-    stop: stop.value,
-    aircraft1: aircraft1.value,
-    aircraft2: aircraft2.value,
-    aircraft3: aircraft3.value,
-    flt1: flt1.value,
-    flt2: flt2.value,
-    flt3: flt3.value,
+  const { error } = await sb.from("logs").insert([{
+    start: startInput.value,
+    stop: stopInput.value,
+    aircraft1: aircraft.value,
+    flt1: flight,
     duty: duty,
     user_id: user.id
-  };
+  }]);
 
-  const { error } = await sb.from("logs").insert([entry]);
-
-  if (error) {
-    alert(error.message);
-  } else {
-    loadLogs();
-  }
+  if (error) alert(error.message);
+  else loadLogs();
 }
 
-// 📄 LOAD
+// LOAD
 async function loadLogs() {
   const { data: userData } = await sb.auth.getUser();
   const user = userData.user;
@@ -189,15 +206,14 @@ async function loadLogs() {
     .eq("user_id", user.id)
     .order("id", { ascending: false });
 
-  const list = document.getElementById("logList");
-  list.innerHTML = "";
+  logList.innerHTML = "";
 
   if (data) {
     data.forEach(log => {
-      list.innerHTML += `
+      logList.innerHTML += `
         <div>
-          ${log.start} - ${log.stop} |
-          FLT: ${log.flt1}/${log.flt2}/${log.flt3} |
+          ${log.start}-${log.stop} |
+          FLT: ${log.flt1} |
           DUTY: ${log.duty}
         </div>
       `;
