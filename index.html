@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Flight Log - Paint Mode</title>
+  <title>Flight Log - Precision Mode</title>
 
   <style>
     body {
@@ -32,21 +32,21 @@
 
     .grid {
       display: grid;
-      grid-template-columns: 80px repeat(24, 1fr);
-      gap: 2px;
+      grid-template-columns: 80px repeat(240, 1fr);
+      gap: 1px;
+      overflow-x: auto;
     }
 
     .cell {
-      height: 25px;
+      height: 20px;
       background: #1e293b;
       cursor: pointer;
     }
 
     .header {
-      font-size: 10px;
+      font-size: 8px;
       text-align: center;
       background: #334155;
-      padding: 4px;
     }
 
     .label {
@@ -62,19 +62,12 @@
     .totals {
       margin-top: 15px;
     }
-
-    .log {
-      margin-top: 20px;
-      background: #1e293b;
-      padding: 10px;
-      border-radius: 8px;
-    }
   </style>
 </head>
 
 <body>
 
-<h2>✈️ Flight & Duty Log (Paint Mode)</h2>
+<h2>✈️ Flight Log (0.1 Precision)</h2>
 
 <div class="controls">
   <button class="flight-btn" onclick="mode='flight'">Flight Mode</button>
@@ -85,22 +78,11 @@
 <div class="grid" id="grid"></div>
 
 <div class="totals">
-  Flight: <span id="flightTotal">0</span> hrs |
-  Duty: <span id="dutyTotal">0</span> hrs
+  Flight: <span id="flightTotal">0.0</span> hrs |
+  Duty: <span id="dutyTotal">0.0</span> hrs
 </div>
 
-<button onclick="saveLog()">Save Entry</button>
-
-<div class="log" id="logList"></div>
-
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-
 <script>
-const sb = window.supabase.createClient(
-  "https://xjisftmfjsjomgsjzkod.supabase.co",
-  "sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS"
-);
-
 let mode = "flight";
 let mouseDown = false;
 
@@ -108,15 +90,19 @@ const grid = document.getElementById("grid");
 
 // HEADER
 grid.innerHTML += "<div></div>";
-for (let i = 1; i <= 24; i++) {
-  grid.innerHTML += `<div class="header">${i}</div>`;
+for (let i = 0; i < 240; i++) {
+  if (i % 10 === 0) {
+    grid.innerHTML += `<div class="header">${i/10}</div>`;
+  } else {
+    grid.innerHTML += `<div class="header"></div>`;
+  }
 }
 
 // ROWS
 ["flight", "duty"].forEach(type => {
   grid.innerHTML += `<div class="label">${type.toUpperCase()}</div>`;
 
-  for (let i = 0; i < 24; i++) {
+  for (let i = 0; i < 240; i++) {
     const cell = document.createElement("div");
     cell.className = "cell";
     cell.dataset.row = type;
@@ -134,17 +120,19 @@ for (let i = 1; i <= 24; i++) {
   }
 });
 
-// GLOBAL MOUSE TRACK
+// MOUSE TRACK
 document.body.onmousedown = () => mouseDown = true;
 document.body.onmouseup = () => mouseDown = false;
 
 // PAINT
 function paint(cell) {
-  const rowType = cell.dataset.row;
+  if (cell.dataset.row !== mode) return;
 
-  if (mode !== rowType) return;
-
-  cell.classList.toggle(mode);
+  if (cell.classList.contains(mode)) {
+    cell.classList.remove(mode);
+  } else {
+    cell.classList.add(mode);
+  }
 
   calculateTotals();
 }
@@ -157,15 +145,18 @@ function clearGrid() {
   calculateTotals();
 }
 
-// TOTALS
+// TOTALS (0.1 increments)
 function calculateTotals() {
   let flight = 0;
   let duty = 0;
 
   document.querySelectorAll(".cell").forEach(cell => {
-    if (cell.classList.contains("flight")) flight++;
-    if (cell.classList.contains("duty")) duty++;
+    if (cell.classList.contains("flight")) flight += 0.1;
+    if (cell.classList.contains("duty")) duty += 0.1;
   });
+
+  flight = parseFloat(flight.toFixed(1));
+  duty = parseFloat(duty.toFixed(1));
 
   if (duty > 14) {
     alert("⚠️ Duty exceeds 14 hours");
@@ -175,51 +166,9 @@ function calculateTotals() {
     alert("⚠️ Flight cannot exceed duty");
   }
 
-  document.getElementById("flightTotal").innerText = flight;
-  document.getElementById("dutyTotal").innerText = duty;
+  document.getElementById("flightTotal").innerText = flight.toFixed(1);
+  document.getElementById("dutyTotal").innerText = duty.toFixed(1);
 }
-
-// SAVE
-async function saveLog() {
-  const { data: userData } = await sb.auth.getUser();
-  const user = userData.user;
-
-  const flight = parseFloat(flightTotal.innerText);
-  const duty = parseFloat(dutyTotal.innerText);
-
-  const { error } = await sb.from("logs").insert([{
-    flt1: flight,
-    duty: duty,
-    user_id: user.id
-  }]);
-
-  if (error) alert(error.message);
-  else loadLogs();
-}
-
-// LOAD
-async function loadLogs() {
-  const { data: userData } = await sb.auth.getUser();
-  const user = userData.user;
-
-  const { data } = await sb
-    .from("logs")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("id", { ascending: false });
-
-  logList.innerHTML = "";
-
-  if (data) {
-    data.forEach(log => {
-      logList.innerHTML += `
-        <div>FLT: ${log.flt1} | DUTY: ${log.duty}</div>
-      `;
-    });
-  }
-}
-
-loadLogs();
 </script>
 
 </body>
