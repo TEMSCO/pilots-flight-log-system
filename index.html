@@ -5,12 +5,12 @@
   <title>TEMSCO Pilot Flight & Duty Time Log</title>
   <style>
     :root {
-      --paper: #f8fafc;
+      --paper: #ffffff;
       --ink: #111827;
-      --line: #1f2937;
+      --line: #111827;
       --soft-line: #94a3b8;
       --header: #e5e7eb;
-      --subtle: #f1f5f9;
+      --subtle: #f8fafc;
       --flight: #22c55e;
       --duty: #facc15;
       --btn-blue: #2563eb;
@@ -23,49 +23,50 @@
 
     body {
       margin: 0;
-      padding: 20px;
+      padding: 10px;
       font-family: Arial, sans-serif;
       background: #dbe4ee;
       color: var(--ink);
     }
 
     .sheet {
-      max-width: 1700px;
+      max-width: 1500px;
       margin: 0 auto;
       background: var(--paper);
-      border: 2px solid var(--line);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-      padding: 18px;
+      border: 1.5px solid var(--line);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+      padding: 10px;
     }
 
     .sheet-header {
       display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 16px;
+      grid-template-columns: 1fr 300px;
+      gap: 10px;
       align-items: start;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
     .sheet-title {
       text-align: center;
+      padding-top: 4px;
     }
 
     .sheet-title .company {
-      font-size: 14px;
+      font-size: 12px;
       font-weight: bold;
-      letter-spacing: 0.4px;
+      letter-spacing: 0.3px;
     }
 
     .sheet-title .form-title {
-      font-size: 24px;
+      font-size: 20px;
       font-weight: bold;
-      margin-top: 4px;
+      margin-top: 2px;
       text-transform: uppercase;
     }
 
     .sheet-title .note {
-      font-size: 12px;
-      margin-top: 6px;
+      font-size: 10px;
+      margin-top: 4px;
     }
 
     .header-box {
@@ -75,9 +76,9 @@
 
     .header-box-row {
       display: grid;
-      grid-template-columns: 110px 1fr;
+      grid-template-columns: 92px 1fr;
       border-bottom: 1px solid var(--line);
-      min-height: 38px;
+      min-height: 30px;
     }
 
     .header-box-row:last-child {
@@ -90,9 +91,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: bold;
-      padding: 4px;
+      padding: 2px 4px;
     }
 
     .header-value {
@@ -106,35 +107,37 @@
       width: 100%;
       height: 100%;
       border: none;
-      padding: 8px 10px;
-      font-size: 12px;
+      padding: 6px 8px;
+      font-size: 11px;
       background: transparent;
     }
 
-    .header-value input:focus {
-      outline: 2px solid #93c5fd;
-      outline-offset: -2px;
+    .header-value input:focus,
+    .cell.input-cell input:focus {
+      outline: 1.5px solid #60a5fa;
+      outline-offset: -1px;
     }
 
     .controls {
       display: flex;
-      gap: 10px;
+      gap: 6px;
       flex-wrap: wrap;
       justify-content: center;
-      margin: 14px 0 16px;
+      margin: 8px 0 10px;
     }
 
     button {
       border: 1px solid var(--line);
       background: white;
       color: var(--ink);
-      padding: 8px 12px;
+      padding: 6px 10px;
       font-weight: bold;
       cursor: pointer;
+      font-size: 11px;
     }
 
     button.active {
-      outline: 2px solid var(--line);
+      outline: 1.5px solid var(--line);
     }
 
     .flight-btn { background: #dcfce7; }
@@ -146,14 +149,14 @@
 
     .mode-line {
       text-align: center;
-      font-size: 13px;
+      font-size: 11px;
       font-weight: bold;
-      margin-bottom: 12px;
-      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      letter-spacing: 0.3px;
     }
 
     .entry-frame {
-      border: 2px solid var(--line);
+      border: 1.5px solid var(--line);
       background: white;
       overflow-x: auto;
     }
@@ -161,27 +164,28 @@
     .entry-grid {
       display: grid;
       grid-template-columns:
-        82px    /* date mm/dd */
-        120px   /* ac */
-        78px    /* duty start */
-        78px    /* duty stop */
-        78px    /* duty total */
-        78px    /* flight total */
-        90px    /* row labels */
-        repeat(48, minmax(18px, 1fr));
-      min-width: 1550px;
+        56px    /* date mm/dd */
+        92px    /* ac */
+        52px    /* duty start */
+        52px    /* duty stop */
+        52px    /* duty total */
+        52px    /* flight total */
+        60px    /* row labels */
+        repeat(48, minmax(12px, 1fr));
+      min-width: 1080px;
     }
 
     .cell {
       border-right: 1px solid var(--line);
       border-bottom: 1px solid var(--line);
-      min-height: 30px;
+      min-height: 22px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 4px;
-      font-size: 12px;
+      padding: 2px;
+      font-size: 10px;
       text-align: center;
+      line-height: 1.1;
     }
 
     .cell.header {
@@ -203,39 +207,36 @@
       width: 100%;
       height: 100%;
       border: none;
-      padding: 6px 8px;
-      font-size: 12px;
+      padding: 2px 4px;
+      font-size: 10px;
       background: transparent;
       min-width: 0;
       text-align: center;
     }
 
-    .cell.input-cell input:focus {
-      outline: 2px solid #93c5fd;
-      outline-offset: -2px;
-    }
-
     .cell.readout {
       background: white;
       font-weight: bold;
+      font-size: 10px;
     }
 
     .row-label {
       background: var(--subtle);
       font-weight: bold;
-      letter-spacing: 0.4px;
+      letter-spacing: 0.2px;
+      font-size: 10px;
     }
 
     .time-subhead {
-      font-size: 9px;
-      padding: 2px 0;
+      font-size: 8px;
+      padding: 1px 0;
       background: var(--subtle);
-      min-height: 22px;
+      min-height: 18px;
     }
 
     .duty-cell {
       background: white;
-      min-height: 34px;
+      min-height: 24px;
       cursor: pointer;
       padding: 0;
     }
@@ -245,12 +246,12 @@
     }
 
     .duty-cell.pending {
-      outline: 2px solid #000;
-      outline-offset: -2px;
+      outline: 1.5px solid #000;
+      outline-offset: -1px;
     }
 
     .flight-cell {
-      min-height: 34px;
+      min-height: 24px;
       padding: 0;
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -258,9 +259,9 @@
     }
 
     .tenth {
-      border-right: 1px solid #cbd5e1;
+      border-right: 1px solid #d1d5db;
       cursor: pointer;
-      min-height: 34px;
+      min-height: 24px;
       background: white;
     }
 
@@ -273,34 +274,35 @@
     }
 
     .status {
-      margin-top: 10px;
-      min-height: 20px;
+      margin-top: 8px;
+      min-height: 18px;
       text-align: center;
-      font-size: 14px;
+      font-size: 12px;
       font-weight: bold;
     }
 
     .saved-wrap {
-      margin-top: 18px;
-      border: 2px solid var(--line);
+      margin-top: 12px;
+      border: 1.5px solid var(--line);
       background: white;
     }
 
     .saved-title {
       background: var(--header);
       border-bottom: 1px solid var(--line);
-      padding: 8px 10px;
+      padding: 6px 8px;
       font-weight: bold;
       text-transform: uppercase;
-      letter-spacing: 0.4px;
+      letter-spacing: 0.2px;
+      font-size: 11px;
     }
 
     .saved-row {
       display: grid;
       grid-template-columns: 1fr auto;
-      gap: 12px;
+      gap: 8px;
       align-items: center;
-      padding: 10px;
+      padding: 8px;
       border-bottom: 1px solid var(--soft-line);
     }
 
@@ -309,29 +311,85 @@
     }
 
     .saved-meta {
-      font-size: 13px;
-      line-height: 1.4;
+      font-size: 11px;
+      line-height: 1.3;
     }
 
     .saved-actions {
       display: flex;
-      gap: 6px;
+      gap: 4px;
       flex-wrap: wrap;
     }
 
     .footer-note {
-      margin-top: 16px;
-      font-size: 11px;
+      margin-top: 10px;
+      font-size: 10px;
       text-align: center;
+    }
+
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+
+      .sheet {
+        max-width: 100%;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+      }
+
+      .controls,
+      .status,
+      .saved-wrap,
+      .footer-note {
+        display: none;
+      }
+
+      .entry-frame,
+      .header-box,
+      .sheet {
+        border-color: #000;
+      }
+
+      .entry-grid {
+        min-width: 0;
+        width: 100%;
+        grid-template-columns:
+          50px
+          82px
+          46px
+          46px
+          46px
+          46px
+          54px
+          repeat(48, minmax(10px, 1fr));
+      }
+
+      .cell {
+        min-height: 20px;
+        font-size: 8.5px;
+      }
+
+      .time-subhead {
+        font-size: 7px;
+      }
+
+      .flight-cell,
+      .duty-cell,
+      .tenth {
+        min-height: 20px;
+      }
     }
 
     @media (max-width: 900px) {
       body {
-        padding: 8px;
+        padding: 6px;
       }
 
       .sheet {
-        padding: 10px;
+        padding: 6px;
       }
 
       .sheet-header {
@@ -339,7 +397,7 @@
       }
 
       .sheet-title .form-title {
-        font-size: 18px;
+        font-size: 16px;
       }
     }
   </style>
@@ -350,7 +408,7 @@
       <div class="sheet-title">
         <div class="company">TEMSCO HELICOPTERS INC.</div>
         <div class="form-title">Pilot's Flight & Duty Time Log</div>
-        <div class="note">Digital working version styled after the paper duty log.</div>
+        <div class="note">Compact print layout modeled on the scanned form. :contentReference[oaicite:1]{index=1}</div>
       </div>
 
       <div class="header-box">
@@ -390,7 +448,7 @@
     </div>
 
     <div class="footer-note">
-      Duty section reflects the paper form's Start / Stop / Total concept, and PERIOD is moved to the top header area like the scanned form. :contentReference[oaicite:1]{index=1}
+      Date is now entered as MM/DD in the row, while year belongs in PERIOD like the scanned sheet. :contentReference[oaicite:2]{index=2}
     </div>
   </div>
 
@@ -429,9 +487,23 @@
 
     function formatDateForRow(dateValue) {
       if (!dateValue) return "";
+      if (/^\d{2}\/\d{2}$/.test(dateValue)) return dateValue;
       const parts = dateValue.split("-");
-      if (parts.length !== 3) return dateValue;
-      return `${parts[1]}/${parts[2]}`;
+      if (parts.length === 3) return `${parts[1]}/${parts[2]}`;
+      return dateValue;
+    }
+
+    function buildStoredDate(mmdd, periodValue) {
+      const cleaned = (mmdd || "").trim();
+      if (!/^\d{2}\/\d{2}$/.test(cleaned)) return cleaned;
+
+      const yearMatch = (periodValue || "").match(/\b(20\d{2}|19\d{2})\b/);
+      if (yearMatch) {
+        const [mm, dd] = cleaned.split("/");
+        return `${yearMatch[1]}-${mm}-${dd}`;
+      }
+
+      return cleaned;
     }
 
     function createCell(className = "", text = "") {
@@ -448,7 +520,7 @@
       return div;
     }
 
-    function createInputCell(id, type = "text", placeholder = "") {
+    function createInputCell(id, type = "text", placeholder = "", maxLength = null) {
       const wrap = document.createElement("div");
       wrap.className = "cell input-cell";
 
@@ -456,6 +528,7 @@
       input.id = id;
       input.type = type;
       input.placeholder = placeholder;
+      if (maxLength) input.maxLength = maxLength;
 
       wrap.appendChild(input);
       return wrap;
@@ -463,7 +536,6 @@
 
     function getDutyRange() {
       const activeBlocks = [];
-
       document.querySelectorAll(".duty-cell.on").forEach((cell) => {
         activeBlocks.push(Number(cell.dataset.block));
       });
@@ -542,6 +614,14 @@
       updateTotals();
     }
 
+    function autoFormatMMDDInput(input) {
+      let value = input.value.replace(/[^\d]/g, "").slice(0, 4);
+      if (value.length >= 3) {
+        value = value.slice(0, 2) + "/" + value.slice(2);
+      }
+      input.value = value;
+    }
+
     function buildLayout() {
       entryGrid.innerHTML = "";
 
@@ -570,7 +650,7 @@
         entryGrid.appendChild(createCell("time-subhead", text));
       }
 
-      entryGrid.appendChild(createInputCell("logDate", "date"));
+      entryGrid.appendChild(createInputCell("logDate", "text", "MM/DD", 5));
       entryGrid.appendChild(createInputCell("aircraftName", "text", "Aircraft"));
       entryGrid.appendChild(createReadoutCell("dutyStart"));
       entryGrid.appendChild(createReadoutCell("dutyStop"));
@@ -632,6 +712,9 @@
 
         entryGrid.appendChild(cell);
       }
+
+      const logDateInput = document.getElementById("logDate");
+      logDateInput.addEventListener("input", () => autoFormatMMDDInput(logDateInput));
 
       document.getElementById("dutyStart").textContent = "--:--";
       document.getElementById("dutyStop").textContent = "--:--";
@@ -732,7 +815,7 @@
         return;
       }
 
-      const logDate = document.getElementById("logDate").value;
+      const logDateRaw = document.getElementById("logDate").value.trim();
       const aircraftName = document.getElementById("aircraftName").value.trim();
       const pilotName = document.getElementById("pilotName").value.trim();
       const logPeriod = document.getElementById("logPeriod").value.trim();
@@ -746,8 +829,8 @@
       const dutyStart = dutyRange ? dutyRange.startText : null;
       const dutyStop = dutyRange ? dutyRange.stopText : null;
 
-      if (!logDate) {
-        statusEl.textContent = "Please enter a date.";
+      if (!/^\d{2}\/\d{2}$/.test(logDateRaw)) {
+        statusEl.textContent = "Enter date as MM/DD.";
         return;
       }
 
@@ -772,7 +855,7 @@
       }
 
       const payload = {
-        log_date: logDate,
+        log_date: buildStoredDate(logDateRaw, logPeriod),
         aircraft_name: aircraftName,
         flight_blocks: flightBlocks,
         duty_blocks: dutyBlocks,
@@ -847,7 +930,7 @@
         loadBtn.className = "load-btn";
         loadBtn.textContent = "Load";
         loadBtn.onclick = () => {
-          document.getElementById("logDate").value = entry.log_date || "";
+          document.getElementById("logDate").value = formatDateForRow(entry.log_date) || "";
           document.getElementById("aircraftName").value = entry.aircraft_name || "";
           document.getElementById("pilotName").value = entry.pilot_name || "";
           document.getElementById("logPeriod").value = entry.period || "";
