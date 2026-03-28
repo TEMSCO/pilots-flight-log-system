@@ -38,9 +38,16 @@
       padding: 18px;
     }
 
+    .sheet-header {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
     .sheet-title {
       text-align: center;
-      margin-bottom: 12px;
     }
 
     .sheet-title .company {
@@ -59,6 +66,54 @@
     .sheet-title .note {
       font-size: 12px;
       margin-top: 6px;
+    }
+
+    .header-box {
+      border: 1px solid var(--line);
+      background: white;
+    }
+
+    .header-box-row {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      border-bottom: 1px solid var(--line);
+      min-height: 38px;
+    }
+
+    .header-box-row:last-child {
+      border-bottom: none;
+    }
+
+    .header-label {
+      background: var(--header);
+      border-right: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      padding: 4px;
+    }
+
+    .header-value {
+      display: flex;
+      align-items: center;
+      padding: 0;
+      background: white;
+    }
+
+    .header-value input {
+      width: 100%;
+      height: 100%;
+      border: none;
+      padding: 8px 10px;
+      font-size: 12px;
+      background: transparent;
+    }
+
+    .header-value input:focus {
+      outline: 2px solid #93c5fd;
+      outline-offset: -2px;
     }
 
     .controls {
@@ -106,7 +161,7 @@
     .entry-grid {
       display: grid;
       grid-template-columns:
-        130px   /* date */
+        82px    /* date mm/dd */
         120px   /* ac */
         78px    /* duty start */
         78px    /* duty stop */
@@ -114,7 +169,7 @@
         78px    /* flight total */
         90px    /* row labels */
         repeat(48, minmax(18px, 1fr));
-      min-width: 1600px;
+      min-width: 1550px;
     }
 
     .cell {
@@ -152,11 +207,7 @@
       font-size: 12px;
       background: transparent;
       min-width: 0;
-    }
-
-    .cell.input-cell input[type="date"] {
-      min-width: 120px;
-      padding-right: 4px;
+      text-align: center;
     }
 
     .cell.input-cell input:focus {
@@ -173,13 +224,6 @@
       background: var(--subtle);
       font-weight: bold;
       letter-spacing: 0.4px;
-    }
-
-    .time-header {
-      font-size: 10px;
-      padding: 2px 0;
-      background: var(--header);
-      min-height: 24px;
     }
 
     .time-subhead {
@@ -290,6 +334,10 @@
         padding: 10px;
       }
 
+      .sheet-header {
+        grid-template-columns: 1fr;
+      }
+
       .sheet-title .form-title {
         font-size: 18px;
       }
@@ -298,10 +346,27 @@
 </head>
 <body>
   <div class="sheet">
-    <div class="sheet-title">
-      <div class="company">TEMSCO HELICOPTERS INC.</div>
-      <div class="form-title">Pilot's Flight & Duty Time Log</div>
-      <div class="note">Digital working version styled after the paper duty log.</div>
+    <div class="sheet-header">
+      <div class="sheet-title">
+        <div class="company">TEMSCO HELICOPTERS INC.</div>
+        <div class="form-title">Pilot's Flight & Duty Time Log</div>
+        <div class="note">Digital working version styled after the paper duty log.</div>
+      </div>
+
+      <div class="header-box">
+        <div class="header-box-row">
+          <div class="header-label">PILOT NAME</div>
+          <div class="header-value">
+            <input id="pilotName" type="text" placeholder="Pilot name" />
+          </div>
+        </div>
+        <div class="header-box-row">
+          <div class="header-label">PERIOD</div>
+          <div class="header-value">
+            <input id="logPeriod" type="text" placeholder="e.g. 2026 or Jan 2026" />
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="controls">
@@ -325,7 +390,7 @@
     </div>
 
     <div class="footer-note">
-      Duty section reflects the paper form's Start / Stop / Total concept. Flight remains tenth-based for now. :contentReference[oaicite:1]{index=1}
+      Duty section reflects the paper form's Start / Stop / Total concept, and PERIOD is moved to the top header area like the scanned form. :contentReference[oaicite:1]{index=1}
     </div>
   </div>
 
@@ -360,6 +425,13 @@
       const hours = Math.floor(blockIndex / 2);
       const minutes = blockIndex % 2 === 0 ? "00" : "30";
       return `${String(hours).padStart(2, "0")}:${minutes}`;
+    }
+
+    function formatDateForRow(dateValue) {
+      if (!dateValue) return "";
+      const parts = dateValue.split("-");
+      if (parts.length !== 3) return dateValue;
+      return `${parts[1]}/${parts[2]}`;
     }
 
     function createCell(className = "", text = "") {
@@ -485,7 +557,7 @@
         entryGrid.appendChild(createCell("header", i === 0 ? "TIME" : ""));
       }
 
-      entryGrid.appendChild(createCell("subhead", "Date"));
+      entryGrid.appendChild(createCell("subhead", "MM/DD"));
       entryGrid.appendChild(createCell("subhead", "Aircraft"));
       entryGrid.appendChild(createCell("subhead", "Start"));
       entryGrid.appendChild(createCell("subhead", "Stop"));
@@ -662,6 +734,8 @@
 
       const logDate = document.getElementById("logDate").value;
       const aircraftName = document.getElementById("aircraftName").value.trim();
+      const pilotName = document.getElementById("pilotName").value.trim();
+      const logPeriod = document.getElementById("logPeriod").value.trim();
       const flightBlocks = getFlightBlocks();
       const dutyBlocks = getDutyBlocks();
 
@@ -706,6 +780,8 @@
         duty: dutyTotal,
         duty_start: dutyStart,
         duty_stop: dutyStop,
+        pilot_name: pilotName || null,
+        period: logPeriod || null,
         user_id: user.id
       };
 
@@ -731,7 +807,7 @@
 
       const { data, error } = await sb
         .from("logs")
-        .select("id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, flight_blocks, duty_blocks")
+        .select("id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, flight_blocks, duty_blocks")
         .eq("user_id", user.id)
         .order("id", { ascending: false });
 
@@ -754,11 +830,12 @@
 
         row.innerHTML = `
           <div class="saved-meta">
-            <strong>${entry.log_date || "-"}</strong> |
+            <strong>${formatDateForRow(entry.log_date) || "-"}</strong> |
             A/C ${entry.aircraft_name || "-"} |
             DUTY ${entry.duty_start || "--:--"}-${entry.duty_stop || "--:--"} |
             DUTY TOTAL ${Number(entry.duty || 0).toFixed(1)} |
             FLIGHT TOTAL ${Number(entry.flt1 || 0).toFixed(1)}
+            ${entry.period ? `| PERIOD ${entry.period}` : ""}
           </div>
           <div class="saved-actions"></div>
         `;
@@ -772,6 +849,8 @@
         loadBtn.onclick = () => {
           document.getElementById("logDate").value = entry.log_date || "";
           document.getElementById("aircraftName").value = entry.aircraft_name || "";
+          document.getElementById("pilotName").value = entry.pilot_name || "";
+          document.getElementById("logPeriod").value = entry.period || "";
           loadGridFromData(entry.flight_blocks, entry.duty_blocks);
           statusEl.textContent = "Entry loaded.";
         };
