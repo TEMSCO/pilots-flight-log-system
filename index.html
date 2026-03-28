@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Pilot Logbook Pro</title>
+  <title>Pilot Logbook FAA</title>
 
   <style>
     body {
@@ -17,7 +17,7 @@
       background: #1e293b;
       padding: 20px;
       border-radius: 10px;
-      width: 800px;
+      width: 900px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
 
@@ -56,6 +56,7 @@
       padding: 6px;
       border-bottom: 1px solid #475569;
       text-align: center;
+      font-size: 12px;
     }
 
     th {
@@ -74,20 +75,22 @@
 
 <div class="container">
 
-  <h2>Pilot Logbook</h2>
+  <h2>Pilot Logbook (FAA Style)</h2>
 
   <h3>Add Flight</h3>
 
   <input id="date" type="date">
   <input id="aircraft" placeholder="Aircraft">
 
-  <input id="pic" placeholder="PIC Hours">
-  <input id="night" placeholder="Night Hours">
-  <input id="training" placeholder="Training Hours">
+  <input id="flight" placeholder="Total Flight Time">
+  <input id="pic" placeholder="PIC">
+  <input id="sic" placeholder="SIC">
 
-  <input id="flight" placeholder="Flight Time">
+  <input id="night" placeholder="Night">
+  <input id="training" placeholder="Instrument">
+  <input id="dual" placeholder="Dual">
+
   <input id="duty" placeholder="Duty Time">
-
   <input id="remarks" placeholder="Remarks">
 
   <button class="save-btn" onclick="addLog()">Save Flight</button>
@@ -101,11 +104,13 @@
       <tr>
         <th>Date</th>
         <th>A/C</th>
+        <th>Total</th>
         <th>PIC</th>
+        <th>SIC</th>
         <th>Night</th>
-        <th>Trng</th>
-        <th>FLT</th>
-        <th>DUTY</th>
+        <th>Inst</th>
+        <th>Dual</th>
+        <th>Duty</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -114,7 +119,7 @@
 
   <h3>Total Flight Hours: <span id="totalHours">0</span></h3>
 
-  <button class="print-btn" onclick="printLogbook()">Print Logbook</button>
+  <button class="print-btn" onclick="printLogbook()">Print FAA Logbook</button>
 
   <canvas id="chart"></canvas>
 
@@ -135,7 +140,6 @@ window.addEventListener("load", () => {
 
   function drawChart(data) {
     const ctx = document.getElementById("chart");
-
     if (chart) chart.destroy();
 
     chart = new Chart(ctx, {
@@ -175,15 +179,17 @@ window.addEventListener("load", () => {
         row.innerHTML = `
           <td>${log.date}</td>
           <td>${log.aircraft}</td>
+          <td>${log.flight || ""}</td>
           <td>${log.pic || ""}</td>
+          <td>${log.sic || ""}</td>
           <td>${log.night || ""}</td>
           <td>${log.training || ""}</td>
-          <td>${log.flight || ""}</td>
+          <td>${log.dual || ""}</td>
           <td>${log.duty || ""}</td>
           <td></td>
         `;
 
-        const actions = row.children[7];
+        const actions = row.children[9];
 
         const edit = document.createElement("button");
         edit.textContent = "Edit";
@@ -214,10 +220,12 @@ window.addEventListener("load", () => {
     const log = {
       date: date.value,
       aircraft: aircraft.value,
+      flight: flight.value,
       pic: pic.value,
+      sic: sic.value,
       night: night.value,
       training: training.value,
-      flight: flight.value,
+      dual: dual.value,
       duty: duty.value,
       remarks: remarks.value,
       user_id: user.id
@@ -248,7 +256,7 @@ window.addEventListener("load", () => {
       .then(loadLogs);
   };
 
-  // ✈️ MULTI-PAGE PRINT
+  // ✈️ FAA PRINT
   window.printLogbook = async function () {
     const { data: userData } = await sb.auth.getUser();
     const user = userData.user;
@@ -273,66 +281,68 @@ window.addEventListener("load", () => {
           <tr>
             <td>${log.date}</td>
             <td>${log.aircraft}</td>
+            <td>${log.flight || ""}</td>
             <td>${log.pic || ""}</td>
+            <td>${log.sic || ""}</td>
             <td>${log.night || ""}</td>
             <td>${log.training || ""}</td>
-            <td>${log.flight || ""}</td>
+            <td>${log.dual || ""}</td>
             <td>${log.duty || ""}</td>
           </tr>
         `;
-
         total += parseFloat(log.flight) || 0;
       });
 
       pagesHTML += `
         <div class="page">
           <h2>Pilot Flight & Duty Log</h2>
-          <p>Page ${Math.floor(i / rowsPerPage) + 1}</p>
+          <div class="meta">
+            Pilot: __________ | Page ${Math.floor(i/rowsPerPage)+1}
+          </div>
 
           <table>
             <tr>
-              <th>Date</th>
-              <th>A/C</th>
+              <th rowspan="2">Date</th>
+              <th rowspan="2">Aircraft</th>
+              <th rowspan="2">Total</th>
+              <th colspan="2">Pilot Time</th>
+              <th colspan="3">Conditions</th>
+              <th rowspan="2">Duty</th>
+            </tr>
+            <tr>
               <th>PIC</th>
+              <th>SIC</th>
               <th>Night</th>
-              <th>Training</th>
-              <th>Flight</th>
-              <th>Duty</th>
+              <th>Inst</th>
+              <th>Dual</th>
             </tr>
             ${rows}
           </table>
 
           <h3>Page Total: ${total.toFixed(1)} hrs</h3>
 
-          <div style="margin-top:30px;">
-            ________________________<br>
-            Signature
+          <div style="margin-top:20px;">
+            ________________________<br>Signature
           </div>
         </div>
       `;
     }
 
-    const win = window.open("", "", "width=900,height=700");
+    const win = window.open("", "", "width=1000,height=800");
 
     win.document.write(`
       <html>
       <head>
-        <title>Logbook</title>
         <style>
           body { font-family: Arial; }
           .page { page-break-after: always; padding: 20px; }
-          table { width: 100%; border-collapse: collapse; }
-          th, td {
-            border: 1px solid black;
-            padding: 5px;
-            text-align: center;
-          }
+          table { width: 100%; border-collapse: collapse; font-size: 12px; }
+          th, td { border: 1px solid black; padding: 4px; text-align: center; }
           th { background: #eee; }
+          .meta { margin-bottom: 10px; font-size: 12px; }
         </style>
       </head>
-      <body>
-        ${pagesHTML}
-      </body>
+      <body>${pagesHTML}</body>
       </html>
     `);
 
