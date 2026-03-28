@@ -1,9 +1,228 @@
 <!DOCTYPE html>
 <html>
-<body style="background:black;color:white;font-family:Arial;padding:20px;">
-  <h1>TEST PAGE 123</h1>
-  <p>If you see this exact text, the new file is loading.</p>
-  <button onclick="alert('BUTTON WORKS')">Click Me</button>
+<head>
+  <title>Flight & Duty Log</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .flight-btn { background: #22c55e; color: white; }
+    .duty-btn { background: #facc15; color: black; }
+    .clear-btn { background: #ef4444; color: white; }
+
+    .active {
+      outline: 3px solid white;
+    }
+
+    .mode {
+      margin-bottom: 12px;
+      font-weight: bold;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 80px repeat(48, 1fr);
+      border-top: 1px solid #475569;
+      border-left: 1px solid #475569;
+      user-select: none;
+    }
+
+    .header,
+    .label,
+    .cell {
+      border-right: 1px solid #475569;
+      border-bottom: 1px solid #475569;
+    }
+
+    .header {
+      background: #334155;
+      text-align: center;
+      font-size: 10px;
+      padding: 4px 0;
+      min-width: 18px;
+    }
+
+    .label {
+      background: #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      min-height: 28px;
+    }
+
+    .cell {
+      background: #1e293b;
+      height: 28px;
+      cursor: pointer;
+    }
+
+    .cell.flight {
+      background: #22c55e;
+    }
+
+    .cell.duty {
+      background: #facc15;
+    }
+
+    .totals {
+      margin-top: 14px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>✈️ Flight & Duty Log</h2>
+
+  <div class="controls">
+    <button id="flightBtn" class="flight-btn active" type="button">Flight Mode</button>
+    <button id="dutyBtn" class="duty-btn" type="button">Duty Mode</button>
+    <button id="clearBtn" class="clear-btn" type="button">Clear</button>
+  </div>
+
+  <div class="mode">Mode: <span id="modeDisplay">FLIGHT</span></div>
+
+  <div id="grid" class="grid"></div>
+
+  <div class="totals">
+    Flight: <span id="flightTotal">0.0</span> hrs |
+    Duty: <span id="dutyTotal">0.0</span> hrs
+  </div>
+
+  <script>
+    let mode = "flight";
+    let isDrawing = false;
+
+    const grid = document.getElementById("grid");
+    const flightBtn = document.getElementById("flightBtn");
+    const dutyBtn = document.getElementById("dutyBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const modeDisplay = document.getElementById("modeDisplay");
+    const flightTotalEl = document.getElementById("flightTotal");
+    const dutyTotalEl = document.getElementById("dutyTotal");
+
+    function setMode(newMode) {
+      mode = newMode;
+      modeDisplay.textContent = newMode.toUpperCase();
+
+      flightBtn.classList.toggle("active", newMode === "flight");
+      dutyBtn.classList.toggle("active", newMode === "duty");
+    }
+
+    function buildGrid() {
+      grid.innerHTML = "";
+
+      // Header row
+      const blank = document.createElement("div");
+      blank.className = "header";
+      grid.appendChild(blank);
+
+      for (let i = 0; i < 48; i++) {
+        const h = document.createElement("div");
+        h.className = "header";
+        h.textContent = i % 2 === 0 ? String(i / 2) : "";
+        grid.appendChild(h);
+      }
+
+      // Two rows: flight and duty
+      ["flight", "duty"].forEach((rowType) => {
+        const label = document.createElement("div");
+        label.className = "label";
+        label.textContent = rowType.toUpperCase();
+        grid.appendChild(label);
+
+        for (let i = 0; i < 48; i++) {
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          cell.dataset.row = rowType;
+
+          cell.addEventListener("mousedown", (e) => {
+            e.preventDefault();
+            isDrawing = true;
+            paintCell(cell);
+          });
+
+          cell.addEventListener("mouseenter", () => {
+            if (isDrawing) {
+              paintCell(cell);
+            }
+          });
+
+          cell.addEventListener("click", () => {
+            paintCell(cell);
+          });
+
+          grid.appendChild(cell);
+        }
+      });
+    }
+
+    function paintCell(cell) {
+      if (cell.dataset.row !== mode) return;
+      cell.classList.add(mode);
+      updateTotals();
+    }
+
+    function clearGrid() {
+      document.querySelectorAll(".cell").forEach((cell) => {
+        cell.classList.remove("flight", "duty");
+      });
+      updateTotals();
+    }
+
+    function updateTotals() {
+      let flight = 0;
+      let duty = 0;
+
+      document.querySelectorAll(".cell.flight").forEach(() => {
+        flight += 0.5;
+      });
+
+      document.querySelectorAll(".cell.duty").forEach(() => {
+        duty += 0.5;
+      });
+
+      flightTotalEl.textContent = flight.toFixed(1);
+      dutyTotalEl.textContent = duty.toFixed(1);
+    }
+
+    document.addEventListener("mouseup", () => {
+      isDrawing = false;
+    });
+
+    flightBtn.addEventListener("click", () => setMode("flight"));
+    dutyBtn.addEventListener("click", () => setMode("duty"));
+    clearBtn.addEventListener("click", clearGrid);
+
+    buildGrid();
+    setMode("flight");
+    updateTotals();
+  </script>
+
 </body>
 </html>
   
