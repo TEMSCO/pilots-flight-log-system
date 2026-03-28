@@ -121,10 +121,16 @@ window.editLog = function (log) {
 
   if (!newDate || !newAircraft || !newHours) return;
 
-  window.updateLog(log.id, newDate, newAircraft, newHours);
-};
-  });
-  </script>
+  window.updateLog = async function (id, date, aircraft, hours) {
+  const { error } = await sb
+    .from("logs")
+    .update({ date, aircraft, hours })
+    .eq("id", id);
 
-</body>
-</html>
+  if (error) {
+    console.error(error);
+    alert(error.message);
+  } else {
+    window.loadLogs();
+  }
+};
