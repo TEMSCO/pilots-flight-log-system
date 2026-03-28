@@ -1,85 +1,57 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Pilot Logbook Pro</title>
+  <title>Pilot Logbook FAA Replica</title>
 
   <style>
     body {
       font-family: Arial;
-      background: linear-gradient(180deg, #020617, #0f172a);
-      color: #e2e8f0;
-      display: flex;
-      justify-content: center;
+      background: #0f172a;
+      color: white;
       padding: 20px;
     }
 
-    .container {
-      width: 1000px;
-      background: #020617;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.7);
-    }
+    h2 { text-align: center; }
 
-    h1 {
-      text-align: center;
+    .grid {
+      display: grid;
+      grid-template-columns: 100px repeat(3, 1fr) 120px;
+      gap: 5px;
+      align-items: center;
       margin-bottom: 10px;
-      color: #38bdf8;
     }
 
-    .profile {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
+    .label { font-weight: bold; }
 
     input {
-      width: 100%;
-      padding: 8px;
-      border-radius: 6px;
+      padding: 6px;
+      border-radius: 5px;
       border: none;
-      margin-bottom: 6px;
-      background: #1e293b;
-      color: white;
+      width: 100%;
+    }
+
+    .slider {
+      width: 100%;
+    }
+
+    .flight-slider {
+      accent-color: #22c55e;
     }
 
     button {
-      padding: 6px 10px;
+      margin-top: 10px;
+      padding: 10px;
+      width: 100%;
+      background: #22c55e;
       border: none;
       border-radius: 6px;
       cursor: pointer;
     }
 
-    .save-btn { background: #22c55e; width: 100%; }
-    .print-btn { background: #f59e0b; width: 100%; margin-top: 10px; }
-    .edit-btn { background: #3b82f6; }
-    .delete-btn { background: #ef4444; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-      font-size: 12px;
-    }
-
-    th, td {
-      padding: 6px;
-      border-bottom: 1px solid #334155;
-      text-align: center;
-    }
-
-    th { background: #020617; }
-
-    .stats {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 15px;
-      font-size: 14px;
-    }
-
-    canvas {
+    .log {
       margin-top: 20px;
-      background: white;
+      background: #1e293b;
+      padding: 10px;
       border-radius: 8px;
     }
   </style>
@@ -87,250 +59,153 @@
 
 <body>
 
-<div class="container">
+<h2>✈️ Flight & Duty Log (FAA Replica)</h2>
 
-  <h1>✈️ Pilot Logbook Pro</h1>
+<!-- HEADER ROW -->
+<div class="grid">
+  <div class="label">Start</div>
+  <input id="start" type="time">
 
-  <!-- PILOT PROFILE -->
-  <div class="profile">
-    <input id="pilotName" placeholder="Pilot Name">
-    <input id="license" placeholder="License #">
-  </div>
+  <input id="aircraft1" placeholder="Aircraft 1">
+  <input id="aircraft2" placeholder="Aircraft 2">
+  <input id="aircraft3" placeholder="Aircraft 3">
 
-  <h3>Add Flight</h3>
-
-  <input id="date" type="date">
-  <input id="aircraft" placeholder="Aircraft">
-
-  <input id="flight" placeholder="Total Time (hrs)">
-  <input id="pic" placeholder="PIC">
-  <input id="sic" placeholder="SIC">
-
-  <input id="night" placeholder="Night">
-  <input id="training" placeholder="Instrument">
-  <input id="dual" placeholder="Dual">
-
-  <input id="duty" placeholder="Duty Time">
-  <input id="remarks" placeholder="Remarks">
-
-  <button class="save-btn" onclick="addLog()">Save Flight</button>
-
-  <p id="status"></p>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>A/C</th>
-        <th>Total</th>
-        <th>PIC</th>
-        <th>SIC</th>
-        <th>Night</th>
-        <th>Inst</th>
-        <th>Dual</th>
-        <th>Duty</th>
-        <th>Remarks</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody id="logList"></tbody>
-  </table>
-
-  <div class="stats">
-    <div>Total Hours: <b id="totalHours">0</b></div>
-    <div>Total Flights: <b id="totalFlights">0</b></div>
-  </div>
-
-  <button class="print-btn" onclick="printLogbook()">Print Logbook</button>
-
-  <canvas id="chart"></canvas>
-
+  <div class="label">Stop</div>
+  <input id="stop" type="time">
 </div>
 
+<!-- FLIGHT ROW -->
+<div class="grid">
+  <div class="label">FLT</div>
+
+  <input type="range" min="0" max="14" step="0.1" id="flt1" class="slider flight-slider">
+  <input type="range" min="0" max="14" step="0.1" id="flt2" class="slider flight-slider">
+  <input type="range" min="0" max="14" step="0.1" id="flt3" class="slider flight-slider">
+
+  <div></div>
+</div>
+
+<!-- DUTY DISPLAY -->
+<div class="grid">
+  <div class="label">Duty Total</div>
+  <div id="dutyTotal">0.0</div>
+</div>
+
+<button onclick="saveLog()">Save Entry</button>
+
+<div class="log" id="logList"></div>
+
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-window.addEventListener("load", () => {
+const sb = window.supabase.createClient(
+  "https://xjisftmfjsjomgsjzkod.supabase.co",
+  "sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS"
+);
 
-  const sb = window.supabase.createClient(
-    "https://xjisftmfjsjomgsjzkod.supabase.co",
-    "sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS"
-  );
+// ✈️ CALCULATE DUTY
+function calculateDuty() {
+  const start = document.getElementById("start").value;
+  const stop = document.getElementById("stop").value;
 
-  let chart;
+  if (!start || !stop) return;
 
-  function drawChart(data) {
-    const ctx = document.getElementById("chart");
-    if (chart) chart.destroy();
+  const s = new Date("1970-01-01T" + start);
+  const e = new Date("1970-01-01T" + stop);
 
-    chart = new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: data.map(d => d.date),
-        datasets: [{
-          label: "Flight Time",
-          data: data.map(d => parseFloat(d.flight) || 0)
-        }]
-      }
-    });
+  let diff = (e - s) / 3600000;
+  if (diff < 0) diff += 24;
+
+  // FAA LIMIT
+  if (diff > 14) {
+    alert("⚠️ Duty exceeds 14-hour FAA limit");
+    diff = 14;
   }
 
-  window.loadLogs = async function () {
-    const { data: userData } = await sb.auth.getUser();
-    const user = userData.user;
+  document.getElementById("dutyTotal").innerText = diff.toFixed(1);
 
-    const { data } = await sb
-      .from("logs")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("date", { ascending: true });
+  // LOCK FLIGHT SLIDERS
+  ["flt1","flt2","flt3"].forEach(id => {
+    const slider = document.getElementById(id);
+    slider.max = diff;
 
-    const list = document.getElementById("logList");
-    list.innerHTML = "";
-
-    let total = 0;
-
-    if (data) {
-      drawChart(data);
-
-      data.forEach(log => {
-        const row = document.createElement("tr");
-
-        row.innerHTML = `
-          <td>${log.date}</td>
-          <td>${log.aircraft}</td>
-          <td>${log.flight || ""}</td>
-          <td>${log.pic || ""}</td>
-          <td>${log.sic || ""}</td>
-          <td>${log.night || ""}</td>
-          <td>${log.training || ""}</td>
-          <td>${log.dual || ""}</td>
-          <td>${log.duty || ""}</td>
-          <td>${log.remarks || ""}</td>
-          <td></td>
-        `;
-
-        const actions = row.children[10];
-
-        const edit = document.createElement("button");
-        edit.textContent = "Edit";
-        edit.className = "edit-btn";
-        edit.onclick = () => editLog(log);
-
-        const del = document.createElement("button");
-        del.textContent = "Delete";
-        del.className = "delete-btn";
-        del.onclick = () => deleteLog(log.id);
-
-        actions.appendChild(edit);
-        actions.appendChild(del);
-
-        list.appendChild(row);
-
-        total += parseFloat(log.flight) || 0;
-      });
+    if (parseFloat(slider.value) > diff) {
+      slider.value = diff;
     }
+  });
+}
 
-    document.getElementById("totalHours").innerText = total.toFixed(1);
-    document.getElementById("totalFlights").innerText = data?.length || 0;
+document.getElementById("start").onchange = calculateDuty;
+document.getElementById("stop").onchange = calculateDuty;
+
+// 💾 SAVE
+async function saveLog() {
+  const { data: userData } = await sb.auth.getUser();
+  const user = userData.user;
+
+  const duty = parseFloat(document.getElementById("dutyTotal").innerText);
+
+  const totalFlight =
+    parseFloat(flt1.value || 0) +
+    parseFloat(flt2.value || 0) +
+    parseFloat(flt3.value || 0);
+
+  // VALIDATION
+  if (totalFlight > duty) {
+    alert("⚠️ Flight time cannot exceed duty time");
+    return;
+  }
+
+  const entry = {
+    start: start.value,
+    stop: stop.value,
+    aircraft1: aircraft1.value,
+    aircraft2: aircraft2.value,
+    aircraft3: aircraft3.value,
+    flt1: flt1.value,
+    flt2: flt2.value,
+    flt3: flt3.value,
+    duty: duty,
+    user_id: user.id
   };
 
-  window.addLog = async function () {
-    const { data: userData } = await sb.auth.getUser();
-    const user = userData.user;
+  const { error } = await sb.from("logs").insert([entry]);
 
-    if (!date.value || !aircraft.value || !flight.value) {
-      status.innerText = "Missing required fields";
-      return;
-    }
-
-    const { error } = await sb.from("logs").insert([{
-      date: date.value,
-      aircraft: aircraft.value,
-      flight: flight.value,
-      pic: pic.value,
-      sic: sic.value,
-      night: night.value,
-      training: training.value,
-      dual: dual.value,
-      duty: duty.value,
-      remarks: remarks.value,
-      user_id: user.id
-    }]);
-
-    status.innerText = error ? error.message : "Saved!";
+  if (error) {
+    alert(error.message);
+  } else {
     loadLogs();
-  };
+  }
+}
 
-  window.deleteLog = async id => {
-    await sb.from("logs").delete().eq("id", id);
-    loadLogs();
-  };
+// 📄 LOAD
+async function loadLogs() {
+  const { data: userData } = await sb.auth.getUser();
+  const user = userData.user;
 
-  window.editLog = log => {
-    const newFlight = prompt("Edit Flight Time:", log.flight);
-    if (!newFlight) return;
+  const { data } = await sb
+    .from("logs")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("id", { ascending: false });
 
-    sb.from("logs")
-      .update({ flight: newFlight })
-      .eq("id", log.id)
-      .then(loadLogs);
-  };
+  const list = document.getElementById("logList");
+  list.innerHTML = "";
 
-  window.printLogbook = async function () {
-    const { data: userData } = await sb.auth.getUser();
-    const user = userData.user;
+  if (data) {
+    data.forEach(log => {
+      list.innerHTML += `
+        <div>
+          ${log.start} - ${log.stop} |
+          FLT: ${log.flt1}/${log.flt2}/${log.flt3} |
+          DUTY: ${log.duty}
+        </div>
+      `;
+    });
+  }
+}
 
-    const { data } = await sb
-      .from("logs")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("date");
-
-    const name = document.getElementById("pilotName").value;
-    const license = document.getElementById("license").value;
-
-    let rows = data.map(log => `
-      <tr>
-        <td>${log.date}</td>
-        <td>${log.aircraft}</td>
-        <td>${log.flight}</td>
-        <td>${log.pic}</td>
-        <td>${log.sic}</td>
-        <td>${log.night}</td>
-        <td>${log.training}</td>
-        <td>${log.dual}</td>
-        <td>${log.duty}</td>
-        <td>${log.remarks}</td>
-      </tr>
-    `).join("");
-
-    const win = window.open("", "", "width=1000,height=800");
-
-    win.document.write(`
-      <html>
-      <body>
-        <h3 style="text-align:center">Pilot Logbook</h3>
-        <div>Name: ${name} | License: ${license}</div>
-        <table border="1" width="100%" style="border-collapse:collapse;font-size:12px">
-          <tr>
-            <th>Date</th><th>A/C</th><th>Total</th><th>PIC</th>
-            <th>SIC</th><th>Night</th><th>Inst</th><th>Dual</th>
-            <th>Duty</th><th>Remarks</th>
-          </tr>
-          ${rows}
-        </table>
-      </body>
-      </html>
-    `);
-
-    win.document.close();
-    win.print();
-  };
-
-  loadLogs();
-});
+loadLogs();
 </script>
 
 </body>
