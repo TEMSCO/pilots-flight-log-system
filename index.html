@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8" />
   <title>Flight & Duty Log</title>
   <style>
     body {
@@ -140,6 +141,8 @@
       margin-top: 14px;
       font-size: 16px;
       margin-bottom: 20px;
+      text-align: center;
+      line-height: 1.8;
     }
 
     .saved-list {
@@ -201,8 +204,10 @@
   </div>
 
   <div class="totals">
-    Flight: <span id="flightTotal">0.0</span> hrs |
-    Duty: <span id="dutyTotal">0.0</span> hrs
+    Duty Start: <span id="dutyStart">--:--</span> |
+    Duty Stop: <span id="dutyStop">--:--</span> |
+    Duty: <span id="dutyTotal">0.0</span> hrs |
+    Flight: <span id="flightTotal">0.0</span> hrs
   </div>
 
   <div id="status"></div>
@@ -229,6 +234,8 @@
     const modeDisplay = document.getElementById("modeDisplay");
     const flightTotalEl = document.getElementById("flightTotal");
     const dutyTotalEl = document.getElementById("dutyTotal");
+    const dutyStartEl = document.getElementById("dutyStart");
+    const dutyStopEl = document.getElementById("dutyStop");
     const savedList = document.getElementById("savedList");
     const statusEl = document.getElementById("status");
     const logDateEl = document.getElementById("logDate");
@@ -241,8 +248,39 @@
       dutyBtn.classList.toggle("active", newMode === "duty");
     }
 
+    function formatHalfHourBlock(blockIndex) {
+      const hours = Math.floor(blockIndex / 2);
+      const minutes = blockIndex % 2 === 0 ? "00" : "30";
+      return `${String(hours).padStart(2, "0")}:${minutes}`;
+    }
+
+    function getDutyRange() {
+      const activeBlocks = [];
+
+      document.querySelectorAll(".duty-cell.on").forEach((cell) => {
+        activeBlocks.push(Number(cell.dataset.block));
+      });
+
+      if (activeBlocks.length === 0) {
+        return null;
+      }
+
+      activeBlocks.sort((a, b) => a - b);
+
+      const startBlock = activeBlocks[0];
+      const lastBlock = activeBlocks[activeBlocks.length - 1];
+      const stopBlockExclusive = lastBlock + 1;
+
+      return {
+        startBlock,
+        stopBlockExclusive,
+        startText: formatHalfHourBlock(startBlock),
+        stopText: formatHalfHourBlock(stopBlockExclusive)
+      };
+    }
+
     function clearDutyPending() {
-      document.querySelectorAll(".duty-cell.pending").forEach(el => {
+      document.querySelectorAll(".duty-cell.pending").forEach((el) => {
         el.classList.remove("pending");
       });
     }
@@ -254,7 +292,7 @@
     }
 
     function clearDutyRow() {
-      document.querySelectorAll(".duty-cell.on").forEach(el => el.classList.remove("on"));
+      document.querySelectorAll(".duty-cell.on").forEach((el) => el.classList.remove("on"));
       clearDutyPending();
       dutyStartBlock = null;
     }
@@ -282,6 +320,7 @@
         clearDutyRow();
         dutyStartBlock = block;
         setDutyPending(block);
+        updateTotals();
         statusEl.textContent = "Duty start set. Click stop time.";
         return;
       }
@@ -371,7 +410,7 @@
     }
 
     function clearGrid() {
-      document.querySelectorAll(".tenth.on").forEach(el => el.classList.remove("on"));
+      document.querySelectorAll(".tenth.on").forEach((el) => el.classList.remove("on"));
       clearDutyRow();
       updateTotals();
       statusEl.textContent = "";
@@ -389,8 +428,12 @@
         duty += 0.5;
       });
 
+      const dutyRange = getDutyRange();
+
       flightTotalEl.textContent = flight.toFixed(1);
       dutyTotalEl.textContent = duty.toFixed(1);
+      dutyStartEl.textContent = dutyRange ? dutyRange.startText : "--:--";
+      dutyStopEl.textContent = dutyRange ? dutyRange.stopText : "--:--";
     }
 
     function getFlightBlocks() {
@@ -443,14 +486,24 @@
       updateTotals();
     }
 
+    async function getCurrentUser() {
+      const { data, error } = await sb.auth.getSession();
+
+      if (error) {
+        console.error("Session error:", error);
+        return null;
+      }
+
+      return data.session?.user ?? null;
+    }
+
     async function saveEntry() {
       statusEl.textContent = "";
 
-      const { data: userData } = await sb.auth.getUser();
-      const user = userData.user;
+      const user = await getCurrentUser();
 
       if (!user) {
-        statusEl.textContent = "Not logged in.";
+        statusEl.textContent = "Not logged in. Please sign in first.";
         return;
       }
 
@@ -461,6 +514,10 @@
 
       const flightTotal = Number(flightTotalEl.textContent);
       const dutyTotal = Number(dutyTotalEl.textContent);
+
+      const dutyRange = getDutyRange();
+      const dutyStart = dutyRange ? dutyRange.startText : null;
+      const dutyStop = dutyRange ? dutyRange.stopText : null;
 
       if (!logDate) {
         statusEl.textContent = "Please enter a date.";
@@ -494,6 +551,8 @@
         duty_blocks: dutyBlocks,
         flt1: flightTotal,
         duty: dutyTotal,
+        duty_start: dutyStart,
+        duty_stop: dutyStop,
         user_id: user.id
       };
 
@@ -501,6 +560,7 @@
 
       if (error) {
         statusEl.textContent = error.message;
+        console.error("Insert error:", error);
         return;
       }
 
@@ -509,8 +569,7 @@
     }
 
     async function loadSavedEntries() {
-      const { data: userData } = await sb.auth.getUser();
-      const user = userData.user;
+      const user = await getCurrentUser();
 
       if (!user) {
         savedList.innerHTML = "<div>No user session.</div>";
@@ -519,12 +578,13 @@
 
       const { data, error } = await sb
         .from("logs")
-        .select("id, log_date, aircraft_name, flt1, duty, flight_blocks, duty_blocks")
+        .select("id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, flight_blocks, duty_blocks")
         .eq("user_id", user.id)
         .order("id", { ascending: false });
 
       if (error) {
         savedList.innerHTML = `<div>${error.message}</div>`;
+        console.error("Load error:", error);
         return;
       }
 
@@ -543,6 +603,7 @@
           <div class="saved-meta">
             <strong>${entry.log_date || "-"}</strong> |
             ${entry.aircraft_name || "-"} |
+            DUTY ${entry.duty_start || "--:--"}-${entry.duty_stop || "--:--"} |
             FLT ${Number(entry.flt1 || 0).toFixed(1)} |
             DUTY ${Number(entry.duty || 0).toFixed(1)}
           </div>
