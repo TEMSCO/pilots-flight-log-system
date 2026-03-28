@@ -103,7 +103,8 @@
     .header-value input,
     .sheet-cell input,
     .sheet-cell textarea,
-    .aircraft-chip input {
+    .aircraft-chip input,
+    .aircraft-metric input {
       width: 100%;
       height: 100%;
       border: none;
@@ -119,7 +120,8 @@
     .header-value input:focus,
     .sheet-cell input:focus,
     .sheet-cell textarea:focus,
-    .aircraft-chip input:focus {
+    .aircraft-chip input:focus,
+    .aircraft-metric input:focus {
       outline: 1.5px solid #60a5fa;
       outline-offset: -1px;
     }
@@ -168,6 +170,12 @@
       margin-bottom: 8px;
     }
 
+    .aircraft-stack {
+      display: grid;
+      grid-template-rows: auto auto;
+      gap: 3px;
+    }
+
     .aircraft-chip {
       border: 1.5px solid var(--line);
       min-height: 34px;
@@ -189,6 +197,46 @@
       font-size: 10px;
       font-weight: bold;
       padding: 6px 4px;
+    }
+
+    .aircraft-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+
+    .aircraft-metric {
+      border: 1px solid var(--line);
+      background: white;
+      min-height: 36px;
+      display: grid;
+      grid-template-rows: 14px 1fr;
+    }
+
+    .aircraft-metric-label {
+      border-bottom: 1px solid var(--line);
+      background: var(--subtle);
+      font-size: 8px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .aircraft-metric-value {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: bold;
+      padding: 1px 2px;
+      text-align: center;
+    }
+
+    .aircraft-metric-value input {
+      text-align: center;
+      font-size: 9px;
+      padding: 1px 2px;
     }
 
     .page-grid-wrap {
@@ -379,6 +427,10 @@
         min-height: 28px;
       }
 
+      .aircraft-metric {
+        min-height: 30px;
+      }
+
       .page-grid {
         min-width: 0;
         width: 100%;
@@ -440,7 +492,7 @@
       <div class="sheet-title">
         <div class="company">TEMSCO HELICOPTERS INC.</div>
         <div class="form-title">Pilot's Flight & Duty Time Log</div>
-        <div class="note">7-day printable layout with aircraft color blocks modeled after the aircraft grouping on the scanned form. :contentReference[oaicite:1]{index=1}</div>
+        <div class="note">7-day printable layout with aircraft color blocks and PIC/NIGHT/TRNG summary boxes. :contentReference[oaicite:1]{index=1}</div>
       </div>
 
       <div class="header-box">
@@ -534,14 +586,37 @@
       return aircraftOptions[index]?.color || "#22c55e";
     }
 
+    function getMetricInput(index, metric) {
+      return document.querySelector(`.aircraft-metric[data-aircraft-index="${index}"][data-metric="${metric}"] input`);
+    }
+
     function updateSelectedAircraftDisplay() {
       selectedAircraftDisplay.textContent = getAircraftLabel(selectedAircraftIndex);
+    }
+
+    function updateAircraftPicTotals() {
+      const totals = new Array(aircraftOptions.length).fill(0);
+
+      document.querySelectorAll(".tenth.on").forEach((el) => {
+        const idx = Number(el.dataset.aircraftIndex ?? 0);
+        if (idx >= 0 && idx < totals.length) {
+          totals[idx] += 0.1;
+        }
+      });
+
+      totals.forEach((total, index) => {
+        const input = getMetricInput(index, "pic");
+        if (input) input.value = total.toFixed(1);
+      });
     }
 
     function buildAircraftBar() {
       aircraftBar.innerHTML = "";
 
       aircraftOptions.forEach((option, index) => {
+        const stack = document.createElement("div");
+        stack.className = "aircraft-stack";
+
         const chip = document.createElement("div");
         chip.className = "aircraft-chip";
         chip.dataset.aircraftIndex = index;
@@ -568,10 +643,48 @@
         });
 
         chip.appendChild(input);
-        aircraftBar.appendChild(chip);
+
+        const metrics = document.createElement("div");
+        metrics.className = "aircraft-metrics";
+
+        const picBox = document.createElement("div");
+        picBox.className = "aircraft-metric";
+        picBox.dataset.aircraftIndex = index;
+        picBox.dataset.metric = "pic";
+        picBox.innerHTML = `
+          <div class="aircraft-metric-label">PIC</div>
+          <div class="aircraft-metric-value"><input type="text" value="0.0" readonly></div>
+        `;
+
+        const nightBox = document.createElement("div");
+        nightBox.className = "aircraft-metric";
+        nightBox.dataset.aircraftIndex = index;
+        nightBox.dataset.metric = "night";
+        nightBox.innerHTML = `
+          <div class="aircraft-metric-label">NIGHT</div>
+          <div class="aircraft-metric-value"><input type="text" value=""></div>
+        `;
+
+        const trngBox = document.createElement("div");
+        trngBox.className = "aircraft-metric";
+        trngBox.dataset.aircraftIndex = index;
+        trngBox.dataset.metric = "trng";
+        trngBox.innerHTML = `
+          <div class="aircraft-metric-label">TRNG</div>
+          <div class="aircraft-metric-value"><input type="text" value=""></div>
+        `;
+
+        metrics.appendChild(picBox);
+        metrics.appendChild(nightBox);
+        metrics.appendChild(trngBox);
+
+        stack.appendChild(chip);
+        stack.appendChild(metrics);
+        aircraftBar.appendChild(stack);
       });
 
       refreshAircraftSelection();
+      updateAircraftPicTotals();
     }
 
     function refreshAircraftSelection() {
@@ -818,6 +931,7 @@
         delete el.dataset.aircraftIndex;
       });
       updateTotals(rowId);
+      updateAircraftPicTotals();
     }
 
     function clearSelectedModeForCurrentRow() {
@@ -872,6 +986,7 @@
       tenth.dataset.aircraftIndex = String(selectedAircraftIndex);
       tenth.style.background = getAircraftColor(selectedAircraftIndex);
       updateTotals(Number(tenth.dataset.rowId));
+      updateAircraftPicTotals();
     }
 
     function updateTotals(rowId) {
@@ -966,6 +1081,7 @@
             }
           });
         });
+        updateAircraftPicTotals();
         return;
       }
 
@@ -982,6 +1098,8 @@
           }
         });
       }
+
+      updateAircraftPicTotals();
     }
 
     function loadDayFromData(rowId, entry) {
@@ -1014,6 +1132,7 @@
       clearDutyPending(rowId);
       updateTotals(rowId);
       updatePeriodFromRows();
+      updateAircraftPicTotals();
     }
 
     function addDay(rowId) {
@@ -1341,6 +1460,7 @@
     buildAircraftBar();
     buildPage();
     updatePeriodFromRows();
+    updateAircraftPicTotals();
     loadSavedEntries();
   </script>
 </body>
