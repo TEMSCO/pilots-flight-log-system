@@ -84,7 +84,19 @@ window.addEventListener("load", () => {
         hours,
         user_id: user.id
       }]);
+window.deleteLog = async function (id) {
+  const { error } = await sb
+    .from("logs")
+    .delete()
+    .eq("id", id);
 
+  if (error) {
+    console.error(error);
+    alert(error.message);
+  } else {
+    window.loadLogs();
+  }
+};
     if (error) {
       console.error(error);
       document.getElementById("status").innerText = error.message;
