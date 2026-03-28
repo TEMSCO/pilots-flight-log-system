@@ -162,11 +162,24 @@
       letter-spacing: 0.3px;
     }
 
+    /* Align aircraft summary strip over timeline width only */
+    .aircraft-layout {
+      display: grid;
+      grid-template-columns: 348px 1fr 158px;
+      gap: 0;
+      margin-bottom: 6px;
+      align-items: start;
+    }
+
+    .aircraft-left-spacer,
+    .aircraft-right-spacer {
+      min-height: 1px;
+    }
+
     .aircraft-bar {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
-      gap: 4px;
-      margin-bottom: 6px;
+      gap: 3px;
     }
 
     .aircraft-stack {
@@ -177,7 +190,7 @@
 
     .aircraft-chip {
       border: 1.5px solid var(--line);
-      min-height: 28px;
+      min-height: 26px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -193,9 +206,9 @@
 
     .aircraft-chip input {
       text-align: center;
-      font-size: 9px;
+      font-size: 8px;
       font-weight: bold;
-      padding: 4px 2px;
+      padding: 3px 2px;
     }
 
     .aircraft-metrics {
@@ -207,15 +220,15 @@
     .aircraft-metric {
       border: 1px solid var(--line);
       background: white;
-      min-height: 30px;
+      min-height: 28px;
       display: grid;
-      grid-template-rows: 12px 1fr;
+      grid-template-rows: 11px 1fr;
     }
 
     .aircraft-metric-label {
       border-bottom: 1px solid var(--line);
       background: var(--subtle);
-      font-size: 7px;
+      font-size: 6px;
       font-weight: bold;
       display: flex;
       align-items: center;
@@ -228,14 +241,14 @@
       justify-content: center;
       font-size: 8px;
       font-weight: bold;
-      padding: 1px 2px;
+      padding: 1px 1px;
       text-align: center;
     }
 
     .aircraft-metric-value input {
       text-align: center;
       font-size: 8px;
-      padding: 1px 2px;
+      padding: 1px 1px;
     }
 
     .page-grid-wrap {
@@ -247,19 +260,19 @@
     .page-grid {
       display: grid;
       grid-template-columns:
-        44px   /* date */
-        36px   /* day PIC */
-        36px   /* day NGT */
-        36px   /* day TRG */
-        40px   /* duty start */
-        40px   /* duty stop */
-        40px   /* duty total */
-        40px   /* flight total */
-        36px   /* row label */
+        44px
+        36px
+        36px
+        36px
+        40px
+        40px
+        40px
+        40px
+        36px
         repeat(48, minmax(9px, 1fr))
-        30px   /* ldgs */
-        48px   /* route */
-        80px;  /* remarks */
+        30px
+        48px
+        80px;
       min-width: 1030px;
     }
 
@@ -421,16 +434,17 @@
         display: none;
       }
 
-      .aircraft-bar {
+      .aircraft-layout {
+        grid-template-columns: 304px 1fr 138px;
         margin-bottom: 4px;
       }
 
       .aircraft-chip {
-        min-height: 24px;
+        min-height: 22px;
       }
 
       .aircraft-metric {
-        min-height: 26px;
+        min-height: 24px;
       }
 
       .page-grid {
@@ -476,6 +490,17 @@
       }
     }
 
+    @media (max-width: 1100px) {
+      .aircraft-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .aircraft-left-spacer,
+      .aircraft-right-spacer {
+        display: none;
+      }
+    }
+
     @media (max-width: 900px) {
       .sheet-header {
         grid-template-columns: 1fr;
@@ -497,7 +522,7 @@
       <div class="sheet-title">
         <div class="company">TEMSCO HELICOPTERS INC.</div>
         <div class="form-title">Pilot's Flight & Duty Time Log</div>
-        <div class="note">7-day printable layout with aircraft color blocks and PIC/NIGHT/TRNG summary boxes. :contentReference[oaicite:1]{index=1}</div>
+        <div class="note">7-day printable layout with tighter aircraft summary strip and per-day PIC/NIGHT/TRNG boxes. :contentReference[oaicite:1]{index=1}</div>
       </div>
 
       <div class="header-box">
@@ -518,7 +543,7 @@
 
     <div class="controls">
       <button id="dutyBtn" class="duty-btn" type="button">Duty Mode</button>
-      <button id="clearSelectedBtn" class="clear-btn" type="button">Clear Flight Row</button>
+      <button id="clearSelectedBtn" class="clear-btn" type="button">Clear Selected Aircraft</button>
       <button id="saveAllBtn" class="save-btn" type="button">Save 7 Days</button>
       <button id="loadSavedBtn" class="load-btn" type="button">Load Saved Rows</button>
     </div>
@@ -529,7 +554,11 @@
       SELECTED AIRCRAFT: <span id="selectedAircraftDisplay">MD500</span>
     </div>
 
-    <div id="aircraftBar" class="aircraft-bar"></div>
+    <div class="aircraft-layout">
+      <div class="aircraft-left-spacer"></div>
+      <div id="aircraftBar" class="aircraft-bar"></div>
+      <div class="aircraft-right-spacer"></div>
+    </div>
 
     <div class="page-grid-wrap">
       <div id="pageGrid" class="page-grid"></div>
@@ -645,6 +674,7 @@
         input.addEventListener("focus", () => {
           selectedAircraftIndex = index;
           refreshAircraftSelection();
+          setMode("flight");
         });
 
         input.addEventListener("input", () => {
@@ -715,7 +745,7 @@
       mode = newMode;
       modeDisplay.textContent = newMode.toUpperCase();
       dutyBtn.classList.toggle("active", newMode === "duty");
-      clearSelectedBtn.textContent = newMode === "flight" ? "Clear Flight Row" : "Clear Duty Row";
+      clearSelectedBtn.textContent = newMode === "flight" ? "Clear Selected Aircraft" : "Clear Duty Row";
     }
 
     function setCurrentRow(rowId) {
@@ -941,11 +971,14 @@
       updateTotals(rowId);
     }
 
-    function clearFlightOnly(rowId) {
-      document.querySelectorAll(`.tenth[data-row-id="${rowId}"]`).forEach((el) => {
-        el.classList.remove("on");
-        el.style.background = "";
-        delete el.dataset.aircraftIndex;
+    function clearSelectedAircraftOnly(rowId) {
+      document.querySelectorAll(`.tenth.on[data-row-id="${rowId}"]`).forEach((el) => {
+        const idx = Number(el.dataset.aircraftIndex ?? -1);
+        if (idx === selectedAircraftIndex) {
+          el.classList.remove("on");
+          el.style.background = "";
+          delete el.dataset.aircraftIndex;
+        }
       });
       updateTotals(rowId);
       updateAircraftPicTotals();
@@ -954,8 +987,8 @@
 
     function clearSelectedModeForCurrentRow() {
       if (mode === "flight") {
-        clearFlightOnly(currentRowId);
-        statusEl.textContent = `Day ${currentRowId}: flight row cleared.`;
+        clearSelectedAircraftOnly(currentRowId);
+        statusEl.textContent = `Day ${currentRowId}: cleared ${getAircraftLabel(selectedAircraftIndex)} flight marks only.`;
       } else {
         clearDutyOnly(currentRowId);
         statusEl.textContent = `Day ${currentRowId}: duty row cleared.`;
@@ -1072,7 +1105,11 @@
     }
 
     function clearEntireDay(rowId) {
-      clearFlightOnly(rowId);
+      document.querySelectorAll(`.tenth[data-row-id="${rowId}"]`).forEach((el) => {
+        el.classList.remove("on");
+        el.style.background = "";
+        delete el.dataset.aircraftIndex;
+      });
       clearDutyOnly(rowId);
 
       ["logDate", "rowNight", "rowTrng", "landings", "route", "remarks"].forEach(key => {
@@ -1080,11 +1117,18 @@
         if (input) input.value = "";
       });
 
+      updateTotals(rowId);
+      updateRowPicTotal(rowId);
+      updateAircraftPicTotals();
       updatePeriodFromRows();
     }
 
     function applyFlightMarksToRow(rowId, flightMarks, fallbackFlightBlocks) {
-      clearFlightOnly(rowId);
+      document.querySelectorAll(`.tenth[data-row-id="${rowId}"]`).forEach((el) => {
+        el.classList.remove("on");
+        el.style.background = "";
+        delete el.dataset.aircraftIndex;
+      });
 
       if (Array.isArray(flightMarks) && flightMarks.length) {
         flightMarks.forEach((blockMarks, blockIndex) => {
