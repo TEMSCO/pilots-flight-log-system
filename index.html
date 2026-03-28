@@ -10,15 +10,31 @@
       padding: 20px;
     }
 
-    h2 {
+    h2, h3 {
       text-align: center;
       margin-bottom: 16px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    input {
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .controls {
       display: flex;
       gap: 10px;
       margin-bottom: 12px;
+      flex-wrap: wrap;
     }
 
     button {
@@ -32,6 +48,9 @@
     .flight-btn { background: #22c55e; color: white; }
     .duty-btn { background: #facc15; color: black; }
     .clear-btn { background: #ef4444; color: white; }
+    .save-btn { background: #38bdf8; color: black; }
+    .load-btn { background: #3b82f6; color: white; }
+    .delete-btn { background: #ef4444; color: white; }
 
     .active {
       outline: 3px solid white;
@@ -42,12 +61,18 @@
       font-weight: bold;
     }
 
+    .grid-wrap {
+      overflow-x: auto;
+      margin-bottom: 14px;
+    }
+
     .grid {
       display: grid;
       grid-template-columns: 80px repeat(48, 1fr);
       border-top: 1px solid #475569;
       border-left: 1px solid #475569;
       user-select: none;
+      min-width: 1100px;
     }
 
     .header,
@@ -63,7 +88,7 @@
       text-align: center;
       font-size: 10px;
       padding: 4px 0;
-      min-width: 24px;
+      min-width: 20px;
     }
 
     .label {
@@ -75,7 +100,6 @@
       min-height: 28px;
     }
 
-    /* Duty = half-hour blocks */
     .duty-cell {
       background: #1e293b;
       height: 28px;
@@ -86,7 +110,6 @@
       background: #facc15;
     }
 
-    /* Flight = each half-hour block split into 5 tenths */
     .flight-cell {
       height: 28px;
       display: grid;
@@ -111,6 +134,42 @@
     .totals {
       margin-top: 14px;
       font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .saved-list {
+      background: #111827;
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .saved-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid #334155;
+    }
+
+    .saved-item:last-child {
+      border-bottom: none;
+    }
+
+    .saved-meta {
+      font-size: 14px;
+    }
+
+    .saved-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    #status {
+      margin: 10px 0;
+      min-height: 20px;
+      text-align: center;
     }
   </style>
 </head>
@@ -118,22 +177,41 @@
 
   <h2>✈️ Flight & Duty Log</h2>
 
+  <div class="topbar">
+    <input id="logDate" type="date" />
+    <input id="aircraftName" placeholder="Aircraft" />
+  </div>
+
   <div class="controls">
     <button id="flightBtn" class="flight-btn active" type="button">Flight Mode</button>
     <button id="dutyBtn" class="duty-btn" type="button">Duty Mode</button>
     <button id="clearBtn" class="clear-btn" type="button">Clear</button>
+    <button id="saveBtn" class="save-btn" type="button">Save Entry</button>
   </div>
 
   <div class="mode">Mode: <span id="modeDisplay">FLIGHT</span></div>
 
-  <div id="grid" class="grid"></div>
+  <div class="grid-wrap">
+    <div id="grid" class="grid"></div>
+  </div>
 
   <div class="totals">
     Flight: <span id="flightTotal">0.0</span> hrs |
     Duty: <span id="dutyTotal">0.0</span> hrs
   </div>
 
+  <div id="status"></div>
+
+  <h3>Saved Entries</h3>
+  <div id="savedList" class="saved-list"></div>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script>
+    const sb = window.supabase.createClient(
+      "https://xjisftmfjsjomgsjzkod.supabase.co",
+      "sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS"
+    );
+
     let mode = "flight";
     let isDrawing = false;
 
@@ -141,9 +219,14 @@
     const flightBtn = document.getElementById("flightBtn");
     const dutyBtn = document.getElementById("dutyBtn");
     const clearBtn = document.getElementById("clearBtn");
+    const saveBtn = document.getElementById("saveBtn");
     const modeDisplay = document.getElementById("modeDisplay");
     const flightTotalEl = document.getElementById("flightTotal");
     const dutyTotalEl = document.getElementById("dutyTotal");
+    const savedList = document.getElementById("savedList");
+    const statusEl = document.getElementById("status");
+    const logDateEl = document.getElementById("logDate");
+    const aircraftNameEl = document.getElementById("aircraftName");
 
     function setMode(newMode) {
       mode = newMode;
@@ -166,7 +249,6 @@
         grid.appendChild(h);
       }
 
-      // Flight row
       const flightLabel = document.createElement("div");
       flightLabel.className = "label";
       flightLabel.textContent = "FLT";
@@ -206,7 +288,6 @@
         grid.appendChild(cell);
       }
 
-      // Duty row
       const dutyLabel = document.createElement("div");
       dutyLabel.className = "label";
       dutyLabel.textContent = "DUTY";
@@ -216,6 +297,7 @@
         const cell = document.createElement("div");
         cell.className = "duty-cell";
         cell.dataset.row = "duty";
+        cell.dataset.block = String(i);
 
         cell.addEventListener("mousedown", (e) => {
           e.preventDefault();
@@ -253,6 +335,7 @@
       document.querySelectorAll(".tenth.on").forEach(el => el.classList.remove("on"));
       document.querySelectorAll(".duty-cell.on").forEach(el => el.classList.remove("on"));
       updateTotals();
+      statusEl.textContent = "";
     }
 
     function updateTotals() {
@@ -271,6 +354,193 @@
       dutyTotalEl.textContent = duty.toFixed(1);
     }
 
+    function getFlightBlocks() {
+      const blocks = [];
+      for (let i = 0; i < 48; i++) {
+        let count = 0;
+        document.querySelectorAll(`.tenth[data-block="${i}"].on`).forEach(() => {
+          count += 1;
+        });
+        blocks.push(Number((count * 0.1).toFixed(1)));
+      }
+      return blocks;
+    }
+
+    function getDutyBlocks() {
+      const blocks = [];
+      for (let i = 0; i < 48; i++) {
+        const cell = document.querySelector(`.duty-cell[data-block="${i}"]`);
+        blocks.push(cell && cell.classList.contains("on") ? 0.5 : 0);
+      }
+      return blocks;
+    }
+
+    function loadGridFromData(flightBlocks, dutyBlocks) {
+      clearGrid();
+
+      if (Array.isArray(flightBlocks)) {
+        flightBlocks.forEach((value, blockIndex) => {
+          const tenthsToFill = Math.round((Number(value) || 0) * 10);
+          for (let i = 0; i < tenthsToFill; i++) {
+            const tenth = document.querySelector(
+              `.tenth[data-block="${blockIndex}"][data-tenth="${i}"]`
+            );
+            if (tenth) tenth.classList.add("on");
+          }
+        });
+      }
+
+      if (Array.isArray(dutyBlocks)) {
+        dutyBlocks.forEach((value, blockIndex) => {
+          if (Number(value) > 0) {
+            const cell = document.querySelector(`.duty-cell[data-block="${blockIndex}"]`);
+            if (cell) cell.classList.add("on");
+          }
+        });
+      }
+
+      updateTotals();
+    }
+
+    async function saveEntry() {
+      statusEl.textContent = "";
+
+      const { data: userData } = await sb.auth.getUser();
+      const user = userData.user;
+
+      if (!user) {
+        statusEl.textContent = "Not logged in.";
+        return;
+      }
+
+      const logDate = logDateEl.value;
+      const aircraftName = aircraftNameEl.value.trim();
+      const flightBlocks = getFlightBlocks();
+      const dutyBlocks = getDutyBlocks();
+
+      const flightTotal = Number(flightTotalEl.textContent);
+      const dutyTotal = Number(dutyTotalEl.textContent);
+
+      if (!logDate) {
+        statusEl.textContent = "Please enter a date.";
+        return;
+      }
+
+      if (!aircraftName) {
+        statusEl.textContent = "Please enter an aircraft.";
+        return;
+      }
+
+      if (flightTotal === 0 && dutyTotal === 0) {
+        statusEl.textContent = "Nothing painted yet.";
+        return;
+      }
+
+      if (dutyTotal > 14) {
+        statusEl.textContent = "Duty exceeds 14 hours.";
+        return;
+      }
+
+      if (flightTotal > dutyTotal) {
+        statusEl.textContent = "Flight cannot exceed duty.";
+        return;
+      }
+
+      const payload = {
+        log_date: logDate,
+        aircraft_name: aircraftName,
+        flight_blocks: flightBlocks,
+        duty_blocks: dutyBlocks,
+        flt1: flightTotal,
+        duty: dutyTotal,
+        user_id: user.id
+      };
+
+      const { error } = await sb.from("logs").insert([payload]);
+
+      if (error) {
+        statusEl.textContent = error.message;
+        return;
+      }
+
+      statusEl.textContent = "Saved!";
+      await loadSavedEntries();
+    }
+
+    async function loadSavedEntries() {
+      const { data: userData } = await sb.auth.getUser();
+      const user = userData.user;
+
+      if (!user) {
+        savedList.innerHTML = "<div>No user session.</div>";
+        return;
+      }
+
+      const { data, error } = await sb
+        .from("logs")
+        .select("id, log_date, aircraft_name, flt1, duty, flight_blocks, duty_blocks")
+        .eq("user_id", user.id)
+        .order("id", { ascending: false });
+
+      if (error) {
+        savedList.innerHTML = `<div>${error.message}</div>`;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        savedList.innerHTML = "<div>No saved entries yet.</div>";
+        return;
+      }
+
+      savedList.innerHTML = "";
+
+      data.forEach((entry) => {
+        const row = document.createElement("div");
+        row.className = "saved-item";
+
+        row.innerHTML = `
+          <div class="saved-meta">
+            <strong>${entry.log_date || "-"}</strong> |
+            ${entry.aircraft_name || "-"} |
+            FLT ${Number(entry.flt1 || 0).toFixed(1)} |
+            DUTY ${Number(entry.duty || 0).toFixed(1)}
+          </div>
+          <div class="saved-actions"></div>
+        `;
+
+        const actions = row.querySelector(".saved-actions");
+
+        const loadBtn = document.createElement("button");
+        loadBtn.type = "button";
+        loadBtn.className = "load-btn";
+        loadBtn.textContent = "Load";
+        loadBtn.onclick = () => {
+          logDateEl.value = entry.log_date || "";
+          aircraftNameEl.value = entry.aircraft_name || "";
+          loadGridFromData(entry.flight_blocks, entry.duty_blocks);
+          statusEl.textContent = "Entry loaded.";
+        };
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.className = "delete-btn";
+        deleteBtn.textContent = "Delete";
+        deleteBtn.onclick = async () => {
+          const { error } = await sb.from("logs").delete().eq("id", entry.id);
+          if (error) {
+            statusEl.textContent = error.message;
+            return;
+          }
+          statusEl.textContent = "Entry deleted.";
+          await loadSavedEntries();
+        };
+
+        actions.appendChild(loadBtn);
+        actions.appendChild(deleteBtn);
+        savedList.appendChild(row);
+      });
+    }
+
     document.addEventListener("mouseup", () => {
       isDrawing = false;
     });
@@ -278,10 +548,29 @@
     flightBtn.addEventListener("click", () => setMode("flight"));
     dutyBtn.addEventListener("click", () => setMode("duty"));
     clearBtn.addEventListener("click", clearGrid);
+    saveBtn.addEventListener?.("click", saveEntry);
 
     buildGrid();
     setMode("flight");
     updateTotals();
+    loadSavedEntries();
+
+    // explicit save button hookup
+    document.getElementById("saveBtn")?.remove();
+  </script>
+
+  <script>
+    // create save button after main script if missing
+    if (!document.getElementById("saveBtn")) {
+      const btn = document.createElement("button");
+      btn.id = "saveBtn";
+      btn.type = "button";
+      btn.className = "save-btn";
+      btn.textContent = "Save Entry";
+      btn.style.marginTop = "12px";
+      btn.onclick = saveEntry;
+      document.querySelector(".controls").appendChild(btn);
+    }
   </script>
 
 </body>
