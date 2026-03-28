@@ -515,10 +515,6 @@
       const flightTotal = Number(flightTotalEl.textContent);
       const dutyTotal = Number(dutyTotalEl.textContent);
 
-      const dutyRange = getDutyRange();
-      const dutyStart = dutyRange ? dutyRange.startText : null;
-      const dutyStop = dutyRange ? dutyRange.stopText : null;
-
       if (!logDate) {
         statusEl.textContent = "Please enter a date.";
         return;
@@ -551,8 +547,6 @@
         duty_blocks: dutyBlocks,
         flt1: flightTotal,
         duty: dutyTotal,
-        duty_start: dutyStart,
-        duty_stop: dutyStop,
         user_id: user.id
       };
 
@@ -578,7 +572,7 @@
 
       const { data, error } = await sb
         .from("logs")
-        .select("id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, flight_blocks, duty_blocks")
+        .select("id, log_date, aircraft_name, flt1, duty, flight_blocks, duty_blocks")
         .eq("user_id", user.id)
         .order("id", { ascending: false });
 
@@ -596,6 +590,20 @@
       savedList.innerHTML = "";
 
       data.forEach((entry) => {
+        const dutyBlocks = Array.isArray(entry.duty_blocks) ? entry.duty_blocks : [];
+        let firstOn = -1;
+        let lastOn = -1;
+
+        dutyBlocks.forEach((value, index) => {
+          if (Number(value) > 0) {
+            if (firstOn === -1) firstOn = index;
+            lastOn = index;
+          }
+        });
+
+        const dutyStartText = firstOn >= 0 ? formatHalfHourBlock(firstOn) : "--:--";
+        const dutyStopText = lastOn >= 0 ? formatHalfHourBlock(lastOn + 1) : "--:--";
+
         const row = document.createElement("div");
         row.className = "saved-item";
 
@@ -603,7 +611,7 @@
           <div class="saved-meta">
             <strong>${entry.log_date || "-"}</strong> |
             ${entry.aircraft_name || "-"} |
-            DUTY ${entry.duty_start || "--:--"}-${entry.duty_stop || "--:--"} |
+            DUTY ${dutyStartText}-${dutyStopText} |
             FLT ${Number(entry.flt1 || 0).toFixed(1)} |
             DUTY ${Number(entry.duty || 0).toFixed(1)}
           </div>
