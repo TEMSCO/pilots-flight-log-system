@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Flight Log - Final Mode</title>
+  <title>Flight Log - Working</title>
 
   <style>
     body {
@@ -87,7 +87,7 @@ let mouseDown = false;
 
 const grid = document.getElementById("grid");
 
-// HEADER (0–24 in 0.5 steps)
+// HEADER
 grid.innerHTML += "<div></div>";
 for (let i = 0; i < 48; i++) {
   if (i % 2 === 0) {
@@ -105,7 +105,6 @@ for (let i = 0; i < 48; i++) {
     const cell = document.createElement("div");
     cell.className = "cell";
     cell.dataset.row = type;
-    cell.dataset.value = 0; // for flight tenths
 
     cell.onmousedown = () => {
       mouseDown = true;
@@ -120,34 +119,14 @@ for (let i = 0; i < 48; i++) {
   }
 });
 
-// MOUSE TRACK
+// STOP DRAG
 document.body.onmouseup = () => mouseDown = false;
 
-// PAINT FUNCTION
+// ✅ FIXED PAINT FUNCTION
 function paint(cell) {
   if (cell.dataset.row !== mode) return;
 
-  if (mode === "duty") {
-    // toggle duty block (0.5)
-    cell.classList.toggle("duty");
-
-  } else if (mode === "flight") {
-    // increase in tenths (0 → 0.1 → 0.2 ... up to 0.5)
-    let val = parseFloat(cell.dataset.value);
-
-    val += 0.1;
-    if (val > 0.5) val = 0;
-
-    cell.dataset.value = val.toFixed(1);
-
-    if (val > 0) {
-      cell.classList.add("flight");
-      cell.style.opacity = 0.3 + val; // visual intensity
-    } else {
-      cell.classList.remove("flight");
-      cell.style.opacity = 1;
-    }
-  }
+  cell.classList.add(mode); // 👈 no toggle = stable drag
 
   calculateTotals();
 }
@@ -156,8 +135,6 @@ function paint(cell) {
 function clearGrid() {
   document.querySelectorAll(".cell").forEach(c => {
     c.classList.remove("flight", "duty");
-    c.dataset.value = 0;
-    c.style.opacity = 1;
   });
   calculateTotals();
 }
@@ -168,15 +145,9 @@ function calculateTotals() {
   let duty = 0;
 
   document.querySelectorAll(".cell").forEach(cell => {
+    if (cell.classList.contains("flight")) flight += 0.5;
     if (cell.classList.contains("duty")) duty += 0.5;
-
-    if (cell.classList.contains("flight")) {
-      flight += parseFloat(cell.dataset.value);
-    }
   });
-
-  flight = parseFloat(flight.toFixed(1));
-  duty = parseFloat(duty.toFixed(1));
 
   if (duty > 14) alert("⚠️ Duty exceeds 14 hours");
   if (flight > duty) alert("⚠️ Flight cannot exceed duty");
