@@ -30,7 +30,7 @@
     }
 
     .sheet {
-      max-width: 1600px;
+      max-width: 1700px;
       margin: 0 auto;
       background: var(--paper);
       border: 2px solid var(--line);
@@ -106,15 +106,15 @@
     .entry-grid {
       display: grid;
       grid-template-columns:
-        95px   /* date */
-        110px  /* ac */
-        70px   /* duty start */
-        70px   /* duty stop */
-        70px   /* duty total */
-        80px   /* flight total */
-        90px   /* row labels */
+        130px   /* date */
+        120px   /* ac */
+        78px    /* duty start */
+        78px    /* duty stop */
+        78px    /* duty total */
+        78px    /* flight total */
+        90px    /* row labels */
         repeat(48, minmax(18px, 1fr));
-      min-width: 1500px;
+      min-width: 1600px;
     }
 
     .cell {
@@ -126,18 +126,17 @@
       justify-content: center;
       padding: 4px;
       font-size: 12px;
+      text-align: center;
     }
 
     .cell.header {
       background: var(--header);
       font-weight: bold;
-      text-align: center;
     }
 
     .cell.subhead {
       background: var(--subtle);
       font-weight: bold;
-      text-align: center;
     }
 
     .cell.input-cell {
@@ -149,9 +148,15 @@
       width: 100%;
       height: 100%;
       border: none;
-      padding: 6px;
+      padding: 6px 8px;
       font-size: 12px;
       background: transparent;
+      min-width: 0;
+    }
+
+    .cell.input-cell input[type="date"] {
+      min-width: 120px;
+      padding-right: 4px;
     }
 
     .cell.input-cell input:focus {
@@ -175,6 +180,13 @@
       padding: 2px 0;
       background: var(--header);
       min-height: 24px;
+    }
+
+    .time-subhead {
+      font-size: 9px;
+      padding: 2px 0;
+      background: var(--subtle);
+      min-height: 22px;
     }
 
     .duty-cell {
@@ -463,15 +475,27 @@
 
       entryGrid.appendChild(createCell("header", "DATE"));
       entryGrid.appendChild(createCell("header", "A/C"));
-      entryGrid.appendChild(createCell("header", "START"));
-      entryGrid.appendChild(createCell("header", "STOP"));
-      entryGrid.appendChild(createCell("header", "DUTY"));
-      entryGrid.appendChild(createCell("header", "FLT"));
+      entryGrid.appendChild(createCell("header", "DUTY TIME"));
+      entryGrid.appendChild(createCell("header", ""));
+      entryGrid.appendChild(createCell("header", ""));
+      entryGrid.appendChild(createCell("header", "TOTALS"));
       entryGrid.appendChild(createCell("header", "PERIOD"));
 
       for (let i = 0; i < 48; i++) {
+        entryGrid.appendChild(createCell("header", i === 0 ? "TIME" : ""));
+      }
+
+      entryGrid.appendChild(createCell("subhead", "Date"));
+      entryGrid.appendChild(createCell("subhead", "Aircraft"));
+      entryGrid.appendChild(createCell("subhead", "Start"));
+      entryGrid.appendChild(createCell("subhead", "Stop"));
+      entryGrid.appendChild(createCell("subhead", "Duty"));
+      entryGrid.appendChild(createCell("subhead", "Flight"));
+      entryGrid.appendChild(createCell("subhead", "Row"));
+
+      for (let i = 0; i < 48; i++) {
         const text = i % 2 === 0 ? String(i / 2) : "";
-        entryGrid.appendChild(createCell("time-header", text));
+        entryGrid.appendChild(createCell("time-subhead", text));
       }
 
       entryGrid.appendChild(createInputCell("logDate", "date"));
@@ -768,7 +792,6 @@
 
         actions.appendChild(loadBtn);
         actions.appendChild(deleteBtn);
-        row.appendChild(actions);
         savedList.appendChild(row);
       });
     }
