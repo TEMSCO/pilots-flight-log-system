@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Flight Log - Debug Fixed</title>
+  <title>Flight Log - Fixed</title>
 
   <style>
     body {
@@ -10,8 +10,6 @@
       color: white;
       padding: 20px;
     }
-
-    h2 { text-align: center; }
 
     .controls {
       display: flex;
@@ -28,11 +26,7 @@
 
     .flight-btn { background: #22c55e; }
     .duty-btn { background: #facc15; color: black; }
-    .clear-btn { background: #ef4444; }
-
-    .active {
-      outline: 3px solid white;
-    }
+    .active { outline: 3px solid white; }
 
     .grid {
       display: grid;
@@ -59,12 +53,8 @@
       font-weight: bold;
     }
 
-    .flight { background: #22c55e; }
-    .duty { background: #facc15; }
-
-    .totals {
-      margin-top: 15px;
-    }
+    .flight { background: #22c55e !important; }
+    .duty { background: #facc15 !important; }
   </style>
 </head>
 
@@ -75,41 +65,32 @@
 <div class="controls">
   <button id="flightBtn" class="flight-btn active">Flight Mode</button>
   <button id="dutyBtn" class="duty-btn">Duty Mode</button>
-  <button class="clear-btn" onclick="clearGrid()">Clear</button>
 </div>
 
-<div id="currentMode">Mode: FLIGHT</div>
+<div id="modeDisplay">Mode: flight</div>
 
 <div class="grid" id="grid"></div>
-
-<div class="totals">
-  Flight: <span id="flightTotal">0.0</span> hrs |
-  Duty: <span id="dutyTotal">0.0</span> hrs
-</div>
 
 <script>
 let mode = "flight";
 let mouseDown = false;
 
-const flightBtn = document.getElementById("flightBtn");
-const dutyBtn = document.getElementById("dutyBtn");
+const grid = document.getElementById("grid");
 
-// MODE SWITCH (EXPLICIT)
+// MODE BUTTONS
 flightBtn.onclick = () => {
   mode = "flight";
+  modeDisplay.innerText = "Mode: flight";
   flightBtn.classList.add("active");
   dutyBtn.classList.remove("active");
-  document.getElementById("currentMode").innerText = "Mode: FLIGHT";
 };
 
 dutyBtn.onclick = () => {
   mode = "duty";
+  modeDisplay.innerText = "Mode: duty";
   dutyBtn.classList.add("active");
   flightBtn.classList.remove("active");
-  document.getElementById("currentMode").innerText = "Mode: DUTY";
 };
-
-const grid = document.getElementById("grid");
 
 // HEADER
 grid.innerHTML += "<div></div>";
@@ -117,14 +98,19 @@ for (let i = 0; i < 48; i++) {
   grid.innerHTML += `<div class="header">${i % 2 === 0 ? i/2 : ""}</div>`;
 }
 
-// ROWS
+// CREATE ROWS (KEY FIX HERE)
 ["flight", "duty"].forEach(type => {
   grid.innerHTML += `<div class="label">${type.toUpperCase()}</div>`;
 
   for (let i = 0; i < 48; i++) {
     const cell = document.createElement("div");
+
     cell.className = "cell";
     cell.dataset.row = type;
+
+    // 🔥 DEBUG COLOR (TEMP)
+    if (type === "flight") cell.style.border = "1px solid green";
+    if (type === "duty") cell.style.border = "1px solid yellow";
 
     cell.addEventListener("mousedown", () => {
       mouseDown = true;
@@ -139,38 +125,16 @@ for (let i = 0; i < 48; i++) {
   }
 });
 
-// GLOBAL MOUSE
+// MOUSE TRACK
 document.addEventListener("mouseup", () => mouseDown = false);
 
-// PAINT (SUPER SIMPLE)
+// PAINT
 function paint(cell) {
+  console.log("clicked:", cell.dataset.row, "mode:", mode); // DEBUG
+
   if (cell.dataset.row !== mode) return;
 
   cell.classList.add(mode);
-
-  calculateTotals();
-}
-
-// CLEAR
-function clearGrid() {
-  document.querySelectorAll(".cell").forEach(c => {
-    c.classList.remove("flight", "duty");
-  });
-  calculateTotals();
-}
-
-// TOTALS
-function calculateTotals() {
-  let flight = 0;
-  let duty = 0;
-
-  document.querySelectorAll(".cell").forEach(cell => {
-    if (cell.classList.contains("flight")) flight += 0.5;
-    if (cell.classList.contains("duty")) duty += 0.5;
-  });
-
-  document.getElementById("flightTotal").innerText = flight.toFixed(1);
-  document.getElementById("dutyTotal").innerText = duty.toFixed(1);
 }
 </script>
 
