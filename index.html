@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Flight Log - Guaranteed Fix</title>
+  <title>Flight Log</title>
 
   <style>
     body {
@@ -10,6 +10,8 @@
       color: white;
       padding: 20px;
     }
+
+    h2 { text-align: center; }
 
     .controls {
       display: flex;
@@ -28,10 +30,14 @@
     .duty-btn { background: #facc15; color: black; }
     .active { outline: 3px solid white; }
 
+    /* GRID */
     .grid {
       display: grid;
       grid-template-columns: 80px repeat(48, 1fr);
-      gap: 2px;
+    }
+
+    .cell, .header, .label {
+      border: 1px solid #475569; /* ✅ GRID LINES BACK */
     }
 
     .cell {
@@ -51,10 +57,15 @@
       align-items: center;
       justify-content: center;
       font-weight: bold;
+      background: #1e293b;
     }
 
     .flight { background: #22c55e; }
     .duty { background: #facc15; }
+
+    .totals {
+      margin-top: 15px;
+    }
   </style>
 </head>
 
@@ -67,38 +78,43 @@
   <button id="dutyBtn" class="duty-btn">Duty Mode</button>
 </div>
 
-<div id="modeDisplay">Mode: flight</div>
+<div id="modeDisplay">Mode: Flight</div>
 
 <div class="grid" id="grid"></div>
 
+<div class="totals">
+  Flight: <span id="flightTotal">0.0</span> |
+  Duty: <span id="dutyTotal">0.0</span>
+</div>
+
 <script>
 let mode = "flight";
-let isDrawing = false;
+let isMouseDown = false;
 
 const grid = document.getElementById("grid");
 
 // MODE BUTTONS
 flightBtn.onclick = () => {
   mode = "flight";
-  modeDisplay.innerText = "Mode: flight";
+  modeDisplay.innerText = "Mode: Flight";
   flightBtn.classList.add("active");
   dutyBtn.classList.remove("active");
 };
 
 dutyBtn.onclick = () => {
   mode = "duty";
-  modeDisplay.innerText = "Mode: duty";
+  modeDisplay.innerText = "Mode: Duty";
   dutyBtn.classList.add("active");
   flightBtn.classList.remove("active");
 };
 
-// HEADER
+// HEADER ROW
 grid.innerHTML += "<div></div>";
 for (let i = 0; i < 48; i++) {
   grid.innerHTML += `<div class="header">${i % 2 === 0 ? i/2 : ""}</div>`;
 }
 
-// ROWS
+// CREATE ROWS
 ["flight", "duty"].forEach(type => {
   grid.innerHTML += `<div class="label">${type.toUpperCase()}</div>`;
 
@@ -108,30 +124,47 @@ for (let i = 0; i < 48; i++) {
     cell.className = "cell";
     cell.dataset.row = type;
 
-    // ✅ POINTER EVENTS (KEY FIX)
-    cell.addEventListener("pointerdown", () => {
-      isDrawing = true;
+    // CLICK
+    cell.addEventListener("mousedown", () => {
+      isMouseDown = true;
       paint(cell);
     });
 
-    cell.addEventListener("pointerenter", () => {
-      if (isDrawing) paint(cell);
+    // DRAG
+    cell.addEventListener("mouseenter", () => {
+      if (isMouseDown) paint(cell);
     });
 
     grid.appendChild(cell);
   }
 });
 
-// STOP DRAW
-document.addEventListener("pointerup", () => {
-  isDrawing = false;
+// STOP DRAG
+document.addEventListener("mouseup", () => {
+  isMouseDown = false;
 });
 
-// PAINT
+// PAINT (VERY SIMPLE — NO BUGS)
 function paint(cell) {
   if (cell.dataset.row !== mode) return;
 
   cell.classList.add(mode);
+
+  calculateTotals();
+}
+
+// TOTALS
+function calculateTotals() {
+  let flight = 0;
+  let duty = 0;
+
+  document.querySelectorAll(".cell").forEach(cell => {
+    if (cell.classList.contains("flight")) flight += 0.5;
+    if (cell.classList.contains("duty")) duty += 0.5;
+  });
+
+  document.getElementById("flightTotal").innerText = flight.toFixed(1);
+  document.getElementById("dutyTotal").innerText = duty.toFixed(1);
 }
 </script>
 
