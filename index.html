@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Flight Log - Fixed</title>
+  <title>Flight Log - Guaranteed Fix</title>
 
   <style>
     body {
@@ -53,8 +53,8 @@
       font-weight: bold;
     }
 
-    .flight { background: #22c55e !important; }
-    .duty { background: #facc15 !important; }
+    .flight { background: #22c55e; }
+    .duty { background: #facc15; }
   </style>
 </head>
 
@@ -73,7 +73,7 @@
 
 <script>
 let mode = "flight";
-let mouseDown = false;
+let isDrawing = false;
 
 const grid = document.getElementById("grid");
 
@@ -98,7 +98,7 @@ for (let i = 0; i < 48; i++) {
   grid.innerHTML += `<div class="header">${i % 2 === 0 ? i/2 : ""}</div>`;
 }
 
-// CREATE ROWS (KEY FIX HERE)
+// ROWS
 ["flight", "duty"].forEach(type => {
   grid.innerHTML += `<div class="label">${type.toUpperCase()}</div>`;
 
@@ -108,30 +108,27 @@ for (let i = 0; i < 48; i++) {
     cell.className = "cell";
     cell.dataset.row = type;
 
-    // 🔥 DEBUG COLOR (TEMP)
-    if (type === "flight") cell.style.border = "1px solid green";
-    if (type === "duty") cell.style.border = "1px solid yellow";
-
-    cell.addEventListener("mousedown", () => {
-      mouseDown = true;
+    // ✅ POINTER EVENTS (KEY FIX)
+    cell.addEventListener("pointerdown", () => {
+      isDrawing = true;
       paint(cell);
     });
 
-    cell.addEventListener("mouseover", () => {
-      if (mouseDown) paint(cell);
+    cell.addEventListener("pointerenter", () => {
+      if (isDrawing) paint(cell);
     });
 
     grid.appendChild(cell);
   }
 });
 
-// MOUSE TRACK
-document.addEventListener("mouseup", () => mouseDown = false);
+// STOP DRAW
+document.addEventListener("pointerup", () => {
+  isDrawing = false;
+});
 
 // PAINT
 function paint(cell) {
-  console.log("clicked:", cell.dataset.row, "mode:", mode); // DEBUG
-
   if (cell.dataset.row !== mode) return;
 
   cell.classList.add(mode);
