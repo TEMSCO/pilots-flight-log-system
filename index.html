@@ -144,7 +144,6 @@
       font-size: 11px;
     }
 
-    .flight-btn { background: #dcfce7; }
     .duty-btn { background: #fef3c7; }
     .clear-btn { background: #fee2e2; }
     .save-btn { background: #d1fae5; }
@@ -166,23 +165,23 @@
     .aircraft-bar {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
-      gap: 6px;
-      margin-bottom: 8px;
+      gap: 4px;
+      margin-bottom: 6px;
     }
 
     .aircraft-stack {
       display: grid;
       grid-template-rows: auto auto;
-      gap: 3px;
+      gap: 2px;
     }
 
     .aircraft-chip {
       border: 1.5px solid var(--line);
-      min-height: 34px;
+      min-height: 28px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0 4px;
+      padding: 0 2px;
       cursor: pointer;
       position: relative;
     }
@@ -194,29 +193,29 @@
 
     .aircraft-chip input {
       text-align: center;
-      font-size: 10px;
+      font-size: 9px;
       font-weight: bold;
-      padding: 6px 4px;
+      padding: 4px 2px;
     }
 
     .aircraft-metrics {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 2px;
+      gap: 1px;
     }
 
     .aircraft-metric {
       border: 1px solid var(--line);
       background: white;
-      min-height: 36px;
+      min-height: 30px;
       display: grid;
-      grid-template-rows: 14px 1fr;
+      grid-template-rows: 12px 1fr;
     }
 
     .aircraft-metric-label {
       border-bottom: 1px solid var(--line);
       background: var(--subtle);
-      font-size: 8px;
+      font-size: 7px;
       font-weight: bold;
       display: flex;
       align-items: center;
@@ -227,7 +226,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 9px;
+      font-size: 8px;
       font-weight: bold;
       padding: 1px 2px;
       text-align: center;
@@ -235,7 +234,7 @@
 
     .aircraft-metric-value input {
       text-align: center;
-      font-size: 9px;
+      font-size: 8px;
       padding: 1px 2px;
     }
 
@@ -248,28 +247,31 @@
     .page-grid {
       display: grid;
       grid-template-columns:
-        48px
-        44px
-        44px
-        44px
-        44px
-        40px
-        repeat(48, minmax(10px, 1fr))
-        34px
-        58px
-        96px;
-      min-width: 990px;
+        44px   /* date */
+        36px   /* day PIC */
+        36px   /* day NGT */
+        36px   /* day TRG */
+        40px   /* duty start */
+        40px   /* duty stop */
+        40px   /* duty total */
+        40px   /* flight total */
+        36px   /* row label */
+        repeat(48, minmax(9px, 1fr))
+        30px   /* ldgs */
+        48px   /* route */
+        80px;  /* remarks */
+      min-width: 1030px;
     }
 
     .sheet-cell {
       border-right: 1px solid var(--line);
       border-bottom: 1px solid var(--line);
-      min-height: 20px;
+      min-height: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 1px;
-      font-size: 9px;
+      font-size: 8px;
       text-align: center;
       line-height: 1.05;
       background: white;
@@ -278,55 +280,55 @@
     .sheet-cell.header {
       background: var(--header);
       font-weight: bold;
-      min-height: 20px;
+      min-height: 18px;
     }
 
     .sheet-cell.subhead {
       background: var(--subtle);
       font-weight: bold;
-      min-height: 18px;
+      min-height: 16px;
     }
 
     .sheet-cell.row-label {
       background: var(--subtle);
       font-weight: bold;
-      font-size: 9px;
+      font-size: 8px;
       cursor: pointer;
     }
 
     .sheet-cell.readout {
       font-weight: bold;
-      font-size: 9px;
+      font-size: 8px;
     }
 
     .sheet-cell input {
-      font-size: 9px;
+      font-size: 8px;
       padding: 1px 2px;
       text-align: center;
     }
 
     .sheet-cell textarea {
       resize: none;
-      font-size: 9px;
+      font-size: 8px;
       padding: 2px 3px;
       line-height: 1.1;
     }
 
     .time-subhead {
-      font-size: 7px;
-      min-height: 16px;
+      font-size: 6px;
+      min-height: 14px;
       background: var(--subtle);
     }
 
     .flight-cell {
       padding: 0;
-      min-height: 20px;
+      min-height: 18px;
       display: grid;
       grid-template-columns: repeat(5, 1fr);
     }
 
     .tenth {
-      min-height: 20px;
+      min-height: 18px;
       border-right: 1px solid #d1d5db;
       background: white;
       cursor: pointer;
@@ -338,7 +340,7 @@
 
     .duty-cell {
       padding: 0;
-      min-height: 20px;
+      min-height: 18px;
       background: white;
       cursor: pointer;
     }
@@ -420,46 +422,49 @@
       }
 
       .aircraft-bar {
-        margin-bottom: 6px;
+        margin-bottom: 4px;
       }
 
       .aircraft-chip {
-        min-height: 28px;
+        min-height: 24px;
       }
 
       .aircraft-metric {
-        min-height: 30px;
+        min-height: 26px;
       }
 
       .page-grid {
         min-width: 0;
         width: 100%;
         grid-template-columns:
-          44px
           40px
-          40px
-          40px
-          40px
+          32px
+          32px
+          32px
           36px
-          repeat(48, minmax(9px, 1fr))
-          30px
-          48px
-          80px;
+          36px
+          36px
+          36px
+          32px
+          repeat(48, minmax(8px, 1fr))
+          26px
+          42px
+          68px;
       }
 
       .sheet-cell {
-        min-height: 17px;
-        font-size: 7.5px;
+        min-height: 16px;
+        font-size: 7px;
       }
 
       .time-subhead {
-        font-size: 6.5px;
+        font-size: 5.5px;
       }
 
       .flight-cell,
       .duty-cell,
       .tenth {
-        min-height: 17px;
+        min-height: 16px;
       }
 
       .sheet-title .form-title {
@@ -512,9 +517,8 @@
     </div>
 
     <div class="controls">
-      <button id="flightBtn" class="flight-btn active" type="button">Flight Mode</button>
       <button id="dutyBtn" class="duty-btn" type="button">Duty Mode</button>
-      <button id="clearSelectedBtn" class="clear-btn" type="button">Clear Selected Mode</button>
+      <button id="clearSelectedBtn" class="clear-btn" type="button">Clear Flight Row</button>
       <button id="saveAllBtn" class="save-btn" type="button">Save 7 Days</button>
       <button id="loadSavedBtn" class="load-btn" type="button">Load Saved Rows</button>
     </div>
@@ -522,7 +526,7 @@
     <div class="mode-line">
       MODE: <span id="modeDisplay">FLIGHT</span> |
       CURRENT DAY: <span id="currentRowDisplay">1</span> |
-      SELECTED AIRCRAFT: <span id="selectedAircraftDisplay">HUS500D</span>
+      SELECTED AIRCRAFT: <span id="selectedAircraftDisplay">MD500</span>
     </div>
 
     <div id="aircraftBar" class="aircraft-bar"></div>
@@ -549,12 +553,12 @@
     const DAY_COUNT = 7;
 
     const aircraftOptions = [
-      { id: "hus500d", label: "HUS500D", color: "#22c55e" },
+      { id: "md500",   label: "MD500",   color: "#22c55e" },
       { id: "as350",   label: "AS350",   color: "#3b82f6" },
-      { id: "bh212",   label: "BH212",   color: "#f59e0b" },
-      { id: "bh205",   label: "BH205",   color: "#ef4444" },
-      { id: "bh214",   label: "BH214",   color: "#8b5cf6" },
-      { id: "other",   label: "OTHER",   color: "#14b8a6" }
+      { id: "ec130",   label: "EC130",   color: "#14b8a6" },
+      { id: "bell212", label: "BELL212", color: "#f59e0b" },
+      { id: "bell214", label: "BELL214", color: "#8b5cf6" },
+      { id: "bell205", label: "BELL205", color: "#ef4444" }
     ];
 
     let mode = "flight";
@@ -565,7 +569,6 @@
 
     const pageGrid = document.getElementById("pageGrid");
     const aircraftBar = document.getElementById("aircraftBar");
-    const flightBtn = document.getElementById("flightBtn");
     const dutyBtn = document.getElementById("dutyBtn");
     const clearSelectedBtn = document.getElementById("clearSelectedBtn");
     const saveAllBtn = document.getElementById("saveAllBtn");
@@ -590,6 +593,10 @@
       return document.querySelector(`.aircraft-metric[data-aircraft-index="${index}"][data-metric="${metric}"] input`);
     }
 
+    function getRowMetricInput(rowId, metric) {
+      return document.querySelector(`.sheet-cell[data-row-id="${rowId}"][data-key="${metric}"] input`);
+    }
+
     function updateSelectedAircraftDisplay() {
       selectedAircraftDisplay.textContent = getAircraftLabel(selectedAircraftIndex);
     }
@@ -608,6 +615,15 @@
         const input = getMetricInput(index, "pic");
         if (input) input.value = total.toFixed(1);
       });
+    }
+
+    function updateRowPicTotal(rowId) {
+      let total = 0;
+      document.querySelectorAll(`.tenth.on[data-row-id="${rowId}"]`).forEach(() => {
+        total += 0.1;
+      });
+      const input = getRowMetricInput(rowId, "rowPic");
+      if (input) input.value = total.toFixed(1);
     }
 
     function buildAircraftBar() {
@@ -638,6 +654,7 @@
         chip.addEventListener("click", (e) => {
           if (e.target !== input) {
             selectedAircraftIndex = index;
+            setMode("flight");
             refreshAircraftSelection();
           }
         });
@@ -697,7 +714,6 @@
     function setMode(newMode) {
       mode = newMode;
       modeDisplay.textContent = newMode.toUpperCase();
-      flightBtn.classList.toggle("active", newMode === "flight");
       dutyBtn.classList.toggle("active", newMode === "duty");
       clearSelectedBtn.textContent = newMode === "flight" ? "Clear Flight Row" : "Clear Duty Row";
     }
@@ -785,7 +801,7 @@
       return div;
     }
 
-    function createInputCell(rowId, key, placeholder = "", maxLength = null, isTextarea = false) {
+    function createInputCell(rowId, key, placeholder = "", maxLength = null, isTextarea = false, readOnly = false) {
       const div = document.createElement("div");
       div.className = "sheet-cell";
       div.dataset.rowId = rowId;
@@ -797,6 +813,7 @@
       input.dataset.rowId = rowId;
       input.dataset.key = key;
       if (maxLength && !isTextarea) input.maxLength = maxLength;
+      if (readOnly) input.readOnly = true;
 
       input.addEventListener("focus", () => setCurrentRow(rowId));
 
@@ -932,6 +949,7 @@
       });
       updateTotals(rowId);
       updateAircraftPicTotals();
+      updateRowPicTotal(rowId);
     }
 
     function clearSelectedModeForCurrentRow() {
@@ -987,6 +1005,7 @@
       tenth.style.background = getAircraftColor(selectedAircraftIndex);
       updateTotals(Number(tenth.dataset.rowId));
       updateAircraftPicTotals();
+      updateRowPicTotal(Number(tenth.dataset.rowId));
     }
 
     function updateTotals(rowId) {
@@ -1056,7 +1075,7 @@
       clearFlightOnly(rowId);
       clearDutyOnly(rowId);
 
-      ["logDate", "landings", "route", "remarks"].forEach(key => {
+      ["logDate", "rowNight", "rowTrng", "landings", "route", "remarks"].forEach(key => {
         const input = getInput(rowId, key);
         if (input) input.value = "";
       });
@@ -1082,6 +1101,7 @@
           });
         });
         updateAircraftPicTotals();
+        updateRowPicTotal(rowId);
         return;
       }
 
@@ -1100,17 +1120,22 @@
       }
 
       updateAircraftPicTotals();
+      updateRowPicTotal(rowId);
     }
 
     function loadDayFromData(rowId, entry) {
       clearEntireDay(rowId);
 
       const dateInput = getInput(rowId, "logDate");
+      const rowNightInput = getInput(rowId, "rowNight");
+      const rowTrngInput = getInput(rowId, "rowTrng");
       const landingsInput = getInput(rowId, "landings");
       const routeInput = getInput(rowId, "route");
       const remarksInput = getInput(rowId, "remarks");
 
       if (dateInput) dateInput.value = formatDateForRow(entry.log_date) || "";
+      if (rowNightInput) rowNightInput.value = entry.row_night || "";
+      if (rowTrngInput) rowTrngInput.value = entry.row_trng || "";
       if (landingsInput) landingsInput.value = entry.landings || "";
       if (routeInput) routeInput.value = entry.route || "";
       if (remarksInput) remarksInput.value = entry.remarks || "";
@@ -1133,12 +1158,25 @@
       updateTotals(rowId);
       updatePeriodFromRows();
       updateAircraftPicTotals();
+      updateRowPicTotal(rowId);
     }
 
     function addDay(rowId) {
       const dateCell = createInputCell(rowId, "logDate", "MM/DD", 5);
       dateCell.style.gridRow = "span 2";
       pageGrid.appendChild(dateCell);
+
+      const rowPicCell = createInputCell(rowId, "rowPic", "", null, false, true);
+      rowPicCell.style.gridRow = "span 2";
+      pageGrid.appendChild(rowPicCell);
+
+      const rowNightCell = createInputCell(rowId, "rowNight", "");
+      rowNightCell.style.gridRow = "span 2";
+      pageGrid.appendChild(rowNightCell);
+
+      const rowTrngCell = createInputCell(rowId, "rowTrng", "");
+      rowTrngCell.style.gridRow = "span 2";
+      pageGrid.appendChild(rowTrngCell);
 
       const dutyStartCell = createReadoutCell(rowId, "dutyStart", "--:--");
       dutyStartCell.style.gridRow = "span 2";
@@ -1185,6 +1223,8 @@
       for (let i = 0; i < 48; i++) {
         pageGrid.appendChild(createDutyCell(rowId, i));
       }
+
+      updateRowPicTotal(rowId);
     }
 
     function buildPage() {
@@ -1192,9 +1232,12 @@
       rows = [];
 
       pageGrid.appendChild(createCell("header", "DATE"));
+      pageGrid.appendChild(createCell("header", "PIC"));
+      pageGrid.appendChild(createCell("header", "NGT"));
+      pageGrid.appendChild(createCell("header", "TRG"));
+      pageGrid.appendChild(createCell("header", "START"));
+      pageGrid.appendChild(createCell("header", "STOP"));
       pageGrid.appendChild(createCell("header", "DUTY"));
-      pageGrid.appendChild(createCell("header", ""));
-      pageGrid.appendChild(createCell("header", ""));
       pageGrid.appendChild(createCell("header", "FLT"));
       pageGrid.appendChild(createCell("header", "I"));
 
@@ -1207,6 +1250,9 @@
       pageGrid.appendChild(createCell("header", "REMARKS"));
 
       pageGrid.appendChild(createCell("subhead", "MM/DD"));
+      pageGrid.appendChild(createCell("subhead", "PIC"));
+      pageGrid.appendChild(createCell("subhead", "NIGHT"));
+      pageGrid.appendChild(createCell("subhead", "TRNG"));
       pageGrid.appendChild(createCell("subhead", "Start"));
       pageGrid.appendChild(createCell("subhead", "Stop"));
       pageGrid.appendChild(createCell("subhead", "Duty"));
@@ -1249,6 +1295,8 @@
       for (const row of rows) {
         const rowId = row.id;
         const logDateRaw = getInput(rowId, "logDate")?.value.trim() || "";
+        const rowNight = getInput(rowId, "rowNight")?.value.trim() || "";
+        const rowTrng = getInput(rowId, "rowTrng")?.value.trim() || "";
         const landings = getInput(rowId, "landings")?.value.trim() || "";
         const route = getInput(rowId, "route")?.value.trim() || "";
         const remarks = getInput(rowId, "remarks")?.value.trim() || "";
@@ -1263,6 +1311,8 @@
 
         const hasAnyData =
           logDateRaw ||
+          rowNight ||
+          rowTrng ||
           landings ||
           route ||
           remarks ||
@@ -1299,6 +1349,8 @@
           duty_stop: dutyRange ? dutyRange.stopText : null,
           pilot_name: pilotName || null,
           period: logPeriod || null,
+          row_night: rowNight || null,
+          row_trng: rowTrng || null,
           landings: landings || null,
           route: route || null,
           remarks: remarks || null,
@@ -1311,7 +1363,7 @@
 
     function stripOptionalFields(payloads) {
       return payloads.map(p => {
-        const { landings, route, remarks, flight_marks, ...rest } = p;
+        const { row_night, row_trng, landings, route, remarks, flight_marks, ...rest } = p;
         return rest;
       });
     }
@@ -1343,7 +1395,7 @@
       if (result.error && /column .* does not exist|schema cache/i.test(result.error.message)) {
         result = await sb.from("logs").insert(stripOptionalFields(payloads));
         if (!result.error) {
-          statusEl.textContent = `Saved ${payloads.length} day(s). Aircraft colors and/or right-side fields may not persist yet because one or more optional DB columns are missing.`;
+          statusEl.textContent = `Saved ${payloads.length} day(s). Aircraft colors and/or some optional row fields may not persist yet because one or more DB columns are missing.`;
           await loadSavedEntries();
           return;
         }
@@ -1369,7 +1421,7 @@
 
       let query = await sb
         .from("logs")
-        .select("id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, landings, route, remarks, flight_blocks, flight_marks, duty_blocks")
+        .select("id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, row_night, row_trng, landings, route, remarks, flight_blocks, flight_marks, duty_blocks")
         .eq("user_id", user.id)
         .order("id", { ascending: false });
 
@@ -1407,6 +1459,8 @@
             DUTY ${entry.duty_start || "--:--"}-${entry.duty_stop || "--:--"} |
             DUTY ${Number(entry.duty || 0).toFixed(1)} |
             FLT ${Number(entry.flt1 || 0).toFixed(1)}
+            ${entry.row_night ? `| NIGHT ${entry.row_night}` : ""}
+            ${entry.row_trng ? `| TRNG ${entry.row_trng}` : ""}
             ${entry.landings ? `| LDGS ${entry.landings}` : ""}
             ${entry.route ? `| ROUTE ${entry.route}` : ""}
             ${entry.remarks ? `| ${entry.remarks}` : ""}
@@ -1451,7 +1505,6 @@
       isDrawing = false;
     });
 
-    flightBtn.addEventListener("click", () => setMode("flight"));
     dutyBtn.addEventListener("click", () => setMode("duty"));
     clearSelectedBtn.addEventListener("click", clearSelectedModeForCurrentRow);
     saveAllBtn.addEventListener("click", saveAllRows);
