@@ -22,84 +22,76 @@
   <h3>Total Hours: <span id="totalHours">0</span></h3>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+ 
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
 <script>
-  window.addEventListener("load", () => {
+window.addEventListener("load", () => {
 
-    const sb = window.supabase.createClient(
-      "https://xjisftmfjsjomgsjzkod.supabase.co",
-      "sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS"
-    );
+  const sb = window.supabase.createClient(
+    "https://xjisftmfjsjomgsjzkod.supabase.co",
+    "sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS"
+  );
 
-    window.addLog = async function () {
-      const date = document.getElementById("date").value;
-      const aircraft = document.getElementById("aircraft").value;
-      const hours = document.getElementById("hours").value;
+  // ✅ LOAD ONLY THIS USER'S LOGS
+  window.loadLogs = async function () {
+    const { data: userData } = await sb.auth.getUser();
+    const user = userData.user;
 
-      const { error } = await sb
-        .from("logs")
-        .insert([{ date, aircraft, hours }]);
+    const { data, error } = await sb
+      .from("logs")
+      .select("*")
+      .eq("user_id", user.id);
 
-      if (error) {
-        console.error(error);
-        document.getElementById("status").innerText = error.message;
-      } else {
-        document.getElementById("status").innerText = "Flight saved!";
-       window.loadLogs = async function () {
-  const { data: userData } = await sb.auth.getUser();
-  const user = userData.user;
+    const list = document.getElementById("logList");
+    const totalDisplay = document.getElementById("totalHours");
 
-  const { data, error } = await sb
-    .from("logs")
-    .select("*")
-    .eq("user_id", user.id);
+    list.innerHTML = "";
+    let total = 0;
 
-  const list = document.getElementById("logList");
-  const totalDisplay = document.getElementById("totalHours");
+    if (data) {
+      data.forEach(log => {
+        const li = document.createElement("li");
+        li.textContent = `${log.date} - ${log.aircraft} - ${log.hours} hrs`;
+        list.appendChild(li);
 
-  list.innerHTML = "";
+        const hoursNum = parseFloat(log.hours);
+        if (!isNaN(hoursNum)) total += hoursNum;
+      });
+    }
 
-  let total = 0;
+    totalDisplay.innerText = total.toFixed(1);
+  };
 
-  if (data) {
-    data.forEach(log => {
-      const li = document.createElement("li");
-      li.textContent = `${log.date} - ${log.aircraft} - ${log.hours} hrs`;
-      list.appendChild(li);
+  // ✅ SAVE WITH USER ID
+  window.addLog = async function () {
+    const date = document.getElementById("date").value;
+    const aircraft = document.getElementById("aircraft").value;
+    const hours = document.getElementById("hours").value;
 
-      const hoursNum = parseFloat(log.hours);
-      if (!isNaN(hoursNum)) {
-        total += hoursNum;
-      }
-    });
-  }
+    const { data: userData } = await sb.auth.getUser();
+    const user = userData.user;
 
-  totalDisplay.innerText = total.toFixed(1);
-};
+    const { error } = await sb
+      .from("logs")
+      .insert([{
+        date,
+        aircraft,
+        hours,
+        user_id: user.id
+      }]);
 
-   window.addLog = async function () {
-  const date = document.getElementById("date").value;
-  const aircraft = document.getElementById("aircraft").value;
-  const hours = document.getElementById("hours").value;
+    if (error) {
+      console.error(error);
+      document.getElementById("status").innerText = error.message;
+    } else {
+      document.getElementById("status").innerText = "Flight saved!";
+      window.loadLogs();
+    }
+  };
 
-  const { data: userData } = await sb.auth.getUser();
-  const user = userData.user;
+  // ✅ LOAD ON PAGE OPEN
+  window.loadLogs();
 
-  const { error } = await sb
-    .from("logs")
-    .insert([{
-      date,
-      aircraft,
-      hours,
-      user_id: user.id
-    }]);
-
-  if (error) {
-    console.error(error);
-    document.getElementById("status").innerText = error.message;
-  } else {
-    document.getElementById("status").innerText = "Flight saved!";
-    window.loadLogs();
-  }
-};
+});
+</script>
