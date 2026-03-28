@@ -114,7 +114,15 @@
     };
 
     window.loadLogs();
+window.editLog = function (log) {
+  const newDate = prompt("Edit date:", log.date);
+  const newAircraft = prompt("Edit aircraft:", log.aircraft);
+  const newHours = prompt("Edit hours:", log.hours);
 
+  if (!newDate || !newAircraft || !newHours) return;
+
+  window.updateLog(log.id, newDate, newAircraft, newHours);
+};
   });
   </script>
 
