@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Flight Log - Precision Mode</title>
+  <title>Flight Log - Final Mode</title>
 
   <style>
     body {
@@ -32,19 +32,18 @@
 
     .grid {
       display: grid;
-      grid-template-columns: 80px repeat(240, 1fr);
-      gap: 1px;
-      overflow-x: auto;
+      grid-template-columns: 80px repeat(48, 1fr);
+      gap: 2px;
     }
 
     .cell {
-      height: 20px;
+      height: 25px;
       background: #1e293b;
       cursor: pointer;
     }
 
     .header {
-      font-size: 8px;
+      font-size: 10px;
       text-align: center;
       background: #334155;
     }
@@ -67,7 +66,7 @@
 
 <body>
 
-<h2>✈️ Flight Log (0.1 Precision)</h2>
+<h2>✈️ Flight & Duty Log</h2>
 
 <div class="controls">
   <button class="flight-btn" onclick="mode='flight'">Flight Mode</button>
@@ -88,11 +87,11 @@ let mouseDown = false;
 
 const grid = document.getElementById("grid");
 
-// HEADER
+// HEADER (0–24 in 0.5 steps)
 grid.innerHTML += "<div></div>";
-for (let i = 0; i < 240; i++) {
-  if (i % 10 === 0) {
-    grid.innerHTML += `<div class="header">${i/10}</div>`;
+for (let i = 0; i < 48; i++) {
+  if (i % 2 === 0) {
+    grid.innerHTML += `<div class="header">${i/2}</div>`;
   } else {
     grid.innerHTML += `<div class="header"></div>`;
   }
@@ -102,10 +101,11 @@ for (let i = 0; i < 240; i++) {
 ["flight", "duty"].forEach(type => {
   grid.innerHTML += `<div class="label">${type.toUpperCase()}</div>`;
 
-  for (let i = 0; i < 240; i++) {
+  for (let i = 0; i < 48; i++) {
     const cell = document.createElement("div");
     cell.className = "cell";
     cell.dataset.row = type;
+    cell.dataset.value = 0; // for flight tenths
 
     cell.onmousedown = () => {
       mouseDown = true;
@@ -121,17 +121,32 @@ for (let i = 0; i < 240; i++) {
 });
 
 // MOUSE TRACK
-document.body.onmousedown = () => mouseDown = true;
 document.body.onmouseup = () => mouseDown = false;
 
-// PAINT
+// PAINT FUNCTION
 function paint(cell) {
   if (cell.dataset.row !== mode) return;
 
-  if (cell.classList.contains(mode)) {
-    cell.classList.remove(mode);
-  } else {
-    cell.classList.add(mode);
+  if (mode === "duty") {
+    // toggle duty block (0.5)
+    cell.classList.toggle("duty");
+
+  } else if (mode === "flight") {
+    // increase in tenths (0 → 0.1 → 0.2 ... up to 0.5)
+    let val = parseFloat(cell.dataset.value);
+
+    val += 0.1;
+    if (val > 0.5) val = 0;
+
+    cell.dataset.value = val.toFixed(1);
+
+    if (val > 0) {
+      cell.classList.add("flight");
+      cell.style.opacity = 0.3 + val; // visual intensity
+    } else {
+      cell.classList.remove("flight");
+      cell.style.opacity = 1;
+    }
   }
 
   calculateTotals();
@@ -141,30 +156,30 @@ function paint(cell) {
 function clearGrid() {
   document.querySelectorAll(".cell").forEach(c => {
     c.classList.remove("flight", "duty");
+    c.dataset.value = 0;
+    c.style.opacity = 1;
   });
   calculateTotals();
 }
 
-// TOTALS (0.1 increments)
+// TOTALS
 function calculateTotals() {
   let flight = 0;
   let duty = 0;
 
   document.querySelectorAll(".cell").forEach(cell => {
-    if (cell.classList.contains("flight")) flight += 0.1;
-    if (cell.classList.contains("duty")) duty += 0.1;
+    if (cell.classList.contains("duty")) duty += 0.5;
+
+    if (cell.classList.contains("flight")) {
+      flight += parseFloat(cell.dataset.value);
+    }
   });
 
   flight = parseFloat(flight.toFixed(1));
   duty = parseFloat(duty.toFixed(1));
 
-  if (duty > 14) {
-    alert("⚠️ Duty exceeds 14 hours");
-  }
-
-  if (flight > duty) {
-    alert("⚠️ Flight cannot exceed duty");
-  }
+  if (duty > 14) alert("⚠️ Duty exceeds 14 hours");
+  if (flight > duty) alert("⚠️ Flight cannot exceed duty");
 
   document.getElementById("flightTotal").innerText = flight.toFixed(1);
   document.getElementById("dutyTotal").innerText = duty.toFixed(1);
