@@ -1,63 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Pilot Dashboard</title>
+  <title>Pilot Logbook Pro</title>
 
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: Arial;
       background: #0f172a;
       color: white;
       display: flex;
       justify-content: center;
-      padding: 40px;
+      padding: 30px;
     }
 
     .container {
       background: #1e293b;
-      padding: 25px;
-      border-radius: 12px;
-      width: 600px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
+      padding: 20px;
+      border-radius: 10px;
+      width: 700px;
     }
 
     input {
       width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 6px;
+      padding: 8px;
+      margin-bottom: 8px;
+      border-radius: 5px;
       border: none;
     }
 
     button {
       padding: 6px 10px;
       border: none;
-      border-radius: 6px;
+      border-radius: 5px;
       cursor: pointer;
-      margin-right: 5px;
     }
 
-    .save-btn {
-      background: #22c55e;
-      color: white;
-      width: 100%;
-      margin-top: 10px;
-    }
-
-    .edit-btn {
-      background: #3b82f6;
-      color: white;
-    }
-
-    .delete-btn {
-      background: #ef4444;
-      color: white;
-    }
+    .save-btn { background: #22c55e; color: white; width: 100%; }
+    .edit-btn { background: #3b82f6; color: white; }
+    .delete-btn { background: #ef4444; color: white; }
 
     table {
       width: 100%;
@@ -65,239 +45,201 @@
       margin-top: 10px;
     }
 
-    th {
-      background: #0f172a;
-      padding: 8px;
-      text-align: left;
-    }
-
-    td {
-      padding: 8px;
+    th, td {
+      padding: 6px;
       border-bottom: 1px solid #475569;
     }
 
-    tr:hover {
-      background: #475569;
-    }
-
-    .total {
-      margin-top: 15px;
-      font-size: 18px;
-      text-align: center;
+    th {
+      background: #0f172a;
     }
 
     canvas {
       margin-top: 20px;
       background: white;
       border-radius: 8px;
-      padding: 10px;
     }
   </style>
 </head>
 
 <body>
 
-  <div class="container">
+<div class="container">
 
-    <h1>Pilot Dashboard</h1>
+  <h2>Pilot Logbook</h2>
 
-    <h3>Add Flight Log</h3>
+  <h3>Add Flight</h3>
 
-    <input id="date" type="date">
-    <input id="aircraft" placeholder="Aircraft">
-    <input id="hours" placeholder="Flight Hours">
+  <input id="date" type="date">
+  <input id="aircraft" placeholder="Aircraft">
 
-    <button class="save-btn" onclick="addLog()">Save Flight</button>
+  <input id="pic" placeholder="PIC Hours">
+  <input id="night" placeholder="Night Hours">
+  <input id="training" placeholder="Training Hours">
 
-    <p id="status"></p>
+  <input id="flight" placeholder="Flight Time">
+  <input id="duty" placeholder="Duty Time">
 
-    <h3>Saved Flights</h3>
+  <input id="remarks" placeholder="Remarks">
 
-    <table>
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Aircraft</th>
-          <th>Hours</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="logList"></tbody>
-    </table>
+  <button class="save-btn" onclick="addLog()">Save Flight</button>
 
-    <div class="total">
-      Total Hours: <span id="totalHours">0</span>
-    </div>
+  <p id="status"></p>
 
-    <h3>Flight Hours Chart</h3>
-    <canvas id="flightChart"></canvas>
+  <h3>Flight Logs</h3>
 
-  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>A/C</th>
+        <th>PIC</th>
+        <th>Night</th>
+        <th>Trng</th>
+        <th>FLT</th>
+        <th>DUTY</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="logList"></tbody>
+  </table>
 
-  <!-- Supabase -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <h3>Total Flight Hours: <span id="totalHours">0</span></h3>
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <canvas id="chart"></canvas>
 
-  <script>
-  window.addEventListener("load", () => {
+</div>
 
-    const sb = window.supabase.createClient(
-      "https://xjisftmfjsjomgsjzkod.supabase.co",
-      "sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS"
-    );
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    let chart;
+<script>
+window.addEventListener("load", () => {
 
-    function drawChart(data) {
-      const ctx = document.getElementById("flightChart");
+  const sb = window.supabase.createClient(
+    "https://xjisftmfjsjomgsjzkod.supabase.co",
+    "sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS"
+  );
 
-      const labels = data.map(log => log.date);
-      const hours = data.map(log => parseFloat(log.hours));
+  let chart;
 
-      if (chart) chart.destroy();
+  function drawChart(data) {
+    const ctx = document.getElementById("chart");
 
-      chart = new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: labels,
-          datasets: [{
-            label: "Flight Hours",
-            data: hours,
-            borderWidth: 2,
-            tension: 0.3
-          }]
-        },
-        options: {
-          responsive: true
-        }
+    if (chart) chart.destroy();
+
+    chart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: data.map(d => d.date),
+        datasets: [{
+          label: "Flight Time",
+          data: data.map(d => parseFloat(d.flight)),
+          borderWidth: 2
+        }]
+      }
+    });
+  }
+
+  window.loadLogs = async function () {
+    const { data: userData } = await sb.auth.getUser();
+    const user = userData.user;
+
+    const { data } = await sb
+      .from("logs")
+      .select("*")
+      .eq("user_id", user.id);
+
+    const list = document.getElementById("logList");
+    list.innerHTML = "";
+
+    let total = 0;
+
+    if (data) {
+      drawChart(data);
+
+      data.forEach(log => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td>${log.date}</td>
+          <td>${log.aircraft}</td>
+          <td>${log.pic}</td>
+          <td>${log.night}</td>
+          <td>${log.training}</td>
+          <td>${log.flight}</td>
+          <td>${log.duty}</td>
+          <td></td>
+        `;
+
+        const actions = row.children[7];
+
+        const edit = document.createElement("button");
+        edit.textContent = "Edit";
+        edit.className = "edit-btn";
+        edit.onclick = () => editLog(log);
+
+        const del = document.createElement("button");
+        del.textContent = "Delete";
+        del.className = "delete-btn";
+        del.onclick = () => deleteLog(log.id);
+
+        actions.appendChild(edit);
+        actions.appendChild(del);
+
+        list.appendChild(row);
+
+        total += parseFloat(log.flight) || 0;
       });
     }
 
-    // LOAD LOGS
-    window.loadLogs = async function () {
-      const { data: userData } = await sb.auth.getUser();
-      const user = userData.user;
+    document.getElementById("totalHours").innerText = total.toFixed(1);
+  };
 
-      const { data } = await sb
-        .from("logs")
-        .select("*")
-        .eq("user_id", user.id);
+  window.addLog = async function () {
+    const { data: userData } = await sb.auth.getUser();
+    const user = userData.user;
 
-      const list = document.getElementById("logList");
-      const totalDisplay = document.getElementById("totalHours");
-
-      list.innerHTML = "";
-      let total = 0;
-
-      if (data) {
-        drawChart(data);
-
-        data.forEach(log => {
-          const row = document.createElement("tr");
-
-          row.innerHTML = `
-            <td>${log.date}</td>
-            <td>${log.aircraft}</td>
-            <td>${log.hours}</td>
-            <td></td>
-          `;
-
-          const actionsCell = row.children[3];
-
-          const editBtn = document.createElement("button");
-          editBtn.textContent = "Edit";
-          editBtn.className = "edit-btn";
-          editBtn.onclick = () => window.editLog(log);
-
-          const deleteBtn = document.createElement("button");
-          deleteBtn.textContent = "Delete";
-          deleteBtn.className = "delete-btn";
-          deleteBtn.onclick = () => window.deleteLog(log.id);
-
-          actionsCell.appendChild(editBtn);
-          actionsCell.appendChild(deleteBtn);
-
-          list.appendChild(row);
-
-          const hoursNum = parseFloat(log.hours);
-          if (!isNaN(hoursNum)) total += hoursNum;
-        });
-      }
-
-      totalDisplay.innerText = total.toFixed(1);
+    const log = {
+      date: date.value,
+      aircraft: aircraft.value,
+      pic: pic.value,
+      night: night.value,
+      training: training.value,
+      flight: flight.value,
+      duty: duty.value,
+      remarks: remarks.value,
+      user_id: user.id
     };
 
-    // ADD
-    window.addLog = async function () {
-      const date = document.getElementById("date").value;
-      const aircraft = document.getElementById("aircraft").value;
-      const hours = document.getElementById("hours").value;
+    const { error } = await sb.from("logs").insert([log]);
 
-      const { data: userData } = await sb.auth.getUser();
-      const user = userData.user;
+    if (error) {
+      status.innerText = error.message;
+    } else {
+      status.innerText = "Saved!";
+      loadLogs();
+    }
+  };
 
-      const { error } = await sb
-        .from("logs")
-        .insert([{
-          date,
-          aircraft,
-          hours,
-          user_id: user.id
-        }]);
+  window.deleteLog = async function (id) {
+    await sb.from("logs").delete().eq("id", id);
+    loadLogs();
+  };
 
-      if (error) {
-        document.getElementById("status").innerText = error.message;
-      } else {
-        document.getElementById("status").innerText = "Flight saved!";
-        window.loadLogs();
-      }
-    };
+  window.editLog = function (log) {
+    const newFlight = prompt("Edit Flight Time:", log.flight);
+    if (!newFlight) return;
 
-    // DELETE
-    window.deleteLog = async function (id) {
-      const { error } = await sb
-        .from("logs")
-        .delete()
-        .eq("id", id);
+    sb.from("logs")
+      .update({ flight: newFlight })
+      .eq("id", log.id)
+      .then(loadLogs);
+  };
 
-      if (error) {
-        alert(error.message);
-      } else {
-        window.loadLogs();
-      }
-    };
-
-    // EDIT
-    window.editLog = function (log) {
-      const newDate = prompt("Edit date:", log.date);
-      const newAircraft = prompt("Edit aircraft:", log.aircraft);
-      const newHours = prompt("Edit hours:", log.hours);
-
-      if (!newDate || !newAircraft || !newHours) return;
-
-      window.updateLog(log.id, newDate, newAircraft, newHours);
-    };
-
-    // UPDATE
-    window.updateLog = async function (id, date, aircraft, hours) {
-      const { error } = await sb
-        .from("logs")
-        .update({ date, aircraft, hours })
-        .eq("id", id);
-
-      if (error) {
-        alert(error.message);
-      } else {
-        window.loadLogs();
-      }
-    };
-
-    window.loadLogs();
-
-  });
-  </script>
+  loadLogs();
+});
+</script>
 
 </body>
 </html>
