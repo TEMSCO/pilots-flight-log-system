@@ -1,38 +1,9 @@
 <!DOCTYPE html>
 <html>
-<body style="background:black;color:white;">
-
-<h3>Mode: <span id="mode">flight</span></h3>
-
-<button onclick="setMode('flight')">Flight</button>
-<button onclick="setMode('duty')">Duty</button>
-
-<br><br>
-
-<div id="flightRow">FLIGHT ROW (click me)</div>
-<div id="dutyRow">DUTY ROW (click me)</div>
-
-<script>
-let mode = "flight";
-
-function setMode(m) {
-  mode = m;
-  document.getElementById("mode").innerText = m;
-}
-
-document.getElementById("flightRow").onclick = () => {
-  if (mode === "flight") {
-    alert("FLIGHT WORKS");
-  }
-};
-
-document.getElementById("dutyRow").onclick = () => {
-  if (mode === "duty") {
-    alert("DUTY WORKS");
-  }
-};
-</script>
-
+<body style="background:black;color:white;font-family:Arial;padding:20px;">
+  <h1>TEST PAGE 123</h1>
+  <p>If you see this exact text, the new file is loading.</p>
+  <button onclick="alert('BUTTON WORKS')">Click Me</button>
 </body>
 </html>
   
