@@ -13,8 +13,6 @@
       --subtle: #f8fafc;
       --flight: #22c55e;
       --duty: #facc15;
-      --blue: #2563eb;
-      --red: #dc2626;
     }
 
     * {
@@ -23,7 +21,7 @@
 
     body {
       margin: 0;
-      padding: 10px;
+      padding: 8px;
       font-family: Arial, sans-serif;
       background: #dbe4ee;
       color: var(--ink);
@@ -34,21 +32,21 @@
       margin: 0 auto;
       background: var(--paper);
       border: 1.5px solid var(--line);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-      padding: 10px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      padding: 8px;
     }
 
     .sheet-header {
       display: grid;
       grid-template-columns: 1fr 300px;
-      gap: 10px;
+      gap: 8px;
       align-items: start;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .sheet-title {
       text-align: center;
-      padding-top: 4px;
+      padding-top: 2px;
     }
 
     .sheet-title .company {
@@ -66,7 +64,7 @@
 
     .sheet-title .note {
       font-size: 10px;
-      margin-top: 4px;
+      margin-top: 3px;
     }
 
     .header-box {
@@ -78,7 +76,7 @@
       display: grid;
       grid-template-columns: 92px 1fr;
       border-bottom: 1px solid var(--line);
-      min-height: 30px;
+      min-height: 28px;
     }
 
     .header-box-row:last-child {
@@ -103,17 +101,24 @@
       background: white;
     }
 
-    .header-value input {
+    .header-value input,
+    .sheet-cell input,
+    .sheet-cell textarea {
       width: 100%;
       height: 100%;
       border: none;
-      padding: 6px 8px;
-      font-size: 11px;
       background: transparent;
+      font-family: Arial, sans-serif;
+    }
+
+    .header-value input {
+      padding: 5px 6px;
+      font-size: 11px;
     }
 
     .header-value input:focus,
-    .sheet-cell input:focus {
+    .sheet-cell input:focus,
+    .sheet-cell textarea:focus {
       outline: 1.5px solid #60a5fa;
       outline-offset: -1px;
     }
@@ -123,14 +128,14 @@
       gap: 6px;
       flex-wrap: wrap;
       justify-content: center;
-      margin: 8px 0 10px;
+      margin: 6px 0 8px;
     }
 
     button {
       border: 1px solid var(--line);
       background: white;
       color: var(--ink);
-      padding: 6px 10px;
+      padding: 5px 9px;
       font-weight: bold;
       cursor: pointer;
       font-size: 11px;
@@ -138,7 +143,6 @@
 
     .flight-btn { background: #dcfce7; }
     .duty-btn { background: #fef3c7; }
-    .add-btn { background: #dbeafe; }
     .clear-btn { background: #fee2e2; }
     .save-btn { background: #d1fae5; }
     .load-btn { background: #e0e7ff; }
@@ -152,7 +156,7 @@
       text-align: center;
       font-size: 11px;
       font-weight: bold;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       letter-spacing: 0.3px;
     }
 
@@ -165,76 +169,86 @@
     .page-grid {
       display: grid;
       grid-template-columns:
-        56px
-        92px
-        52px
-        52px
-        52px
-        52px
-        44px
-        repeat(48, minmax(12px, 1fr));
-      min-width: 1080px;
+        48px   /* date */
+        68px   /* ac */
+        44px   /* start */
+        44px   /* stop */
+        44px   /* duty */
+        44px   /* flt */
+        40px   /* row label */
+        repeat(48, minmax(10px, 1fr))
+        34px   /* ldgs */
+        58px   /* route */
+        96px;  /* remarks */
+      min-width: 1060px;
     }
 
     .sheet-cell {
       border-right: 1px solid var(--line);
       border-bottom: 1px solid var(--line);
-      min-height: 22px;
+      min-height: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 2px;
-      font-size: 10px;
+      padding: 1px;
+      font-size: 9px;
       text-align: center;
-      line-height: 1.1;
+      line-height: 1.05;
       background: white;
     }
 
     .sheet-cell.header {
       background: var(--header);
       font-weight: bold;
+      min-height: 20px;
     }
 
     .sheet-cell.subhead {
       background: var(--subtle);
       font-weight: bold;
+      min-height: 18px;
     }
 
     .sheet-cell.row-label {
       background: var(--subtle);
       font-weight: bold;
-      font-size: 10px;
+      font-size: 9px;
+      cursor: pointer;
     }
 
     .sheet-cell.readout {
       font-weight: bold;
+      font-size: 9px;
     }
 
     .sheet-cell input {
-      width: 100%;
-      height: 100%;
-      border: none;
-      background: transparent;
+      font-size: 9px;
+      padding: 1px 2px;
       text-align: center;
-      font-size: 10px;
+    }
+
+    .sheet-cell textarea {
+      resize: none;
+      font-size: 9px;
       padding: 2px 3px;
+      line-height: 1.1;
     }
 
     .time-subhead {
-      font-size: 8px;
-      min-height: 18px;
+      font-size: 7px;
+      min-height: 16px;
       background: var(--subtle);
     }
 
     .flight-cell {
       padding: 0;
-      min-height: 24px;
+      min-height: 20px;
       display: grid;
       grid-template-columns: repeat(5, 1fr);
     }
 
     .tenth {
-      min-height: 24px;
+      min-height: 20px;
       border-right: 1px solid #d1d5db;
       background: white;
       cursor: pointer;
@@ -250,7 +264,7 @@
 
     .duty-cell {
       padding: 0;
-      min-height: 24px;
+      min-height: 20px;
       background: white;
       cursor: pointer;
     }
@@ -265,15 +279,15 @@
     }
 
     .status {
-      margin-top: 8px;
-      min-height: 18px;
+      margin-top: 6px;
+      min-height: 16px;
       text-align: center;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: bold;
     }
 
     .saved-wrap {
-      margin-top: 12px;
+      margin-top: 10px;
       border: 1.5px solid var(--line);
       background: white;
     }
@@ -281,7 +295,7 @@
     .saved-title {
       background: var(--header);
       border-bottom: 1px solid var(--line);
-      padding: 6px 8px;
+      padding: 5px 7px;
       font-weight: bold;
       text-transform: uppercase;
       letter-spacing: 0.2px;
@@ -293,7 +307,7 @@
       grid-template-columns: 1fr auto;
       gap: 8px;
       align-items: center;
-      padding: 8px;
+      padding: 7px;
       border-bottom: 1px solid var(--soft-line);
     }
 
@@ -302,8 +316,8 @@
     }
 
     .saved-meta {
-      font-size: 11px;
-      line-height: 1.3;
+      font-size: 10px;
+      line-height: 1.25;
     }
 
     .saved-actions {
@@ -335,29 +349,40 @@
         min-width: 0;
         width: 100%;
         grid-template-columns:
+          44px
+          60px
+          40px
+          40px
+          40px
+          40px
+          36px
+          repeat(48, minmax(9px, 1fr))
+          30px
           48px
-          78px
-          42px
-          42px
-          42px
-          42px
-          48px
-          repeat(48, minmax(10px, 1fr));
+          80px;
       }
 
       .sheet-cell {
-        min-height: 18px;
-        font-size: 8px;
+        min-height: 17px;
+        font-size: 7.5px;
       }
 
       .time-subhead {
-        font-size: 7px;
+        font-size: 6.5px;
       }
 
       .flight-cell,
       .duty-cell,
       .tenth {
-        min-height: 18px;
+        min-height: 17px;
+      }
+
+      .sheet-title .form-title {
+        font-size: 18px;
+      }
+
+      .sheet-title .company {
+        font-size: 11px;
       }
     }
 
@@ -378,7 +403,7 @@
       <div class="sheet-title">
         <div class="company">TEMSCO HELICOPTERS INC.</div>
         <div class="form-title">Pilot's Flight & Duty Time Log</div>
-        <div class="note">Multi-row printable layout modeled on the scanned form. :contentReference[oaicite:2]{index=2}</div>
+        <div class="note">7-day printable layout modeled on the scanned form. :contentReference[oaicite:1]{index=1}</div>
       </div>
 
       <div class="header-box">
@@ -391,7 +416,7 @@
         <div class="header-box-row">
           <div class="header-label">PERIOD</div>
           <div class="header-value">
-            <input id="logPeriod" type="text" placeholder="e.g. 2026 or Jan 2026" />
+            <input id="logPeriod" type="text" placeholder="e.g. Jan 2026 or 2026" />
           </div>
         </div>
       </div>
@@ -400,13 +425,15 @@
     <div class="controls">
       <button id="flightBtn" class="flight-btn active" type="button">Flight Mode</button>
       <button id="dutyBtn" class="duty-btn" type="button">Duty Mode</button>
-      <button id="addRowBtn" class="add-btn" type="button">Add Row</button>
-      <button id="clearCurrentBtn" class="clear-btn" type="button">Clear Current Row</button>
-      <button id="saveAllBtn" class="save-btn" type="button">Save All Rows</button>
+      <button id="clearSelectedBtn" class="clear-btn" type="button">Clear Selected Mode</button>
+      <button id="saveAllBtn" class="save-btn" type="button">Save 7 Days</button>
       <button id="loadSavedBtn" class="load-btn" type="button">Load Saved Rows</button>
     </div>
 
-    <div class="mode-line">MODE: <span id="modeDisplay">FLIGHT</span> | CURRENT ROW: <span id="currentRowDisplay">1</span></div>
+    <div class="mode-line">
+      MODE: <span id="modeDisplay">FLIGHT</span> |
+      CURRENT DAY: <span id="currentRowDisplay">1</span>
+    </div>
 
     <div class="page-grid-wrap">
       <div id="pageGrid" class="page-grid"></div>
@@ -415,7 +442,7 @@
     <div id="status" class="status"></div>
 
     <div class="saved-wrap">
-      <div class="saved-title">Saved Batches / Entries</div>
+      <div class="saved-title">Saved Entries</div>
       <div id="savedList"></div>
     </div>
   </div>
@@ -427,19 +454,17 @@
       "sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS"
     );
 
+    const DAY_COUNT = 7;
+
     let mode = "flight";
     let isDrawing = false;
     let currentRowId = 1;
     let rows = [];
-    let rowCounter = 1;
-
-    const DEFAULT_ROW_COUNT = 8;
 
     const pageGrid = document.getElementById("pageGrid");
     const flightBtn = document.getElementById("flightBtn");
     const dutyBtn = document.getElementById("dutyBtn");
-    const addRowBtn = document.getElementById("addRowBtn");
-    const clearCurrentBtn = document.getElementById("clearCurrentBtn");
+    const clearSelectedBtn = document.getElementById("clearSelectedBtn");
     const saveAllBtn = document.getElementById("saveAllBtn");
     const loadSavedBtn = document.getElementById("loadSavedBtn");
     const modeDisplay = document.getElementById("modeDisplay");
@@ -452,16 +477,18 @@
       modeDisplay.textContent = newMode.toUpperCase();
       flightBtn.classList.toggle("active", newMode === "flight");
       dutyBtn.classList.toggle("active", newMode === "duty");
+      clearSelectedBtn.textContent = newMode === "flight" ? "Clear Flight Row" : "Clear Duty Row";
     }
 
     function setCurrentRow(rowId) {
       currentRowId = rowId;
       currentRowDisplay.textContent = rowId;
+
       document.querySelectorAll(".sheet-cell.row-label").forEach(el => {
         el.style.outline = "";
       });
-      const labels = document.querySelectorAll(`.sheet-cell.row-label[data-row-id="${rowId}"]`);
-      labels.forEach(el => {
+
+      document.querySelectorAll(`.sheet-cell.row-label[data-row-id="${rowId}"]`).forEach(el => {
         el.style.outline = "1.5px solid #2563eb";
         el.style.outlineOffset = "-1px";
       });
@@ -499,15 +526,15 @@
       input.value = value;
     }
 
-    function getRow(rowId) {
-      return rows.find(r => r.id === rowId);
-    }
-
     function makeEmptyRow(id) {
       return {
         id,
         dutyStartBlock: null
       };
+    }
+
+    function getRow(rowId) {
+      return rows.find(r => r.id === rowId);
     }
 
     function createCell(className = "", text = "") {
@@ -517,16 +544,18 @@
       return div;
     }
 
-    function createInputCell(rowId, key, placeholder = "", maxLength = null) {
+    function createInputCell(rowId, key, placeholder = "", maxLength = null, isTextarea = false) {
       const div = document.createElement("div");
       div.className = "sheet-cell";
+      div.dataset.rowId = rowId;
+      div.dataset.key = key;
 
-      const input = document.createElement("input");
-      input.type = "text";
+      const input = isTextarea ? document.createElement("textarea") : document.createElement("input");
+      if (!isTextarea) input.type = "text";
       input.placeholder = placeholder;
       input.dataset.rowId = rowId;
       input.dataset.key = key;
-      if (maxLength) input.maxLength = maxLength;
+      if (maxLength && !isTextarea) input.maxLength = maxLength;
 
       input.addEventListener("focus", () => setCurrentRow(rowId));
 
@@ -601,6 +630,14 @@
       return cell;
     }
 
+    function getReadout(rowId, key) {
+      return document.querySelector(`.sheet-cell.readout[data-row-id="${rowId}"][data-key="${key}"]`);
+    }
+
+    function getInput(rowId, key) {
+      return document.querySelector(`[data-row-id="${rowId}"][data-key="${key}"] input, [data-row-id="${rowId}"][data-key="${key}"] textarea`);
+    }
+
     function getDutyRange(rowId) {
       const activeBlocks = [];
       document.querySelectorAll(`.duty-cell[data-row-id="${rowId}"].on`).forEach((cell) => {
@@ -623,10 +660,6 @@
       };
     }
 
-    function getReadout(rowId, key) {
-      return document.querySelector(`.sheet-cell.readout[data-row-id="${rowId}"][data-key="${key}"]`);
-    }
-
     function clearDutyPending(rowId) {
       document.querySelectorAll(`.duty-cell.pending[data-row-id="${rowId}"]`).forEach((el) => {
         el.classList.remove("pending");
@@ -639,18 +672,34 @@
       if (cell) cell.classList.add("pending");
     }
 
-    function clearDutyRow(rowId) {
+    function clearDutyOnly(rowId) {
       document.querySelectorAll(`.duty-cell[data-row-id="${rowId}"].on`).forEach((el) => el.classList.remove("on"));
       clearDutyPending(rowId);
       const row = getRow(rowId);
       if (row) row.dutyStartBlock = null;
+      updateTotals(rowId);
+    }
+
+    function clearFlightOnly(rowId) {
+      document.querySelectorAll(`.tenth[data-row-id="${rowId}"].on`).forEach((el) => el.classList.remove("on"));
+      updateTotals(rowId);
+    }
+
+    function clearSelectedModeForCurrentRow() {
+      if (mode === "flight") {
+        clearFlightOnly(currentRowId);
+        statusEl.textContent = `Day ${currentRowId}: flight row cleared.`;
+      } else {
+        clearDutyOnly(currentRowId);
+        statusEl.textContent = `Day ${currentRowId}: duty row cleared.`;
+      }
     }
 
     function fillDutyRange(rowId, startBlock, stopBlock) {
       const start = Math.min(startBlock, stopBlock);
       const end = Math.max(startBlock, stopBlock);
 
-      clearDutyRow(rowId);
+      clearDutyOnly(rowId);
 
       for (let i = start; i <= end; i++) {
         const cell = document.querySelector(`.duty-cell[data-row-id="${rowId}"][data-block="${i}"]`);
@@ -668,18 +717,18 @@
       const block = Number(cell.dataset.block);
 
       if (row.dutyStartBlock === null) {
-        clearDutyRow(rowId);
+        clearDutyOnly(rowId);
         row.dutyStartBlock = block;
         setDutyPending(rowId, block);
         updateTotals(rowId);
-        statusEl.textContent = `Row ${rowId}: duty start set. Click stop time.`;
+        statusEl.textContent = `Day ${rowId}: duty start set. Click stop time.`;
         return;
       }
 
       fillDutyRange(rowId, row.dutyStartBlock, block);
       row.dutyStartBlock = null;
       clearDutyPending(rowId);
-      statusEl.textContent = `Row ${rowId}: duty range filled.`;
+      statusEl.textContent = `Day ${rowId}: duty range filled.`;
     }
 
     function paintFlight(tenth) {
@@ -708,20 +757,6 @@
       getReadout(rowId, "dutyStop").textContent = dutyRange ? dutyRange.stopText : "--:--";
     }
 
-    function clearRow(rowId) {
-      document.querySelectorAll(`.tenth.on[data-row-id="${rowId}"]`).forEach(el => el.classList.remove("on"));
-      clearDutyRow(rowId);
-
-      const dateInput = document.querySelector(`input[data-row-id="${rowId}"][data-key="logDate"]`);
-      const acInput = document.querySelector(`input[data-row-id="${rowId}"][data-key="aircraftName"]`);
-
-      if (dateInput) dateInput.value = "";
-      if (acInput) acInput.value = "";
-
-      updateTotals(rowId);
-      statusEl.textContent = `Row ${rowId} cleared.`;
-    }
-
     function getFlightBlocks(rowId) {
       const blocks = [];
       for (let i = 0; i < 48; i++) {
@@ -743,17 +778,30 @@
       return blocks;
     }
 
-    function loadRowFromData(rowId, entry) {
-      const dateInput = document.querySelector(`input[data-row-id="${rowId}"][data-key="logDate"]`);
-      const acInput = document.querySelector(`input[data-row-id="${rowId}"][data-key="aircraftName"]`);
+    function clearEntireDay(rowId) {
+      clearFlightOnly(rowId);
+      clearDutyOnly(rowId);
+
+      ["logDate", "aircraftName", "landings", "route", "remarks"].forEach(key => {
+        const input = getInput(rowId, key);
+        if (input) input.value = "";
+      });
+    }
+
+    function loadDayFromData(rowId, entry) {
+      clearEntireDay(rowId);
+
+      const dateInput = getInput(rowId, "logDate");
+      const acInput = getInput(rowId, "aircraftName");
+      const landingsInput = getInput(rowId, "landings");
+      const routeInput = getInput(rowId, "route");
+      const remarksInput = getInput(rowId, "remarks");
 
       if (dateInput) dateInput.value = formatDateForRow(entry.log_date) || "";
       if (acInput) acInput.value = entry.aircraft_name || "";
-
-      clearRow(rowId);
-
-      if (dateInput) dateInput.value = formatDateForRow(entry.log_date) || "";
-      if (acInput) acInput.value = entry.aircraft_name || "";
+      if (landingsInput) landingsInput.value = entry.landings || "";
+      if (routeInput) routeInput.value = entry.route || "";
+      if (remarksInput) remarksInput.value = entry.remarks || "";
 
       if (Array.isArray(entry.flight_blocks)) {
         entry.flight_blocks.forEach((value, blockIndex) => {
@@ -781,15 +829,32 @@
       updateTotals(rowId);
     }
 
-    function addDataRow(rowId) {
-      pageGrid.appendChild(createInputCell(rowId, "logDate", "MM/DD", 5));
-      pageGrid.appendChild(createInputCell(rowId, "aircraftName", "Aircraft"));
-      pageGrid.appendChild(createReadoutCell(rowId, "dutyStart", "--:--"));
-      pageGrid.appendChild(createReadoutCell(rowId, "dutyStop", "--:--"));
-      pageGrid.appendChild(createReadoutCell(rowId, "dutyTotal", "0.0"));
-      pageGrid.appendChild(createReadoutCell(rowId, "flightTotal", "0.0"));
+    function addDay(rowId) {
+      const dateCell = createInputCell(rowId, "logDate", "MM/DD", 5);
+      dateCell.style.gridRow = "span 2";
+      pageGrid.appendChild(dateCell);
 
-      const flightLabel = createCell("row-label", "FLIGHT");
+      const acCell = createInputCell(rowId, "aircraftName", "A/C");
+      acCell.style.gridRow = "span 2";
+      pageGrid.appendChild(acCell);
+
+      const dutyStartCell = createReadoutCell(rowId, "dutyStart", "--:--");
+      dutyStartCell.style.gridRow = "span 2";
+      pageGrid.appendChild(dutyStartCell);
+
+      const dutyStopCell = createReadoutCell(rowId, "dutyStop", "--:--");
+      dutyStopCell.style.gridRow = "span 2";
+      pageGrid.appendChild(dutyStopCell);
+
+      const dutyTotalCell = createReadoutCell(rowId, "dutyTotal", "0.0");
+      dutyTotalCell.style.gridRow = "span 2";
+      pageGrid.appendChild(dutyTotalCell);
+
+      const flightTotalCell = createReadoutCell(rowId, "flightTotal", "0.0");
+      flightTotalCell.style.gridRow = "span 2";
+      pageGrid.appendChild(flightTotalCell);
+
+      const flightLabel = createCell("row-label", "FLT");
       flightLabel.dataset.rowId = rowId;
       flightLabel.addEventListener("click", () => setCurrentRow(rowId));
       pageGrid.appendChild(flightLabel);
@@ -798,12 +863,17 @@
         pageGrid.appendChild(createFlightCell(rowId, i));
       }
 
-      pageGrid.appendChild(createCell("subhead", ""));
-      pageGrid.appendChild(createCell("subhead", ""));
-      pageGrid.appendChild(createCell("readout", ""));
-      pageGrid.appendChild(createCell("readout", ""));
-      pageGrid.appendChild(createCell("readout", ""));
-      pageGrid.appendChild(createCell("readout", ""));
+      const landingsCell = createInputCell(rowId, "landings", "", 4);
+      landingsCell.style.gridRow = "span 2";
+      pageGrid.appendChild(landingsCell);
+
+      const routeCell = createInputCell(rowId, "route", "");
+      routeCell.style.gridRow = "span 2";
+      pageGrid.appendChild(routeCell);
+
+      const remarksCell = createInputCell(rowId, "remarks", "", null, true);
+      remarksCell.style.gridRow = "span 2";
+      pageGrid.appendChild(remarksCell);
 
       const dutyLabel = createCell("row-label", "DUTY");
       dutyLabel.dataset.rowId = rowId;
@@ -818,48 +888,48 @@
     function buildPage() {
       pageGrid.innerHTML = "";
       rows = [];
-      rowCounter = 1;
 
       pageGrid.appendChild(createCell("header", "DATE"));
-      pageGrid.appendChild(createCell("header", "A/C"));
-      pageGrid.appendChild(createCell("header", "DUTY TIME"));
+      pageGrid.appendChild(createCell("header", "A/C N"));
+      pageGrid.appendChild(createCell("header", "DUTY"));
       pageGrid.appendChild(createCell("header", ""));
       pageGrid.appendChild(createCell("header", ""));
-      pageGrid.appendChild(createCell("header", "TOTALS"));
-      pageGrid.appendChild(createCell("header", "ROW"));
+      pageGrid.appendChild(createCell("header", "FLT"));
+      pageGrid.appendChild(createCell("header", "I"));
 
       for (let i = 0; i < 48; i++) {
         pageGrid.appendChild(createCell("header", i === 0 ? "TIME" : ""));
       }
 
+      pageGrid.appendChild(createCell("header", "LDGS"));
+      pageGrid.appendChild(createCell("header", "ROUTE"));
+      pageGrid.appendChild(createCell("header", "REMARKS"));
+
       pageGrid.appendChild(createCell("subhead", "MM/DD"));
-      pageGrid.appendChild(createCell("subhead", "Aircraft"));
+      pageGrid.appendChild(createCell("subhead", "A/C"));
       pageGrid.appendChild(createCell("subhead", "Start"));
       pageGrid.appendChild(createCell("subhead", "Stop"));
       pageGrid.appendChild(createCell("subhead", "Duty"));
-      pageGrid.appendChild(createCell("subhead", "Flight"));
-      pageGrid.appendChild(createCell("subhead", "Type"));
+      pageGrid.appendChild(createCell("subhead", "Flt"));
+      pageGrid.appendChild(createCell("subhead", "ROW"));
 
       for (let i = 0; i < 48; i++) {
         const text = i % 2 === 0 ? String(i / 2) : "";
-        pageGrid.appendChild(createCell("sheet-cell time-subhead", text));
+        pageGrid.appendChild(createCell("time-subhead", text));
       }
 
-      for (let i = 0; i < DEFAULT_ROW_COUNT; i++) {
-        const row = makeEmptyRow(rowCounter++);
+      pageGrid.appendChild(createCell("subhead", "No."));
+      pageGrid.appendChild(createCell("subhead", "From/To"));
+      pageGrid.appendChild(createCell("subhead", "Notes"));
+
+      for (let i = 1; i <= DAY_COUNT; i++) {
+        const row = makeEmptyRow(i);
         rows.push(row);
-        addDataRow(row.id);
+        addDay(i);
       }
 
       setCurrentRow(1);
-    }
-
-    function addBlankRow() {
-      const row = makeEmptyRow(rowCounter++);
-      rows.push(row);
-      addDataRow(row.id);
-      setCurrentRow(row.id);
-      statusEl.textContent = `Added row ${row.id}.`;
+      setMode("flight");
     }
 
     async function getCurrentUser() {
@@ -871,15 +941,18 @@
       return data.session?.user ?? null;
     }
 
-    function collectRowPayloads(userId) {
+    function collectPayloads(userId) {
       const pilotName = document.getElementById("pilotName").value.trim();
       const logPeriod = document.getElementById("logPeriod").value.trim();
       const payloads = [];
 
       for (const row of rows) {
         const rowId = row.id;
-        const logDateRaw = document.querySelector(`input[data-row-id="${rowId}"][data-key="logDate"]`)?.value.trim() || "";
-        const aircraftName = document.querySelector(`input[data-row-id="${rowId}"][data-key="aircraftName"]`)?.value.trim() || "";
+        const logDateRaw = getInput(rowId, "logDate")?.value.trim() || "";
+        const aircraftName = getInput(rowId, "aircraftName")?.value.trim() || "";
+        const landings = getInput(rowId, "landings")?.value.trim() || "";
+        const route = getInput(rowId, "route")?.value.trim() || "";
+        const remarks = getInput(rowId, "remarks")?.value.trim() || "";
 
         const flightBlocks = getFlightBlocks(rowId);
         const dutyBlocks = getDutyBlocks(rowId);
@@ -890,25 +963,28 @@
         const hasAnyData =
           logDateRaw ||
           aircraftName ||
+          landings ||
+          route ||
+          remarks ||
           flightTotal > 0 ||
           dutyTotal > 0;
 
         if (!hasAnyData) continue;
 
         if (!/^\d{2}\/\d{2}$/.test(logDateRaw)) {
-          throw new Error(`Row ${rowId}: enter date as MM/DD.`);
+          throw new Error(`Day ${rowId}: enter date as MM/DD.`);
         }
 
         if (!aircraftName) {
-          throw new Error(`Row ${rowId}: please enter an aircraft.`);
+          throw new Error(`Day ${rowId}: please enter an aircraft.`);
         }
 
         if (flightTotal > dutyTotal) {
-          throw new Error(`Row ${rowId}: flight cannot exceed duty.`);
+          throw new Error(`Day ${rowId}: flight cannot exceed duty.`);
         }
 
         if (dutyTotal > 14) {
-          throw new Error(`Row ${rowId}: duty exceeds 14 hours.`);
+          throw new Error(`Day ${rowId}: duty exceeds 14 hours.`);
         }
 
         payloads.push({
@@ -922,11 +998,21 @@
           duty_stop: dutyRange ? dutyRange.stopText : null,
           pilot_name: pilotName || null,
           period: logPeriod || null,
+          landings: landings || null,
+          route: route || null,
+          remarks: remarks || null,
           user_id: userId
         });
       }
 
       return payloads;
+    }
+
+    function stripOptionalFields(payloads) {
+      return payloads.map(p => {
+        const { landings, route, remarks, ...rest } = p;
+        return rest;
+      });
     }
 
     async function saveAllRows() {
@@ -940,26 +1026,35 @@
 
       let payloads;
       try {
-        payloads = collectRowPayloads(user.id);
+        payloads = collectPayloads(user.id);
       } catch (err) {
         statusEl.textContent = err.message;
         return;
       }
 
       if (payloads.length === 0) {
-        statusEl.textContent = "No filled rows to save.";
+        statusEl.textContent = "No filled days to save.";
         return;
       }
 
-      const { error } = await sb.from("logs").insert(payloads);
+      let result = await sb.from("logs").insert(payloads);
 
-      if (error) {
-        statusEl.textContent = error.message;
-        console.error("Insert error:", error);
+      if (result.error && /column .* does not exist|schema cache/i.test(result.error.message)) {
+        result = await sb.from("logs").insert(stripOptionalFields(payloads));
+        if (!result.error) {
+          statusEl.textContent = `Saved ${payloads.length} day(s). Right-side fields are on the page, but not stored yet because one or more optional DB columns are missing.`;
+          await loadSavedEntries();
+          return;
+        }
+      }
+
+      if (result.error) {
+        statusEl.textContent = result.error.message;
+        console.error("Insert error:", result.error);
         return;
       }
 
-      statusEl.textContent = `Saved ${payloads.length} row(s).`;
+      statusEl.textContent = `Saved ${payloads.length} day(s).`;
       await loadSavedEntries();
     }
 
@@ -971,28 +1066,36 @@
         return;
       }
 
-      const { data, error } = await sb
+      let query = await sb
         .from("logs")
-        .select("id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, flight_blocks, duty_blocks")
+        .select("id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, landings, route, remarks, flight_blocks, duty_blocks")
         .eq("user_id", user.id)
         .order("id", { ascending: false });
 
-      if (error) {
-        savedList.innerHTML = `<div class="saved-row"><div class="saved-meta">${error.message}</div></div>`;
-        console.error("Load error:", error);
+      if (query.error && /column .* does not exist|schema cache/i.test(query.error.message)) {
+        query = await sb
+          .from("logs")
+          .select("id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, flight_blocks, duty_blocks")
+          .eq("user_id", user.id)
+          .order("id", { ascending: false });
+      }
+
+      if (query.error) {
+        savedList.innerHTML = `<div class="saved-row"><div class="saved-meta">${query.error.message}</div></div>`;
+        console.error("Load error:", query.error);
         return;
       }
 
-      if (!data || data.length === 0) {
+      const data = query.data || [];
+
+      if (data.length === 0) {
         savedList.innerHTML = `<div class="saved-row"><div class="saved-meta">No saved entries yet.</div></div>`;
         return;
       }
 
       savedList.innerHTML = "";
 
-      const preview = data.slice(0, 12);
-
-      preview.forEach((entry, index) => {
+      data.slice(0, 14).forEach((entry) => {
         const row = document.createElement("div");
         row.className = "saved-row";
 
@@ -1001,9 +1104,11 @@
             <strong>${formatDateForRow(entry.log_date) || "-"}</strong> |
             A/C ${entry.aircraft_name || "-"} |
             DUTY ${entry.duty_start || "--:--"}-${entry.duty_stop || "--:--"} |
-            DUTY TOTAL ${Number(entry.duty || 0).toFixed(1)} |
-            FLIGHT TOTAL ${Number(entry.flt1 || 0).toFixed(1)}
-            ${entry.period ? `| PERIOD ${entry.period}` : ""}
+            DUTY ${Number(entry.duty || 0).toFixed(1)} |
+            FLT ${Number(entry.flt1 || 0).toFixed(1)}
+            ${entry.landings ? `| LDGS ${entry.landings}` : ""}
+            ${entry.route ? `| ROUTE ${entry.route}` : ""}
+            ${entry.remarks ? `| ${entry.remarks}` : ""}
           </div>
           <div class="saved-actions"></div>
         `;
@@ -1013,12 +1118,12 @@
         const loadBtn = document.createElement("button");
         loadBtn.type = "button";
         loadBtn.className = "load-btn";
-        loadBtn.textContent = "Load to Row";
+        loadBtn.textContent = "Load to Day";
         loadBtn.onclick = () => {
-          loadRowFromData(currentRowId, entry);
+          loadDayFromData(currentRowId, entry);
           document.getElementById("pilotName").value = entry.pilot_name || "";
           document.getElementById("logPeriod").value = entry.period || "";
-          statusEl.textContent = `Loaded saved entry into row ${currentRowId}.`;
+          statusEl.textContent = `Loaded saved entry into day ${currentRowId}.`;
         };
 
         const deleteBtn = document.createElement("button");
@@ -1037,16 +1142,8 @@
 
         actions.appendChild(loadBtn);
         actions.appendChild(deleteBtn);
-        row.appendChild(actions);
         savedList.appendChild(row);
       });
-
-      if (data.length > preview.length) {
-        const more = document.createElement("div");
-        more.className = "saved-row";
-        more.innerHTML = `<div class="saved-meta">Showing ${preview.length} of ${data.length} saved entries.</div>`;
-        savedList.appendChild(more);
-      }
     }
 
     document.addEventListener("mouseup", () => {
@@ -1055,13 +1152,11 @@
 
     flightBtn.addEventListener("click", () => setMode("flight"));
     dutyBtn.addEventListener("click", () => setMode("duty"));
-    addRowBtn.addEventListener("click", addBlankRow);
-    clearCurrentBtn.addEventListener("click", () => clearRow(currentRowId));
+    clearSelectedBtn.addEventListener("click", clearSelectedModeForCurrentRow);
     saveAllBtn.addEventListener("click", saveAllRows);
     loadSavedBtn.addEventListener("click", loadSavedEntries);
 
     buildPage();
-    setMode("flight");
     loadSavedEntries();
   </script>
 </body>
