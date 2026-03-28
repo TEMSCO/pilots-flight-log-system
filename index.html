@@ -48,9 +48,32 @@
       list.innerHTML = "";
       let total = 0;
 
-      if (data) {
-       data.forEach(log => {
-  const li = document.createElement("li");
+    if (data) {
+  data.forEach(log => {
+    const li = document.createElement("li");
+
+    li.textContent = `${log.date} - ${log.aircraft} - ${log.hours} hrs `;
+
+    const editBtn = document.createElement("button");
+    editBtn.textContent = "Edit";
+    editBtn.onclick = () => editLog(log);
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "Delete";
+    deleteBtn.onclick = () => window.deleteLog(log.id);
+
+    li.appendChild(editBtn);
+    li.appendChild(deleteBtn);
+
+    list.appendChild(li);
+
+    const hoursNum = parseFloat(log.hours);
+    if (!isNaN(hoursNum)) total += hoursNum;
+  });
+}
+
+// ✅ MOVE THIS OUTSIDE the if block
+totalDisplay.innerText = total.toFixed(1); 
 
   li.textContent = `${log.date} - ${log.aircraft} - ${log.hours} hrs `;
 
