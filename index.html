@@ -38,7 +38,7 @@
 
     .sheet-header {
       display: grid;
-      grid-template-columns: 1fr 300px;
+      grid-template-columns: 1fr 320px;
       gap: 8px;
       align-items: start;
       margin-bottom: 6px;
@@ -169,17 +169,17 @@
     .page-grid {
       display: grid;
       grid-template-columns:
-        48px   /* date */
-        68px   /* ac */
-        44px   /* start */
-        44px   /* stop */
-        44px   /* duty */
-        44px   /* flt */
-        40px   /* row label */
+        48px
+        68px
+        44px
+        44px
+        44px
+        44px
+        40px
         repeat(48, minmax(10px, 1fr))
-        34px   /* ldgs */
-        58px   /* route */
-        96px;  /* remarks */
+        34px
+        58px
+        96px;
       min-width: 1060px;
     }
 
@@ -403,7 +403,7 @@
       <div class="sheet-title">
         <div class="company">TEMSCO HELICOPTERS INC.</div>
         <div class="form-title">Pilot's Flight & Duty Time Log</div>
-        <div class="note">7-day printable layout modeled on the scanned form. :contentReference[oaicite:1]{index=1}</div>
+        <div class="note">7-day printable layout modeled on the scanned form. :contentReference[oaicite:0]{index=0}</div>
       </div>
 
       <div class="header-box">
@@ -416,7 +416,7 @@
         <div class="header-box-row">
           <div class="header-label">PERIOD</div>
           <div class="header-value">
-            <input id="logPeriod" type="text" placeholder="e.g. Jan 2026 or 2026" />
+            <input id="logPeriod" type="text" placeholder="03/25/2026 to 03/31/2026" />
           </div>
         </div>
       </div>
@@ -471,6 +471,7 @@
     const currentRowDisplay = document.getElementById("currentRowDisplay");
     const statusEl = document.getElementById("status");
     const savedList = document.getElementById("savedList");
+    const logPeriodEl = document.getElementById("logPeriod");
 
     function setMode(newMode) {
       mode = newMode;
@@ -508,6 +509,13 @@
       return dateValue;
     }
 
+    function getPeriodYear() {
+      const text = (logPeriodEl.value || "").trim();
+      const yearMatch = text.match(/\b(20\d{2}|19\d{2})\b/);
+      if (yearMatch) return yearMatch[1];
+      return String(new Date().getFullYear());
+    }
+
     function buildStoredDate(mmdd, periodValue) {
       const cleaned = (mmdd || "").trim();
       if (!/^\d{2}\/\d{2}$/.test(cleaned)) return cleaned;
@@ -518,6 +526,18 @@
         return `${yearMatch[1]}-${mm}-${dd}`;
       }
       return cleaned;
+    }
+
+    function updatePeriodFromRows() {
+      const firstDate = getInput(1, "logDate")?.value.trim() || "";
+      const lastDate = getInput(DAY_COUNT, "logDate")?.value.trim() || "";
+
+      if (/^\d{2}\/\d{2}$/.test(firstDate) && /^\d{2}\/\d{2}$/.test(lastDate)) {
+        const year = getPeriodYear();
+        logPeriodEl.value = `${firstDate}/${year} to ${lastDate}/${year}`;
+      } else if (!firstDate && !lastDate && !/\bto\b/i.test(logPeriodEl.value)) {
+        logPeriodEl.value = "";
+      }
     }
 
     function autoFormatMMDDInput(input) {
@@ -560,7 +580,10 @@
       input.addEventListener("focus", () => setCurrentRow(rowId));
 
       if (key === "logDate") {
-        input.addEventListener("input", () => autoFormatMMDDInput(input));
+        input.addEventListener("input", () => {
+          autoFormatMMDDInput(input);
+          updatePeriodFromRows();
+        });
       }
 
       div.appendChild(input);
@@ -786,6 +809,8 @@
         const input = getInput(rowId, key);
         if (input) input.value = "";
       });
+
+      updatePeriodFromRows();
     }
 
     function loadDayFromData(rowId, entry) {
@@ -827,6 +852,7 @@
 
       clearDutyPending(rowId);
       updateTotals(rowId);
+      updatePeriodFromRows();
     }
 
     function addDay(rowId) {
@@ -1157,6 +1183,7 @@
     loadSavedBtn.addEventListener("click", loadSavedEntries);
 
     buildPage();
+    updatePeriodFromRows();
     loadSavedEntries();
   </script>
 </body>
