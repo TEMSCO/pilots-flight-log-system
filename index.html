@@ -4,13 +4,34 @@
   <title>Pilot Dashboard</title>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #0f172a;
-      color: white;
-      display: flex;
-      justify-content: center;
-      padding: 40px;
+    <body>
+
+  <div class="container">
+
+    <h1>Pilot Dashboard</h1>
+
+    <h3>Add Flight Log</h3>
+
+    <input id="date" type="date">
+    <input id="aircraft" placeholder="Aircraft">
+    <input id="hours" placeholder="Flight Hours">
+
+    <button class="save-btn" onclick="addLog()">Save Flight</button>
+
+    <p id="status"></p>
+
+    <h3>Saved Flights</h3>
+    <ul id="logList"></ul>
+
+    <div class="total">
+      Total Hours: <span id="totalHours">0</span>
+    </div>
+
+  </div>
+
+  <!-- KEEP YOUR SCRIPT BELOW -->
+
+</body>
     }
 
     .container {
