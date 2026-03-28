@@ -110,6 +110,11 @@
       background: #facc15;
     }
 
+    .duty-cell.pending {
+      outline: 2px solid #fff;
+      outline-offset: -2px;
+    }
+
     .flight-cell {
       height: 28px;
       display: grid;
@@ -214,6 +219,7 @@
 
     let mode = "flight";
     let isDrawing = false;
+    let dutyStartBlock = null;
 
     const grid = document.getElementById("grid");
     const flightBtn = document.getElementById("flightBtn");
@@ -233,6 +239,57 @@
       modeDisplay.textContent = newMode.toUpperCase();
       flightBtn.classList.toggle("active", newMode === "flight");
       dutyBtn.classList.toggle("active", newMode === "duty");
+    }
+
+    function clearDutyPending() {
+      document.querySelectorAll(".duty-cell.pending").forEach(el => {
+        el.classList.remove("pending");
+      });
+    }
+
+    function setDutyPending(blockIndex) {
+      clearDutyPending();
+      const cell = document.querySelector(`.duty-cell[data-block="${blockIndex}"]`);
+      if (cell) cell.classList.add("pending");
+    }
+
+    function clearDutyRow() {
+      document.querySelectorAll(".duty-cell.on").forEach(el => el.classList.remove("on"));
+      clearDutyPending();
+      dutyStartBlock = null;
+    }
+
+    function fillDutyRange(startBlock, stopBlock) {
+      const start = Math.min(startBlock, stopBlock);
+      const end = Math.max(startBlock, stopBlock);
+
+      clearDutyRow();
+
+      for (let i = start; i <= end; i++) {
+        const cell = document.querySelector(`.duty-cell[data-block="${i}"]`);
+        if (cell) cell.classList.add("on");
+      }
+
+      updateTotals();
+    }
+
+    function handleDutyClick(cell) {
+      if (mode !== "duty") return;
+
+      const block = Number(cell.dataset.block);
+
+      if (dutyStartBlock === null) {
+        clearDutyRow();
+        dutyStartBlock = block;
+        setDutyPending(block);
+        statusEl.textContent = "Duty start set. Click stop time.";
+        return;
+      }
+
+      fillDutyRange(dutyStartBlock, block);
+      dutyStartBlock = null;
+      clearDutyPending();
+      statusEl.textContent = "Duty range filled.";
     }
 
     function buildGrid() {
@@ -299,20 +356,8 @@
         cell.dataset.row = "duty";
         cell.dataset.block = String(i);
 
-        cell.addEventListener("mousedown", (e) => {
-          e.preventDefault();
-          isDrawing = true;
-          paintDuty(cell);
-        });
-
-        cell.addEventListener("mouseenter", () => {
-          if (isDrawing && mode === "duty") {
-            paintDuty(cell);
-          }
-        });
-
         cell.addEventListener("click", () => {
-          paintDuty(cell);
+          handleDutyClick(cell);
         });
 
         grid.appendChild(cell);
@@ -325,15 +370,9 @@
       updateTotals();
     }
 
-    function paintDuty(cell) {
-      if (mode !== "duty") return;
-      cell.classList.add("on");
-      updateTotals();
-    }
-
     function clearGrid() {
       document.querySelectorAll(".tenth.on").forEach(el => el.classList.remove("on"));
-      document.querySelectorAll(".duty-cell.on").forEach(el => el.classList.remove("on"));
+      clearDutyRow();
       updateTotals();
       statusEl.textContent = "";
     }
@@ -399,6 +438,8 @@
         });
       }
 
+      clearDutyPending();
+      dutyStartBlock = null;
       updateTotals();
     }
 
@@ -548,29 +589,12 @@
     flightBtn.addEventListener("click", () => setMode("flight"));
     dutyBtn.addEventListener("click", () => setMode("duty"));
     clearBtn.addEventListener("click", clearGrid);
-    saveBtn.addEventListener?.("click", saveEntry);
+    saveBtn.addEventListener("click", saveEntry);
 
     buildGrid();
     setMode("flight");
     updateTotals();
     loadSavedEntries();
-
-    // explicit save button hookup
-    document.getElementById("saveBtn")?.remove();
-  </script>
-
-  <script>
-    // create save button after main script if missing
-    if (!document.getElementById("saveBtn")) {
-      const btn = document.createElement("button");
-      btn.id = "saveBtn";
-      btn.type = "button";
-      btn.className = "save-btn";
-      btn.textContent = "Save Entry";
-      btn.style.marginTop = "12px";
-      btn.onclick = saveEntry;
-      document.querySelector(".controls").appendChild(btn);
-    }
   </script>
 
 </body>
