@@ -2,131 +2,210 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>Flight & Duty Log</title>
+  <title>TEMSCO Pilot Flight & Duty Time Log</title>
   <style>
+    :root {
+      --paper: #f8fafc;
+      --ink: #111827;
+      --line: #1f2937;
+      --soft-line: #94a3b8;
+      --header: #e5e7eb;
+      --subtle: #f1f5f9;
+      --flight: #22c55e;
+      --duty: #facc15;
+      --btn-blue: #2563eb;
+      --btn-red: #dc2626;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #0f172a;
-      color: white;
+      margin: 0;
       padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #dbe4ee;
+      color: var(--ink);
     }
 
-    h2, h3 {
+    .sheet {
+      max-width: 1600px;
+      margin: 0 auto;
+      background: var(--paper);
+      border: 2px solid var(--line);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      padding: 18px;
+    }
+
+    .sheet-title {
       text-align: center;
-      margin-bottom: 16px;
-    }
-
-    .topbar {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
       margin-bottom: 12px;
     }
 
-    input {
-      padding: 8px;
-      border: none;
-      border-radius: 6px;
-      width: 100%;
-      box-sizing: border-box;
+    .sheet-title .company {
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 0.4px;
+    }
+
+    .sheet-title .form-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    .sheet-title .note {
+      font-size: 12px;
+      margin-top: 6px;
     }
 
     .controls {
       display: flex;
       gap: 10px;
-      margin-bottom: 12px;
       flex-wrap: wrap;
+      justify-content: center;
+      margin: 14px 0 16px;
     }
 
     button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
       padding: 8px 12px;
-      border: none;
-      border-radius: 6px;
+      font-weight: bold;
       cursor: pointer;
-      font-weight: bold;
     }
 
-    .flight-btn { background: #22c55e; color: white; }
-    .duty-btn { background: #facc15; color: black; }
-    .clear-btn { background: #ef4444; color: white; }
-    .save-btn { background: #38bdf8; color: black; }
-    .load-btn { background: #3b82f6; color: white; }
-    .delete-btn { background: #ef4444; color: white; }
-
-    .active {
-      outline: 3px solid white;
+    button.active {
+      outline: 2px solid var(--line);
     }
 
-    .mode {
-      margin-bottom: 12px;
-      font-weight: bold;
-    }
+    .flight-btn { background: #dcfce7; }
+    .duty-btn { background: #fef3c7; }
+    .clear-btn { background: #fee2e2; }
+    .save-btn { background: #dbeafe; }
+    .load-btn { background: var(--btn-blue); color: white; }
+    .delete-btn { background: var(--btn-red); color: white; }
 
-    .grid-wrap {
-      overflow-x: auto;
-      margin-bottom: 14px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 80px repeat(48, 1fr);
-      border-top: 1px solid #475569;
-      border-left: 1px solid #475569;
-      user-select: none;
-      min-width: 1100px;
-    }
-
-    .header,
-    .label,
-    .duty-cell,
-    .flight-cell {
-      border-right: 1px solid #475569;
-      border-bottom: 1px solid #475569;
-    }
-
-    .header {
-      background: #334155;
+    .mode-line {
       text-align: center;
-      font-size: 10px;
-      padding: 4px 0;
-      min-width: 20px;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
     }
 
-    .label {
-      background: #1e293b;
+    .entry-frame {
+      border: 2px solid var(--line);
+      background: white;
+      overflow-x: auto;
+    }
+
+    .entry-grid {
+      display: grid;
+      grid-template-columns:
+        95px   /* date */
+        110px  /* ac */
+        70px   /* duty start */
+        70px   /* duty stop */
+        70px   /* duty total */
+        80px   /* flight total */
+        90px   /* row labels */
+        repeat(48, minmax(18px, 1fr));
+      min-width: 1500px;
+    }
+
+    .cell {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      min-height: 30px;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 4px;
+      font-size: 12px;
+    }
+
+    .cell.header {
+      background: var(--header);
       font-weight: bold;
-      min-height: 28px;
+      text-align: center;
+    }
+
+    .cell.subhead {
+      background: var(--subtle);
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .cell.input-cell {
+      padding: 0;
+      background: white;
+    }
+
+    .cell.input-cell input {
+      width: 100%;
+      height: 100%;
+      border: none;
+      padding: 6px;
+      font-size: 12px;
+      background: transparent;
+    }
+
+    .cell.input-cell input:focus {
+      outline: 2px solid #93c5fd;
+      outline-offset: -2px;
+    }
+
+    .cell.readout {
+      background: white;
+      font-weight: bold;
+    }
+
+    .row-label {
+      background: var(--subtle);
+      font-weight: bold;
+      letter-spacing: 0.4px;
+    }
+
+    .time-header {
+      font-size: 10px;
+      padding: 2px 0;
+      background: var(--header);
+      min-height: 24px;
     }
 
     .duty-cell {
-      background: #1e293b;
-      height: 28px;
+      background: white;
+      min-height: 34px;
       cursor: pointer;
+      padding: 0;
     }
 
     .duty-cell.on {
-      background: #facc15;
+      background: var(--duty);
     }
 
     .duty-cell.pending {
-      outline: 2px solid #fff;
+      outline: 2px solid #000;
       outline-offset: -2px;
     }
 
     .flight-cell {
-      height: 28px;
+      min-height: 34px;
+      padding: 0;
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      background: #1e293b;
+      background: white;
     }
 
     .tenth {
-      border-right: 1px solid #334155;
+      border-right: 1px solid #cbd5e1;
       cursor: pointer;
-      background: #1e293b;
+      min-height: 34px;
+      background: white;
     }
 
     .tenth:last-child {
@@ -134,86 +213,109 @@
     }
 
     .tenth.on {
-      background: #22c55e;
+      background: var(--flight);
     }
 
-    .totals {
-      margin-top: 14px;
-      font-size: 16px;
-      margin-bottom: 20px;
+    .status {
+      margin-top: 10px;
+      min-height: 20px;
       text-align: center;
-      line-height: 1.8;
+      font-size: 14px;
+      font-weight: bold;
     }
 
-    .saved-list {
-      background: #111827;
-      border-radius: 8px;
-      padding: 12px;
+    .saved-wrap {
+      margin-top: 18px;
+      border: 2px solid var(--line);
+      background: white;
     }
 
-    .saved-item {
-      display: flex;
-      justify-content: space-between;
+    .saved-title {
+      background: var(--header);
+      border-bottom: 1px solid var(--line);
+      padding: 8px 10px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .saved-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
       align-items: center;
-      gap: 10px;
-      padding: 8px 0;
-      border-bottom: 1px solid #334155;
+      padding: 10px;
+      border-bottom: 1px solid var(--soft-line);
     }
 
-    .saved-item:last-child {
+    .saved-row:last-child {
       border-bottom: none;
     }
 
     .saved-meta {
-      font-size: 14px;
+      font-size: 13px;
+      line-height: 1.4;
     }
 
     .saved-actions {
       display: flex;
       gap: 6px;
-      flex-shrink: 0;
+      flex-wrap: wrap;
     }
 
-    #status {
-      margin: 10px 0;
-      min-height: 20px;
+    .footer-note {
+      margin-top: 16px;
+      font-size: 11px;
       text-align: center;
+    }
+
+    @media (max-width: 900px) {
+      body {
+        padding: 8px;
+      }
+
+      .sheet {
+        padding: 10px;
+      }
+
+      .sheet-title .form-title {
+        font-size: 18px;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="sheet">
+    <div class="sheet-title">
+      <div class="company">TEMSCO HELICOPTERS INC.</div>
+      <div class="form-title">Pilot's Flight & Duty Time Log</div>
+      <div class="note">Digital working version styled after the paper duty log.</div>
+    </div>
 
-  <h2>✈️ Flight & Duty Log</h2>
+    <div class="controls">
+      <button id="flightBtn" class="flight-btn active" type="button">Flight Mode</button>
+      <button id="dutyBtn" class="duty-btn" type="button">Duty Mode</button>
+      <button id="clearBtn" class="clear-btn" type="button">Clear</button>
+      <button id="saveBtn" class="save-btn" type="button">Save Entry</button>
+    </div>
 
-  <div class="topbar">
-    <input id="logDate" type="date" />
-    <input id="aircraftName" placeholder="Aircraft" />
+    <div class="mode-line">MODE: <span id="modeDisplay">FLIGHT</span></div>
+
+    <div class="entry-frame">
+      <div id="entryGrid" class="entry-grid"></div>
+    </div>
+
+    <div id="status" class="status"></div>
+
+    <div class="saved-wrap">
+      <div class="saved-title">Saved Entries</div>
+      <div id="savedList"></div>
+    </div>
+
+    <div class="footer-note">
+      Duty section reflects the paper form's Start / Stop / Total concept. Flight remains tenth-based for now. :contentReference[oaicite:1]{index=1}
+    </div>
   </div>
-
-  <div class="controls">
-    <button id="flightBtn" class="flight-btn active" type="button">Flight Mode</button>
-    <button id="dutyBtn" class="duty-btn" type="button">Duty Mode</button>
-    <button id="clearBtn" class="clear-btn" type="button">Clear</button>
-    <button id="saveBtn" class="save-btn" type="button">Save Entry</button>
-  </div>
-
-  <div class="mode">Mode: <span id="modeDisplay">FLIGHT</span></div>
-
-  <div class="grid-wrap">
-    <div id="grid" class="grid"></div>
-  </div>
-
-  <div class="totals">
-    Duty Start: <span id="dutyStart">--:--</span> |
-    Duty Stop: <span id="dutyStop">--:--</span> |
-    Duty: <span id="dutyTotal">0.0</span> hrs |
-    Flight: <span id="flightTotal">0.0</span> hrs
-  </div>
-
-  <div id="status"></div>
-
-  <h3>Saved Entries</h3>
-  <div id="savedList" class="saved-list"></div>
 
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script>
@@ -226,20 +328,14 @@
     let isDrawing = false;
     let dutyStartBlock = null;
 
-    const grid = document.getElementById("grid");
+    const entryGrid = document.getElementById("entryGrid");
     const flightBtn = document.getElementById("flightBtn");
     const dutyBtn = document.getElementById("dutyBtn");
     const clearBtn = document.getElementById("clearBtn");
     const saveBtn = document.getElementById("saveBtn");
     const modeDisplay = document.getElementById("modeDisplay");
-    const flightTotalEl = document.getElementById("flightTotal");
-    const dutyTotalEl = document.getElementById("dutyTotal");
-    const dutyStartEl = document.getElementById("dutyStart");
-    const dutyStopEl = document.getElementById("dutyStop");
     const savedList = document.getElementById("savedList");
     const statusEl = document.getElementById("status");
-    const logDateEl = document.getElementById("logDate");
-    const aircraftNameEl = document.getElementById("aircraftName");
 
     function setMode(newMode) {
       mode = newMode;
@@ -254,6 +350,33 @@
       return `${String(hours).padStart(2, "0")}:${minutes}`;
     }
 
+    function createCell(className = "", text = "") {
+      const div = document.createElement("div");
+      div.className = `cell ${className}`.trim();
+      div.textContent = text;
+      return div;
+    }
+
+    function createReadoutCell(id) {
+      const div = document.createElement("div");
+      div.className = "cell readout";
+      div.id = id;
+      return div;
+    }
+
+    function createInputCell(id, type = "text", placeholder = "") {
+      const wrap = document.createElement("div");
+      wrap.className = "cell input-cell";
+
+      const input = document.createElement("input");
+      input.id = id;
+      input.type = type;
+      input.placeholder = placeholder;
+
+      wrap.appendChild(input);
+      return wrap;
+    }
+
     function getDutyRange() {
       const activeBlocks = [];
 
@@ -261,9 +384,7 @@
         activeBlocks.push(Number(cell.dataset.block));
       });
 
-      if (activeBlocks.length === 0) {
-        return null;
-      }
+      if (activeBlocks.length === 0) return null;
 
       activeBlocks.sort((a, b) => a - b);
 
@@ -331,28 +452,39 @@
       statusEl.textContent = "Duty range filled.";
     }
 
-    function buildGrid() {
-      grid.innerHTML = "";
+    function paintFlight(tenth) {
+      if (mode !== "flight") return;
+      tenth.classList.add("on");
+      updateTotals();
+    }
 
-      const blank = document.createElement("div");
-      blank.className = "header";
-      grid.appendChild(blank);
+    function buildLayout() {
+      entryGrid.innerHTML = "";
+
+      entryGrid.appendChild(createCell("header", "DATE"));
+      entryGrid.appendChild(createCell("header", "A/C"));
+      entryGrid.appendChild(createCell("header", "START"));
+      entryGrid.appendChild(createCell("header", "STOP"));
+      entryGrid.appendChild(createCell("header", "DUTY"));
+      entryGrid.appendChild(createCell("header", "FLT"));
+      entryGrid.appendChild(createCell("header", "PERIOD"));
 
       for (let i = 0; i < 48; i++) {
-        const h = document.createElement("div");
-        h.className = "header";
-        h.textContent = i % 2 === 0 ? String(i / 2) : "";
-        grid.appendChild(h);
+        const text = i % 2 === 0 ? String(i / 2) : "";
+        entryGrid.appendChild(createCell("time-header", text));
       }
 
-      const flightLabel = document.createElement("div");
-      flightLabel.className = "label";
-      flightLabel.textContent = "FLT";
-      grid.appendChild(flightLabel);
+      entryGrid.appendChild(createInputCell("logDate", "date"));
+      entryGrid.appendChild(createInputCell("aircraftName", "text", "Aircraft"));
+      entryGrid.appendChild(createReadoutCell("dutyStart"));
+      entryGrid.appendChild(createReadoutCell("dutyStop"));
+      entryGrid.appendChild(createReadoutCell("dutyTotal"));
+      entryGrid.appendChild(createReadoutCell("flightTotal"));
+      entryGrid.appendChild(createCell("row-label", "FLIGHT"));
 
       for (let i = 0; i < 48; i++) {
         const cell = document.createElement("div");
-        cell.className = "flight-cell";
+        cell.className = "cell flight-cell";
         cell.dataset.blockIndex = String(i);
 
         for (let j = 0; j < 5; j++) {
@@ -381,17 +513,20 @@
           cell.appendChild(tenth);
         }
 
-        grid.appendChild(cell);
+        entryGrid.appendChild(cell);
       }
 
-      const dutyLabel = document.createElement("div");
-      dutyLabel.className = "label";
-      dutyLabel.textContent = "DUTY";
-      grid.appendChild(dutyLabel);
+      entryGrid.appendChild(createCell("subhead", ""));
+      entryGrid.appendChild(createCell("subhead", ""));
+      entryGrid.appendChild(createCell("readout", ""));
+      entryGrid.appendChild(createCell("readout", ""));
+      entryGrid.appendChild(createCell("readout", ""));
+      entryGrid.appendChild(createCell("readout", ""));
+      entryGrid.appendChild(createCell("row-label", "DUTY"));
 
       for (let i = 0; i < 48; i++) {
         const cell = document.createElement("div");
-        cell.className = "duty-cell";
+        cell.className = "cell duty-cell";
         cell.dataset.row = "duty";
         cell.dataset.block = String(i);
 
@@ -399,21 +534,13 @@
           handleDutyClick(cell);
         });
 
-        grid.appendChild(cell);
+        entryGrid.appendChild(cell);
       }
-    }
 
-    function paintFlight(tenth) {
-      if (mode !== "flight") return;
-      tenth.classList.add("on");
-      updateTotals();
-    }
-
-    function clearGrid() {
-      document.querySelectorAll(".tenth.on").forEach((el) => el.classList.remove("on"));
-      clearDutyRow();
-      updateTotals();
-      statusEl.textContent = "";
+      document.getElementById("dutyStart").textContent = "--:--";
+      document.getElementById("dutyStop").textContent = "--:--";
+      document.getElementById("dutyTotal").textContent = "0.0";
+      document.getElementById("flightTotal").textContent = "0.0";
     }
 
     function updateTotals() {
@@ -430,10 +557,17 @@
 
       const dutyRange = getDutyRange();
 
-      flightTotalEl.textContent = flight.toFixed(1);
-      dutyTotalEl.textContent = duty.toFixed(1);
-      dutyStartEl.textContent = dutyRange ? dutyRange.startText : "--:--";
-      dutyStopEl.textContent = dutyRange ? dutyRange.stopText : "--:--";
+      document.getElementById("flightTotal").textContent = flight.toFixed(1);
+      document.getElementById("dutyTotal").textContent = duty.toFixed(1);
+      document.getElementById("dutyStart").textContent = dutyRange ? dutyRange.startText : "--:--";
+      document.getElementById("dutyStop").textContent = dutyRange ? dutyRange.stopText : "--:--";
+    }
+
+    function clearGrid() {
+      document.querySelectorAll(".tenth.on").forEach((el) => el.classList.remove("on"));
+      clearDutyRow();
+      updateTotals();
+      statusEl.textContent = "";
     }
 
     function getFlightBlocks() {
@@ -464,9 +598,7 @@
         flightBlocks.forEach((value, blockIndex) => {
           const tenthsToFill = Math.round((Number(value) || 0) * 10);
           for (let i = 0; i < tenthsToFill; i++) {
-            const tenth = document.querySelector(
-              `.tenth[data-block="${blockIndex}"][data-tenth="${i}"]`
-            );
+            const tenth = document.querySelector(`.tenth[data-block="${blockIndex}"][data-tenth="${i}"]`);
             if (tenth) tenth.classList.add("on");
           }
         });
@@ -488,12 +620,10 @@
 
     async function getCurrentUser() {
       const { data, error } = await sb.auth.getSession();
-
       if (error) {
         console.error("Session error:", error);
         return null;
       }
-
       return data.session?.user ?? null;
     }
 
@@ -501,19 +631,18 @@
       statusEl.textContent = "";
 
       const user = await getCurrentUser();
-
       if (!user) {
         statusEl.textContent = "Not logged in. Please sign in first.";
         return;
       }
 
-      const logDate = logDateEl.value;
-      const aircraftName = aircraftNameEl.value.trim();
+      const logDate = document.getElementById("logDate").value;
+      const aircraftName = document.getElementById("aircraftName").value.trim();
       const flightBlocks = getFlightBlocks();
       const dutyBlocks = getDutyBlocks();
 
-      const flightTotal = Number(flightTotalEl.textContent);
-      const dutyTotal = Number(dutyTotalEl.textContent);
+      const flightTotal = Number(document.getElementById("flightTotal").textContent);
+      const dutyTotal = Number(document.getElementById("dutyTotal").textContent);
 
       const dutyRange = getDutyRange();
       const dutyStart = dutyRange ? dutyRange.startText : null;
@@ -530,7 +659,7 @@
       }
 
       if (flightTotal === 0 && dutyTotal === 0) {
-        statusEl.textContent = "Nothing painted yet.";
+        statusEl.textContent = "Nothing entered yet.";
         return;
       }
 
@@ -572,7 +701,7 @@
       const user = await getCurrentUser();
 
       if (!user) {
-        savedList.innerHTML = "<div>No user session.</div>";
+        savedList.innerHTML = `<div class="saved-row"><div class="saved-meta">No user session.</div></div>`;
         return;
       }
 
@@ -583,13 +712,13 @@
         .order("id", { ascending: false });
 
       if (error) {
-        savedList.innerHTML = `<div>${error.message}</div>`;
+        savedList.innerHTML = `<div class="saved-row"><div class="saved-meta">${error.message}</div></div>`;
         console.error("Load error:", error);
         return;
       }
 
       if (!data || data.length === 0) {
-        savedList.innerHTML = "<div>No saved entries yet.</div>";
+        savedList.innerHTML = `<div class="saved-row"><div class="saved-meta">No saved entries yet.</div></div>`;
         return;
       }
 
@@ -597,15 +726,15 @@
 
       data.forEach((entry) => {
         const row = document.createElement("div");
-        row.className = "saved-item";
+        row.className = "saved-row";
 
         row.innerHTML = `
           <div class="saved-meta">
             <strong>${entry.log_date || "-"}</strong> |
-            ${entry.aircraft_name || "-"} |
+            A/C ${entry.aircraft_name || "-"} |
             DUTY ${entry.duty_start || "--:--"}-${entry.duty_stop || "--:--"} |
-            FLT ${Number(entry.flt1 || 0).toFixed(1)} |
-            DUTY ${Number(entry.duty || 0).toFixed(1)}
+            DUTY TOTAL ${Number(entry.duty || 0).toFixed(1)} |
+            FLIGHT TOTAL ${Number(entry.flt1 || 0).toFixed(1)}
           </div>
           <div class="saved-actions"></div>
         `;
@@ -617,8 +746,8 @@
         loadBtn.className = "load-btn";
         loadBtn.textContent = "Load";
         loadBtn.onclick = () => {
-          logDateEl.value = entry.log_date || "";
-          aircraftNameEl.value = entry.aircraft_name || "";
+          document.getElementById("logDate").value = entry.log_date || "";
+          document.getElementById("aircraftName").value = entry.aircraft_name || "";
           loadGridFromData(entry.flight_blocks, entry.duty_blocks);
           statusEl.textContent = "Entry loaded.";
         };
@@ -639,6 +768,7 @@
 
         actions.appendChild(loadBtn);
         actions.appendChild(deleteBtn);
+        row.appendChild(actions);
         savedList.appendChild(row);
       });
     }
@@ -652,12 +782,11 @@
     clearBtn.addEventListener("click", clearGrid);
     saveBtn.addEventListener("click", saveEntry);
 
-    buildGrid();
+    buildLayout();
     setMode("flight");
     updateTotals();
     loadSavedEntries();
   </script>
-
 </body>
 </html>
   
