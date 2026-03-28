@@ -52,6 +52,60 @@
   data.forEach(log => {
     const li = document.createElement("li");
 
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pilot Dashboard</title>
+</head>
+<body>
+
+  <h1>Pilot Dashboard</h1>
+
+  <h3>Add Flight Log</h3>
+
+  <input id="date" type="date"><br><br>
+  <input id="aircraft" placeholder="Aircraft"><br><br>
+  <input id="hours" placeholder="Flight Hours"><br><br>
+
+  <button onclick="addLog()">Save Flight</button>
+
+  <p id="status"></p>
+
+  <h3>Saved Flights</h3>
+  <ul id="logList"></ul>
+
+  <h3>Total Hours: <span id="totalHours">0</span></h3>
+
+  <!-- Supabase -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+  <script>
+  window.addEventListener("load", () => {
+
+    const sb = window.supabase.createClient(
+      "https://xjisftmfjsjomgsjzkod.supabase.co",
+      "sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS"
+    );
+
+    window.loadLogs = async function () {
+      const { data: userData } = await sb.auth.getUser();
+      const user = userData.user;
+
+      const { data } = await sb
+        .from("logs")
+        .select("*")
+        .eq("user_id", user.id);
+
+      const list = document.getElementById("logList");
+      const totalDisplay = document.getElementById("totalHours");
+
+      list.innerHTML = "";
+      let total = 0;
+
+    if (data) {
+  data.forEach(log => {
+    const li = document.createElement("li");
+
     li.textContent = `${log.date} - ${log.aircraft} - ${log.hours} hrs `;
 
     const editBtn = document.createElement("button");
@@ -73,6 +127,97 @@
 }
 
 // ✅ MOVE THIS OUTSIDE the if block
+totalDisplay.innerText = total.toFixed(1); 
+
+  li.textContent = `${log.date} - ${log.aircraft} - ${log.hours} hrs `;
+
+  // ✏️ EDIT BUTTON
+  const editBtn = document.createElement("button");
+  editBtn.textContent = "Edit";
+  editBtn.onclick = () => editLog(log);
+
+  // 🗑️ DELETE BUTTON
+  const deleteBtn = document.createElement("button");
+  deleteBtn.textContent = "Delete";
+  deleteBtn.onclick = () => window.deleteLog(log.id);
+
+  li.appendChild(editBtn);
+  li.appendChild(deleteBtn);
+
+  list.appendChild(li);
+
+  const hoursNum = parseFloat(log.hours);
+  if (!isNaN(hoursNum)) total += hoursNum;
+});
+      totalDisplay.innerText = total.toFixed(1);
+    };
+
+    window.addLog = async function () {
+      const date = document.getElementById("date").value;
+      const aircraft = document.getElementById("aircraft").value;
+      const hours = document.getElementById("hours").value;
+
+      const { data: userData } = await sb.auth.getUser();
+      const user = userData.user;
+
+      const { error } = await sb
+        .from("logs")
+        .insert([{
+          date,
+          aircraft,
+          hours,
+          user_id: user.id
+        }]);
+
+      if (error) {
+        document.getElementById("status").innerText = error.message;
+      } else {
+        document.getElementById("status").innerText = "Flight saved!";
+        window.loadLogs();
+      }
+    };
+
+    window.deleteLog = async function (id) {
+      const { error } = await sb
+        .from("logs")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        alert(error.message);
+      } else {
+        window.loadLogs();
+      }
+    };
+
+    window.loadLogs();
+// ✏️ EDIT
+// ✏️ EDIT
+window.editLog = function (log) {
+  const newDate = prompt("Edit date:", log.date);
+  const newAircraft = prompt("Edit aircraft:", log.aircraft);
+  const newHours = prompt("Edit hours:", log.hours);
+
+  if (!newDate || !newAircraft || !newHours) return;
+
+  window.updateLog(log.id, newDate, newAircraft, newHours);
+};
+
+// 🔄 UPDATE
+window.updateLog = async function (id, date, aircraft, hours) {
+  const { error } = await sb
+    .from("logs")
+    .update({ date, aircraft, hours })
+    .eq("id", id);
+
+  if (error) {
+    console.error(error);
+    alert(error.message);
+  } else {
+    window.loadLogs();
+  }
+});
+
 totalDisplay.innerText = total.toFixed(1); 
 
   li.textContent = `${log.date} - ${log.aircraft} - ${log.hours} hrs `;
