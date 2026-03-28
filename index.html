@@ -114,6 +114,7 @@
     };
 
     window.loadLogs();
+// ✏️ EDIT
 window.editLog = function (log) {
   const newDate = prompt("Edit date:", log.date);
   const newAircraft = prompt("Edit aircraft:", log.aircraft);
@@ -121,7 +122,11 @@ window.editLog = function (log) {
 
   if (!newDate || !newAircraft || !newHours) return;
 
-  window.updateLog = async function (id, date, aircraft, hours) {
+  window.updateLog(log.id, newDate, newAircraft, newHours);
+};
+
+// 🔄 UPDATE
+window.updateLog = async function (id, date, aircraft, hours) {
   const { error } = await sb
     .from("logs")
     .update({ date, aircraft, hours })
