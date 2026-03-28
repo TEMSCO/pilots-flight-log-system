@@ -122,14 +122,15 @@
 
           li.textContent = `${log.date} - ${log.aircraft} - ${log.hours} hrs `;
 
-          const editBtn = document.createElement("button");
-          editBtn.textContent = "Edit";
-          editBtn.onclick = () => window.editLog(log);
+         const editBtn = document.createElement("button");
+editBtn.textContent = "Edit";
+editBtn.className = "edit-btn";
+editBtn.onclick = () => window.editLog(log);
 
-          const deleteBtn = document.createElement("button");
-          deleteBtn.textContent = "Delete";
-          deleteBtn.onclick = () => window.deleteLog(log.id);
-
+const deleteBtn = document.createElement("button");
+deleteBtn.textContent = "Delete";
+deleteBtn.className = "delete-btn";
+deleteBtn.onclick = () => window.deleteLog(log.id); 
           li.appendChild(editBtn);
           li.appendChild(deleteBtn);
 
