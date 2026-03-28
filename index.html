@@ -78,10 +78,7 @@
       background: #1e293b;
       height: 28px;
       cursor: pointer;
-    }
-
-    .cell.flight {
-      background: #22c55e;
+      transition: background-color 0.1s ease, opacity 0.1s ease;
     }
 
     .cell.duty {
@@ -136,7 +133,6 @@
     function buildGrid() {
       grid.innerHTML = "";
 
-      // Header row
       const blank = document.createElement("div");
       blank.className = "header";
       grid.appendChild(blank);
@@ -148,7 +144,6 @@
         grid.appendChild(h);
       }
 
-      // Two rows: flight and duty
       ["flight", "duty"].forEach((rowType) => {
         const label = document.createElement("div");
         label.className = "label";
@@ -159,6 +154,10 @@
           const cell = document.createElement("div");
           cell.className = "cell";
           cell.dataset.row = rowType;
+
+          if (rowType === "flight") {
+            cell.dataset.flightValue = "0.0";
+          }
 
           cell.addEventListener("mousedown", (e) => {
             e.preventDefault();
@@ -181,16 +180,57 @@
       });
     }
 
+    function setFlightCellAppearance(cell, value) {
+      cell.classList.remove("duty");
+
+      if (value <= 0) {
+        cell.style.backgroundColor = "#1e293b";
+        return;
+      }
+
+      const opacity = 0.25 + (value * 1.4);
+      cell.style.backgroundColor = `rgba(34, 197, 94, ${Math.min(opacity, 1)})`;
+    }
+
+    function setDutyCellAppearance(cell, isOn) {
+      cell.style.backgroundColor = isOn ? "#facc15" : "#1e293b";
+    }
+
     function paintCell(cell) {
       if (cell.dataset.row !== mode) return;
-      cell.classList.add(mode);
+
+      if (mode === "flight") {
+        let current = parseFloat(cell.dataset.flightValue || "0");
+
+        current = parseFloat((current + 0.1).toFixed(1));
+        if (current > 0.5) current = 0.0;
+
+        cell.dataset.flightValue = current.toFixed(1);
+        setFlightCellAppearance(cell, current);
+      }
+
+      if (mode === "duty") {
+        const isOn = cell.dataset.dutyOn === "true";
+        cell.dataset.dutyOn = (!isOn).toString();
+        setDutyCellAppearance(cell, !isOn);
+      }
+
       updateTotals();
     }
 
     function clearGrid() {
       document.querySelectorAll(".cell").forEach((cell) => {
-        cell.classList.remove("flight", "duty");
+        if (cell.dataset.row === "flight") {
+          cell.dataset.flightValue = "0.0";
+          setFlightCellAppearance(cell, 0);
+        }
+
+        if (cell.dataset.row === "duty") {
+          cell.dataset.dutyOn = "false";
+          setDutyCellAppearance(cell, false);
+        }
       });
+
       updateTotals();
     }
 
@@ -198,13 +238,18 @@
       let flight = 0;
       let duty = 0;
 
-      document.querySelectorAll(".cell.flight").forEach(() => {
-        flight += 0.5;
+      document.querySelectorAll('.cell[data-row="flight"]').forEach((cell) => {
+        flight += parseFloat(cell.dataset.flightValue || "0");
       });
 
-      document.querySelectorAll(".cell.duty").forEach(() => {
-        duty += 0.5;
+      document.querySelectorAll('.cell[data-row="duty"]').forEach((cell) => {
+        if (cell.dataset.dutyOn === "true") {
+          duty += 0.5;
+        }
       });
+
+      flight = parseFloat(flight.toFixed(1));
+      duty = parseFloat(duty.toFixed(1));
 
       flightTotalEl.textContent = flight.toFixed(1);
       dutyTotalEl.textContent = duty.toFixed(1);
@@ -220,7 +265,7 @@
 
     buildGrid();
     setMode("flight");
-    updateTotals();
+    clearGrid();
   </script>
 
 </body>
