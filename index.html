@@ -52,7 +52,8 @@
 
     .header,
     .label,
-    .cell {
+    .duty-cell,
+    .flight-cell {
       border-right: 1px solid #475569;
       border-bottom: 1px solid #475569;
     }
@@ -62,7 +63,7 @@
       text-align: center;
       font-size: 10px;
       padding: 4px 0;
-      min-width: 18px;
+      min-width: 24px;
     }
 
     .label {
@@ -74,15 +75,37 @@
       min-height: 28px;
     }
 
-    .cell {
+    /* Duty = half-hour blocks */
+    .duty-cell {
       background: #1e293b;
       height: 28px;
       cursor: pointer;
-      transition: background-color 0.1s ease, opacity 0.1s ease;
     }
 
-    .cell.duty {
+    .duty-cell.on {
       background: #facc15;
+    }
+
+    /* Flight = each half-hour block split into 5 tenths */
+    .flight-cell {
+      height: 28px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      background: #1e293b;
+    }
+
+    .tenth {
+      border-right: 1px solid #334155;
+      cursor: pointer;
+      background: #1e293b;
+    }
+
+    .tenth:last-child {
+      border-right: none;
+    }
+
+    .tenth.on {
+      background: #22c55e;
     }
 
     .totals {
@@ -125,7 +148,6 @@
     function setMode(newMode) {
       mode = newMode;
       modeDisplay.textContent = newMode.toUpperCase();
-
       flightBtn.classList.toggle("active", newMode === "flight");
       dutyBtn.classList.toggle("active", newMode === "duty");
     }
@@ -144,93 +166,92 @@
         grid.appendChild(h);
       }
 
-      ["flight", "duty"].forEach((rowType) => {
-        const label = document.createElement("div");
-        label.className = "label";
-        label.textContent = rowType.toUpperCase();
-        grid.appendChild(label);
+      // Flight row
+      const flightLabel = document.createElement("div");
+      flightLabel.className = "label";
+      flightLabel.textContent = "FLT";
+      grid.appendChild(flightLabel);
 
-        for (let i = 0; i < 48; i++) {
-          const cell = document.createElement("div");
-          cell.className = "cell";
-          cell.dataset.row = rowType;
+      for (let i = 0; i < 48; i++) {
+        const cell = document.createElement("div");
+        cell.className = "flight-cell";
+        cell.dataset.blockIndex = String(i);
 
-          if (rowType === "flight") {
-            cell.dataset.flightValue = "0.0";
-          }
+        for (let j = 0; j < 5; j++) {
+          const tenth = document.createElement("div");
+          tenth.className = "tenth";
+          tenth.dataset.row = "flight";
+          tenth.dataset.block = String(i);
+          tenth.dataset.tenth = String(j);
 
-          cell.addEventListener("mousedown", (e) => {
+          tenth.addEventListener("mousedown", (e) => {
             e.preventDefault();
             isDrawing = true;
-            paintCell(cell);
+            paintFlight(tenth);
           });
 
-          cell.addEventListener("mouseenter", () => {
-            if (isDrawing) {
-              paintCell(cell);
+          tenth.addEventListener("mouseenter", () => {
+            if (isDrawing && mode === "flight") {
+              paintFlight(tenth);
             }
           });
 
-          cell.addEventListener("click", () => {
-            paintCell(cell);
+          tenth.addEventListener("click", () => {
+            paintFlight(tenth);
           });
 
-          grid.appendChild(cell);
+          cell.appendChild(tenth);
         }
-      });
-    }
 
-    function setFlightCellAppearance(cell, value) {
-      cell.classList.remove("duty");
-
-      if (value <= 0) {
-        cell.style.backgroundColor = "#1e293b";
-        return;
+        grid.appendChild(cell);
       }
 
-      const opacity = 0.25 + (value * 1.4);
-      cell.style.backgroundColor = `rgba(34, 197, 94, ${Math.min(opacity, 1)})`;
+      // Duty row
+      const dutyLabel = document.createElement("div");
+      dutyLabel.className = "label";
+      dutyLabel.textContent = "DUTY";
+      grid.appendChild(dutyLabel);
+
+      for (let i = 0; i < 48; i++) {
+        const cell = document.createElement("div");
+        cell.className = "duty-cell";
+        cell.dataset.row = "duty";
+
+        cell.addEventListener("mousedown", (e) => {
+          e.preventDefault();
+          isDrawing = true;
+          paintDuty(cell);
+        });
+
+        cell.addEventListener("mouseenter", () => {
+          if (isDrawing && mode === "duty") {
+            paintDuty(cell);
+          }
+        });
+
+        cell.addEventListener("click", () => {
+          paintDuty(cell);
+        });
+
+        grid.appendChild(cell);
+      }
     }
 
-    function setDutyCellAppearance(cell, isOn) {
-      cell.style.backgroundColor = isOn ? "#facc15" : "#1e293b";
+    function paintFlight(tenth) {
+      if (mode !== "flight") return;
+      tenth.classList.add("on");
+      updateTotals();
     }
 
-    function paintCell(cell) {
-      if (cell.dataset.row !== mode) return;
-
-      if (mode === "flight") {
-        let current = parseFloat(cell.dataset.flightValue || "0");
-
-        current = parseFloat((current + 0.1).toFixed(1));
-        if (current > 0.5) current = 0.0;
-
-        cell.dataset.flightValue = current.toFixed(1);
-        setFlightCellAppearance(cell, current);
-      }
-
-      if (mode === "duty") {
-        const isOn = cell.dataset.dutyOn === "true";
-        cell.dataset.dutyOn = (!isOn).toString();
-        setDutyCellAppearance(cell, !isOn);
-      }
-
+    function paintDuty(cell) {
+      if (mode !== "duty") return;
+      cell.classList.add("on");
       updateTotals();
     }
 
     function clearGrid() {
-      document.querySelectorAll(".cell").forEach((cell) => {
-        if (cell.dataset.row === "flight") {
-          cell.dataset.flightValue = "0.0";
-          setFlightCellAppearance(cell, 0);
-        }
-
-        if (cell.dataset.row === "duty") {
-          cell.dataset.dutyOn = "false";
-          setDutyCellAppearance(cell, false);
-        }
-      });
-
+      document.querySelectorAll(".tenth.on").forEach(el => el.classList.remove("on"));
+      document.querySelectorAll(".duty-cell.on").forEach(el => el.classList.remove("on"));
       updateTotals();
     }
 
@@ -238,18 +259,13 @@
       let flight = 0;
       let duty = 0;
 
-      document.querySelectorAll('.cell[data-row="flight"]').forEach((cell) => {
-        flight += parseFloat(cell.dataset.flightValue || "0");
+      document.querySelectorAll(".tenth.on").forEach(() => {
+        flight += 0.1;
       });
 
-      document.querySelectorAll('.cell[data-row="duty"]').forEach((cell) => {
-        if (cell.dataset.dutyOn === "true") {
-          duty += 0.5;
-        }
+      document.querySelectorAll(".duty-cell.on").forEach(() => {
+        duty += 0.5;
       });
-
-      flight = parseFloat(flight.toFixed(1));
-      duty = parseFloat(duty.toFixed(1));
 
       flightTotalEl.textContent = flight.toFixed(1);
       dutyTotalEl.textContent = duty.toFixed(1);
@@ -265,7 +281,7 @@
 
     buildGrid();
     setMode("flight");
-    clearGrid();
+    updateTotals();
   </script>
 
 </body>
