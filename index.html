@@ -17,7 +17,7 @@
       background: #1e293b;
       padding: 25px;
       border-radius: 12px;
-      width: 400px;
+      width: 500px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
 
@@ -35,7 +35,7 @@
     }
 
     button {
-      padding: 8px 12px;
+      padding: 6px 10px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
@@ -59,16 +59,25 @@
       color: white;
     }
 
-    ul {
-      list-style: none;
-      padding: 0;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
     }
 
-    li {
-      background: #334155;
-      margin-bottom: 8px;
-      padding: 10px;
-      border-radius: 6px;
+    th {
+      background: #0f172a;
+      padding: 8px;
+      text-align: left;
+    }
+
+    td {
+      padding: 8px;
+      border-bottom: 1px solid #475569;
+    }
+
+    tr:hover {
+      background: #475569;
     }
 
     .total {
@@ -96,7 +105,18 @@
     <p id="status"></p>
 
     <h3>Saved Flights</h3>
-    <ul id="logList"></ul>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Aircraft</th>
+          <th>Hours</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="logList"></tbody>
+    </table>
 
     <div class="total">
       Total Hours: <span id="totalHours">0</span>
@@ -133,9 +153,16 @@
 
       if (data) {
         data.forEach(log => {
-          const li = document.createElement("li");
+          const row = document.createElement("tr");
 
-          li.textContent = `${log.date} - ${log.aircraft} - ${log.hours} hrs `;
+          row.innerHTML = `
+            <td>${log.date}</td>
+            <td>${log.aircraft}</td>
+            <td>${log.hours}</td>
+            <td></td>
+          `;
+
+          const actionsCell = row.children[3];
 
           const editBtn = document.createElement("button");
           editBtn.textContent = "Edit";
@@ -147,10 +174,10 @@
           deleteBtn.className = "delete-btn";
           deleteBtn.onclick = () => window.deleteLog(log.id);
 
-          li.appendChild(editBtn);
-          li.appendChild(deleteBtn);
+          actionsCell.appendChild(editBtn);
+          actionsCell.appendChild(deleteBtn);
 
-          list.appendChild(li);
+          list.appendChild(row);
 
           const hoursNum = parseFloat(log.hours);
           if (!isNaN(hoursNum)) total += hoursNum;
@@ -225,6 +252,7 @@
       }
     };
 
+    // INITIAL LOAD
     window.loadLogs();
 
   });
