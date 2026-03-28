@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Flight Log - Working</title>
+  <title>Flight Log - Debug Fixed</title>
 
   <style>
     body {
@@ -16,7 +16,7 @@
     .controls {
       display: flex;
       gap: 10px;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
 
     button {
@@ -29,6 +29,10 @@
     .flight-btn { background: #22c55e; }
     .duty-btn { background: #facc15; color: black; }
     .clear-btn { background: #ef4444; }
+
+    .active {
+      outline: 3px solid white;
+    }
 
     .grid {
       display: grid;
@@ -69,10 +73,12 @@
 <h2>✈️ Flight & Duty Log</h2>
 
 <div class="controls">
-  <button class="flight-btn" onclick="mode='flight'">Flight Mode</button>
-  <button class="duty-btn" onclick="mode='duty'">Duty Mode</button>
+  <button id="flightBtn" class="flight-btn active">Flight Mode</button>
+  <button id="dutyBtn" class="duty-btn">Duty Mode</button>
   <button class="clear-btn" onclick="clearGrid()">Clear</button>
 </div>
+
+<div id="currentMode">Mode: FLIGHT</div>
 
 <div class="grid" id="grid"></div>
 
@@ -85,16 +91,30 @@
 let mode = "flight";
 let mouseDown = false;
 
+const flightBtn = document.getElementById("flightBtn");
+const dutyBtn = document.getElementById("dutyBtn");
+
+// MODE SWITCH (EXPLICIT)
+flightBtn.onclick = () => {
+  mode = "flight";
+  flightBtn.classList.add("active");
+  dutyBtn.classList.remove("active");
+  document.getElementById("currentMode").innerText = "Mode: FLIGHT";
+};
+
+dutyBtn.onclick = () => {
+  mode = "duty";
+  dutyBtn.classList.add("active");
+  flightBtn.classList.remove("active");
+  document.getElementById("currentMode").innerText = "Mode: DUTY";
+};
+
 const grid = document.getElementById("grid");
 
 // HEADER
 grid.innerHTML += "<div></div>";
 for (let i = 0; i < 48; i++) {
-  if (i % 2 === 0) {
-    grid.innerHTML += `<div class="header">${i/2}</div>`;
-  } else {
-    grid.innerHTML += `<div class="header"></div>`;
-  }
+  grid.innerHTML += `<div class="header">${i % 2 === 0 ? i/2 : ""}</div>`;
 }
 
 // ROWS
@@ -106,27 +126,27 @@ for (let i = 0; i < 48; i++) {
     cell.className = "cell";
     cell.dataset.row = type;
 
-    cell.onmousedown = () => {
+    cell.addEventListener("mousedown", () => {
       mouseDown = true;
       paint(cell);
-    };
+    });
 
-    cell.onmouseover = () => {
+    cell.addEventListener("mouseover", () => {
       if (mouseDown) paint(cell);
-    };
+    });
 
     grid.appendChild(cell);
   }
 });
 
-// STOP DRAG
-document.body.onmouseup = () => mouseDown = false;
+// GLOBAL MOUSE
+document.addEventListener("mouseup", () => mouseDown = false);
 
-// ✅ FIXED PAINT FUNCTION
+// PAINT (SUPER SIMPLE)
 function paint(cell) {
   if (cell.dataset.row !== mode) return;
 
-  cell.classList.add(mode); // 👈 no toggle = stable drag
+  cell.classList.add(mode);
 
   calculateTotals();
 }
@@ -148,9 +168,6 @@ function calculateTotals() {
     if (cell.classList.contains("flight")) flight += 0.5;
     if (cell.classList.contains("duty")) duty += 0.5;
   });
-
-  if (duty > 14) alert("⚠️ Duty exceeds 14 hours");
-  if (flight > duty) alert("⚠️ Flight cannot exceed duty");
 
   document.getElementById("flightTotal").innerText = flight.toFixed(1);
   document.getElementById("dutyTotal").innerText = duty.toFixed(1);
