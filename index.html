@@ -46,6 +46,7 @@
       font-size: 10px;
       text-align: center;
       background: #334155;
+      padding: 4px;
     }
 
     .label {
@@ -60,6 +61,13 @@
 
     .totals {
       margin-top: 15px;
+    }
+
+    .log {
+      margin-top: 20px;
+      background: #1e293b;
+      padding: 10px;
+      border-radius: 8px;
     }
   </style>
 </head>
@@ -83,7 +91,7 @@
 
 <button onclick="saveLog()">Save Entry</button>
 
-<div id="logList"></div>
+<div class="log" id="logList"></div>
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
@@ -98,19 +106,20 @@ let mouseDown = false;
 
 const grid = document.getElementById("grid");
 
-// HEADER ROW
+// HEADER
 grid.innerHTML += "<div></div>";
 for (let i = 1; i <= 24; i++) {
   grid.innerHTML += `<div class="header">${i}</div>`;
 }
 
-// CREATE ROWS
-["FLT", "DUTY"].forEach(type => {
-  grid.innerHTML += `<div class="label">${type}</div>`;
+// ROWS
+["flight", "duty"].forEach(type => {
+  grid.innerHTML += `<div class="label">${type.toUpperCase()}</div>`;
 
   for (let i = 0; i < 24; i++) {
     const cell = document.createElement("div");
     cell.className = "cell";
+    cell.dataset.row = type;
 
     cell.onmousedown = () => {
       mouseDown = true;
@@ -125,16 +134,22 @@ for (let i = 1; i <= 24; i++) {
   }
 });
 
+// GLOBAL MOUSE TRACK
+document.body.onmousedown = () => mouseDown = true;
 document.body.onmouseup = () => mouseDown = false;
 
-// PAINT FUNCTION
+// PAINT
 function paint(cell) {
-  cell.classList.remove("flight", "duty");
-  cell.classList.add(mode);
+  const rowType = cell.dataset.row;
+
+  if (mode !== rowType) return;
+
+  cell.classList.toggle(mode);
+
   calculateTotals();
 }
 
-// CLEAR GRID
+// CLEAR
 function clearGrid() {
   document.querySelectorAll(".cell").forEach(c => {
     c.classList.remove("flight", "duty");
@@ -142,21 +157,16 @@ function clearGrid() {
   calculateTotals();
 }
 
-// CALCULATE TOTALS
+// TOTALS
 function calculateTotals() {
   let flight = 0;
   let duty = 0;
 
-  const cells = document.querySelectorAll(".cell");
-
-  cells.forEach((c, i) => {
-    const row = Math.floor(i / 24);
-
-    if (row === 0 && c.classList.contains("flight")) flight++;
-    if (row === 1 && c.classList.contains("duty")) duty++;
+  document.querySelectorAll(".cell").forEach(cell => {
+    if (cell.classList.contains("flight")) flight++;
+    if (cell.classList.contains("duty")) duty++;
   });
 
-  // each cell = 1 hour
   if (duty > 14) {
     alert("⚠️ Duty exceeds 14 hours");
   }
