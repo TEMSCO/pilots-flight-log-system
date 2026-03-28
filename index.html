@@ -158,7 +158,8 @@ window.addEventListener("load", () => {
     const { data } = await sb
       .from("logs")
       .select("*")
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .order("date", { ascending: true });
 
     const list = document.getElementById("logList");
     list.innerHTML = "";
@@ -247,6 +248,7 @@ window.addEventListener("load", () => {
       .then(loadLogs);
   };
 
+  // ✈️ MULTI-PAGE PRINT
   window.printLogbook = async function () {
     const { data: userData } = await sb.auth.getUser();
     const user = userData.user;
@@ -254,50 +256,82 @@ window.addEventListener("load", () => {
     const { data } = await sb
       .from("logs")
       .select("*")
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .order("date", { ascending: true });
 
-    let rows = "";
-    let total = 0;
+    const rowsPerPage = 12;
+    let pagesHTML = "";
 
-    data.forEach(log => {
-      rows += `
-        <tr>
-          <td>${log.date}</td>
-          <td>${log.aircraft}</td>
-          <td>${log.pic || ""}</td>
-          <td>${log.night || ""}</td>
-          <td>${log.training || ""}</td>
-          <td>${log.flight || ""}</td>
-          <td>${log.duty || ""}</td>
-        </tr>
+    for (let i = 0; i < data.length; i += rowsPerPage) {
+      const pageData = data.slice(i, i + rowsPerPage);
+
+      let rows = "";
+      let total = 0;
+
+      pageData.forEach(log => {
+        rows += `
+          <tr>
+            <td>${log.date}</td>
+            <td>${log.aircraft}</td>
+            <td>${log.pic || ""}</td>
+            <td>${log.night || ""}</td>
+            <td>${log.training || ""}</td>
+            <td>${log.flight || ""}</td>
+            <td>${log.duty || ""}</td>
+          </tr>
+        `;
+
+        total += parseFloat(log.flight) || 0;
+      });
+
+      pagesHTML += `
+        <div class="page">
+          <h2>Pilot Flight & Duty Log</h2>
+          <p>Page ${Math.floor(i / rowsPerPage) + 1}</p>
+
+          <table>
+            <tr>
+              <th>Date</th>
+              <th>A/C</th>
+              <th>PIC</th>
+              <th>Night</th>
+              <th>Training</th>
+              <th>Flight</th>
+              <th>Duty</th>
+            </tr>
+            ${rows}
+          </table>
+
+          <h3>Page Total: ${total.toFixed(1)} hrs</h3>
+
+          <div style="margin-top:30px;">
+            ________________________<br>
+            Signature
+          </div>
+        </div>
       `;
-      total += parseFloat(log.flight) || 0;
-    });
+    }
 
     const win = window.open("", "", "width=900,height=700");
 
     win.document.write(`
       <html>
       <head>
-        <title>Print Logbook</title>
+        <title>Logbook</title>
         <style>
-          body { font-family: Arial; padding: 20px; }
+          body { font-family: Arial; }
+          .page { page-break-after: always; padding: 20px; }
           table { width: 100%; border-collapse: collapse; }
-          th, td { border: 1px solid black; padding: 5px; text-align: center; }
+          th, td {
+            border: 1px solid black;
+            padding: 5px;
+            text-align: center;
+          }
           th { background: #eee; }
         </style>
       </head>
       <body>
-        <h2>Pilot Flight Log</h2>
-        <table>
-          <tr>
-            <th>Date</th><th>A/C</th><th>PIC</th><th>Night</th><th>Trng</th><th>FLT</th><th>DUTY</th>
-          </tr>
-          ${rows}
-        </table>
-        <h3>Total: ${total.toFixed(1)} hrs</h3>
-        <br><br>
-        ________________________<br>Signature
+        ${pagesHTML}
       </body>
       </html>
     `);
