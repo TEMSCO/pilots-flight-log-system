@@ -4,34 +4,13 @@
   <title>Pilot Dashboard</title>
 
   <style>
-    <body>
-
-  <div class="container">
-
-    <h1>Pilot Dashboard</h1>
-
-    <h3>Add Flight Log</h3>
-
-    <input id="date" type="date">
-    <input id="aircraft" placeholder="Aircraft">
-    <input id="hours" placeholder="Flight Hours">
-
-    <button class="save-btn" onclick="addLog()">Save Flight</button>
-
-    <p id="status"></p>
-
-    <h3>Saved Flights</h3>
-    <ul id="logList"></ul>
-
-    <div class="total">
-      Total Hours: <span id="totalHours">0</span>
-    </div>
-
-  </div>
-
-  <!-- KEEP YOUR SCRIPT BELOW -->
-
-</body>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      padding: 40px;
     }
 
     .container {
@@ -100,119 +79,81 @@
   </style>
 </head>
 
-   
-   // LOAD LOGS
-window.loadLogs = async function () {
-  const { data: userData } = await sb.auth.getUser();
-  const user = userData.user;
+<body>
 
-  const { data } = await sb
-    .from("logs")
-    .select("*")
-    .eq("user_id", user.id);
+  <div class="container">
 
-  const list = document.getElementById("logList");
-  const totalDisplay = document.getElementById("totalHours");
+    <h1>Pilot Dashboard</h1>
 
-  list.innerHTML = "";
-  let total = 0;
+    <h3>Add Flight Log</h3>
 
-  if (data) {
-    data.forEach(log => {
-      const li = document.createElement("li");
+    <input id="date" type="date">
+    <input id="aircraft" placeholder="Aircraft">
+    <input id="hours" placeholder="Flight Hours">
 
-      li.textContent = `${log.date} - ${log.aircraft} - ${log.hours} hrs `;
+    <button class="save-btn" onclick="addLog()">Save Flight</button>
 
-      const editBtn = document.createElement("button");
-      editBtn.textContent = "Edit";
-      editBtn.className = "edit-btn";
-      editBtn.onclick = () => window.editLog(log);
+    <p id="status"></p>
 
-      const deleteBtn = document.createElement("button");
-      deleteBtn.textContent = "Delete";
-      deleteBtn.className = "delete-btn";
-      deleteBtn.onclick = () => window.deleteLog(log.id);
+    <h3>Saved Flights</h3>
+    <ul id="logList"></ul>
 
-      li.appendChild(editBtn);
-      li.appendChild(deleteBtn);
+    <div class="total">
+      Total Hours: <span id="totalHours">0</span>
+    </div>
 
-      list.appendChild(li);
+  </div>
 
-      const hoursNum = parseFloat(log.hours);
-      if (!isNaN(hoursNum)) total += hoursNum;
-    });
-  }
+  <!-- Supabase -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
-  totalDisplay.innerText = total.toFixed(1);
-};
+  <script>
+  window.addEventListener("load", () => {
 
-// ADD LOG
-window.addLog = async function () {
-  const date = document.getElementById("date").value;
-  const aircraft = document.getElementById("aircraft").value;
-  const hours = document.getElementById("hours").value;
+    const sb = window.supabase.createClient(
+      "https://xjisftmfjsjomgsjzkod.supabase.co",
+      "sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS"
+    );
 
-  const { data: userData } = await sb.auth.getUser();
-  const user = userData.user;
+    // LOAD LOGS
+    window.loadLogs = async function () {
+      const { data: userData } = await sb.auth.getUser();
+      const user = userData.user;
 
-  const { error } = await sb
-    .from("logs")
-    .insert([{
-      date,
-      aircraft,
-      hours,
-      user_id: user.id
-    }]);
+      const { data } = await sb
+        .from("logs")
+        .select("*")
+        .eq("user_id", user.id);
 
-  if (error) {
-    document.getElementById("status").innerText = error.message;
-  } else {
-    document.getElementById("status").innerText = "Flight saved!";
-    window.loadLogs();
-  }
-};
+      const list = document.getElementById("logList");
+      const totalDisplay = document.getElementById("totalHours");
 
-// DELETE LOG
-window.deleteLog = async function (id) {
-  const { error } = await sb
-    .from("logs")
-    .delete()
-    .eq("id", id);
+      list.innerHTML = "";
+      let total = 0;
 
-  if (error) {
-    alert(error.message);
-  } else {
-    window.loadLogs();
-  }
-};
+      if (data) {
+        data.forEach(log => {
+          const li = document.createElement("li");
 
-// EDIT LOG
-window.editLog = function (log) {
-  const newDate = prompt("Edit date:", log.date);
-  const newAircraft = prompt("Edit aircraft:", log.aircraft);
-  const newHours = prompt("Edit hours:", log.hours);
+          li.textContent = `${log.date} - ${log.aircraft} - ${log.hours} hrs `;
 
-  if (!newDate || !newAircraft || !newHours) return;
+          const editBtn = document.createElement("button");
+          editBtn.textContent = "Edit";
+          editBtn.className = "edit-btn";
+          editBtn.onclick = () => window.editLog(log);
 
-  window.updateLog(log.id, newDate, newAircraft, newHours);
-};
+          const deleteBtn = document.createElement("button");
+          deleteBtn.textContent = "Delete";
+          deleteBtn.className = "delete-btn";
+          deleteBtn.onclick = () => window.deleteLog(log.id);
 
-// UPDATE LOG
-window.updateLog = async function (id, date, aircraft, hours) {
-  const { error } = await sb
-    .from("logs")
-    .update({ date, aircraft, hours })
-    .eq("id", id);
+          li.appendChild(editBtn);
+          li.appendChild(deleteBtn);
 
-  if (error) {
-    alert(error.message);
-  } else {
-    window.loadLogs();
-  }
-};
+          list.appendChild(li);
 
-// INITIAL LOAD
-window.loadLogs();
+          const hoursNum = parseFloat(log.hours);
+          if (!isNaN(hoursNum)) total += hoursNum;
         });
       }
 
@@ -245,7 +186,7 @@ window.loadLogs();
       }
     };
 
-    // DELETE LOG
+    // DELETE
     window.deleteLog = async function (id) {
       const { error } = await sb
         .from("logs")
@@ -259,7 +200,7 @@ window.loadLogs();
       }
     };
 
-    // EDIT LOG
+    // EDIT
     window.editLog = function (log) {
       const newDate = prompt("Edit date:", log.date);
       const newAircraft = prompt("Edit aircraft:", log.aircraft);
@@ -270,7 +211,7 @@ window.loadLogs();
       window.updateLog(log.id, newDate, newAircraft, newHours);
     };
 
-    // UPDATE LOG
+    // UPDATE
     window.updateLog = async function (id, date, aircraft, hours) {
       const { error } = await sb
         .from("logs")
@@ -291,7 +232,6 @@ window.loadLogs();
 
 </body>
 </html>
-
   
   
    
