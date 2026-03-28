@@ -17,7 +17,12 @@
       background: #1e293b;
       padding: 20px;
       border-radius: 10px;
-      width: 700px;
+      width: 800px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    h2, h3 {
+      text-align: center;
     }
 
     input {
@@ -33,9 +38,11 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      margin: 2px;
     }
 
     .save-btn { background: #22c55e; color: white; width: 100%; }
+    .print-btn { background: #f59e0b; color: white; width: 100%; margin-top: 10px; }
     .edit-btn { background: #3b82f6; color: white; }
     .delete-btn { background: #ef4444; color: white; }
 
@@ -48,6 +55,7 @@
     th, td {
       padding: 6px;
       border-bottom: 1px solid #475569;
+      text-align: center;
     }
 
     th {
@@ -105,6 +113,8 @@
   </table>
 
   <h3>Total Flight Hours: <span id="totalHours">0</span></h3>
+
+  <button class="print-btn" onclick="printLogbook()">Print Logbook</button>
 
   <canvas id="chart"></canvas>
 
@@ -164,11 +174,11 @@ window.addEventListener("load", () => {
         row.innerHTML = `
           <td>${log.date}</td>
           <td>${log.aircraft}</td>
-          <td>${log.pic}</td>
-          <td>${log.night}</td>
-          <td>${log.training}</td>
-          <td>${log.flight}</td>
-          <td>${log.duty}</td>
+          <td>${log.pic || ""}</td>
+          <td>${log.night || ""}</td>
+          <td>${log.training || ""}</td>
+          <td>${log.flight || ""}</td>
+          <td>${log.duty || ""}</td>
           <td></td>
         `;
 
@@ -235,6 +245,65 @@ window.addEventListener("load", () => {
       .update({ flight: newFlight })
       .eq("id", log.id)
       .then(loadLogs);
+  };
+
+  window.printLogbook = async function () {
+    const { data: userData } = await sb.auth.getUser();
+    const user = userData.user;
+
+    const { data } = await sb
+      .from("logs")
+      .select("*")
+      .eq("user_id", user.id);
+
+    let rows = "";
+    let total = 0;
+
+    data.forEach(log => {
+      rows += `
+        <tr>
+          <td>${log.date}</td>
+          <td>${log.aircraft}</td>
+          <td>${log.pic || ""}</td>
+          <td>${log.night || ""}</td>
+          <td>${log.training || ""}</td>
+          <td>${log.flight || ""}</td>
+          <td>${log.duty || ""}</td>
+        </tr>
+      `;
+      total += parseFloat(log.flight) || 0;
+    });
+
+    const win = window.open("", "", "width=900,height=700");
+
+    win.document.write(`
+      <html>
+      <head>
+        <title>Print Logbook</title>
+        <style>
+          body { font-family: Arial; padding: 20px; }
+          table { width: 100%; border-collapse: collapse; }
+          th, td { border: 1px solid black; padding: 5px; text-align: center; }
+          th { background: #eee; }
+        </style>
+      </head>
+      <body>
+        <h2>Pilot Flight Log</h2>
+        <table>
+          <tr>
+            <th>Date</th><th>A/C</th><th>PIC</th><th>Night</th><th>Trng</th><th>FLT</th><th>DUTY</th>
+          </tr>
+          ${rows}
+        </table>
+        <h3>Total: ${total.toFixed(1)} hrs</h3>
+        <br><br>
+        ________________________<br>Signature
+      </body>
+      </html>
+    `);
+
+    win.document.close();
+    win.print();
   };
 
   loadLogs();
