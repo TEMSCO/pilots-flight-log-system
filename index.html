@@ -13,8 +13,8 @@
       --subtle: #f8fafc;
       --flight: #22c55e;
       --duty: #facc15;
-      --btn-blue: #2563eb;
-      --btn-red: #dc2626;
+      --blue: #2563eb;
+      --red: #dc2626;
     }
 
     * {
@@ -113,7 +113,7 @@
     }
 
     .header-value input:focus,
-    .cell.input-cell input:focus {
+    .sheet-cell input:focus {
       outline: 1.5px solid #60a5fa;
       outline-offset: -1px;
     }
@@ -136,16 +136,17 @@
       font-size: 11px;
     }
 
-    button.active {
-      outline: 1.5px solid var(--line);
-    }
-
     .flight-btn { background: #dcfce7; }
     .duty-btn { background: #fef3c7; }
+    .add-btn { background: #dbeafe; }
     .clear-btn { background: #fee2e2; }
-    .save-btn { background: #dbeafe; }
-    .load-btn { background: var(--btn-blue); color: white; }
-    .delete-btn { background: var(--btn-red); color: white; }
+    .save-btn { background: #d1fae5; }
+    .load-btn { background: #e0e7ff; }
+    .delete-btn { background: #fee2e2; }
+
+    .active {
+      outline: 1.5px solid var(--line);
+    }
 
     .mode-line {
       text-align: center;
@@ -155,27 +156,27 @@
       letter-spacing: 0.3px;
     }
 
-    .entry-frame {
+    .page-grid-wrap {
       border: 1.5px solid var(--line);
-      background: white;
       overflow-x: auto;
+      background: white;
     }
 
-    .entry-grid {
+    .page-grid {
       display: grid;
       grid-template-columns:
-        56px    /* date mm/dd */
-        92px    /* ac */
-        52px    /* duty start */
-        52px    /* duty stop */
-        52px    /* duty total */
-        52px    /* flight total */
-        60px    /* row labels */
+        56px
+        92px
+        52px
+        52px
+        52px
+        52px
+        44px
         repeat(48, minmax(12px, 1fr));
       min-width: 1080px;
     }
 
-    .cell {
+    .sheet-cell {
       border-right: 1px solid var(--line);
       border-bottom: 1px solid var(--line);
       min-height: 22px;
@@ -186,59 +187,72 @@
       font-size: 10px;
       text-align: center;
       line-height: 1.1;
+      background: white;
     }
 
-    .cell.header {
+    .sheet-cell.header {
       background: var(--header);
       font-weight: bold;
     }
 
-    .cell.subhead {
+    .sheet-cell.subhead {
       background: var(--subtle);
       font-weight: bold;
     }
 
-    .cell.input-cell {
-      padding: 0;
-      background: white;
+    .sheet-cell.row-label {
+      background: var(--subtle);
+      font-weight: bold;
+      font-size: 10px;
     }
 
-    .cell.input-cell input {
+    .sheet-cell.readout {
+      font-weight: bold;
+    }
+
+    .sheet-cell input {
       width: 100%;
       height: 100%;
       border: none;
-      padding: 2px 4px;
-      font-size: 10px;
       background: transparent;
-      min-width: 0;
       text-align: center;
-    }
-
-    .cell.readout {
-      background: white;
-      font-weight: bold;
       font-size: 10px;
-    }
-
-    .row-label {
-      background: var(--subtle);
-      font-weight: bold;
-      letter-spacing: 0.2px;
-      font-size: 10px;
+      padding: 2px 3px;
     }
 
     .time-subhead {
       font-size: 8px;
-      padding: 1px 0;
-      background: var(--subtle);
       min-height: 18px;
+      background: var(--subtle);
+    }
+
+    .flight-cell {
+      padding: 0;
+      min-height: 24px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+    }
+
+    .tenth {
+      min-height: 24px;
+      border-right: 1px solid #d1d5db;
+      background: white;
+      cursor: pointer;
+    }
+
+    .tenth:last-child {
+      border-right: none;
+    }
+
+    .tenth.on {
+      background: var(--flight);
     }
 
     .duty-cell {
-      background: white;
-      min-height: 24px;
-      cursor: pointer;
       padding: 0;
+      min-height: 24px;
+      background: white;
+      cursor: pointer;
     }
 
     .duty-cell.on {
@@ -248,29 +262,6 @@
     .duty-cell.pending {
       outline: 1.5px solid #000;
       outline-offset: -1px;
-    }
-
-    .flight-cell {
-      min-height: 24px;
-      padding: 0;
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      background: white;
-    }
-
-    .tenth {
-      border-right: 1px solid #d1d5db;
-      cursor: pointer;
-      min-height: 24px;
-      background: white;
-    }
-
-    .tenth:last-child {
-      border-right: none;
-    }
-
-    .tenth.on {
-      background: var(--flight);
     }
 
     .status {
@@ -321,12 +312,6 @@
       flex-wrap: wrap;
     }
 
-    .footer-note {
-      margin-top: 10px;
-      font-size: 10px;
-      text-align: center;
-    }
-
     @media print {
       body {
         background: white;
@@ -342,34 +327,27 @@
 
       .controls,
       .status,
-      .saved-wrap,
-      .footer-note {
+      .saved-wrap {
         display: none;
       }
 
-      .entry-frame,
-      .header-box,
-      .sheet {
-        border-color: #000;
-      }
-
-      .entry-grid {
+      .page-grid {
         min-width: 0;
         width: 100%;
         grid-template-columns:
-          50px
-          82px
-          46px
-          46px
-          46px
-          46px
-          54px
+          48px
+          78px
+          42px
+          42px
+          42px
+          42px
+          48px
           repeat(48, minmax(10px, 1fr));
       }
 
-      .cell {
-        min-height: 20px;
-        font-size: 8.5px;
+      .sheet-cell {
+        min-height: 18px;
+        font-size: 8px;
       }
 
       .time-subhead {
@@ -379,19 +357,11 @@
       .flight-cell,
       .duty-cell,
       .tenth {
-        min-height: 20px;
+        min-height: 18px;
       }
     }
 
     @media (max-width: 900px) {
-      body {
-        padding: 6px;
-      }
-
-      .sheet {
-        padding: 6px;
-      }
-
       .sheet-header {
         grid-template-columns: 1fr;
       }
@@ -408,7 +378,7 @@
       <div class="sheet-title">
         <div class="company">TEMSCO HELICOPTERS INC.</div>
         <div class="form-title">Pilot's Flight & Duty Time Log</div>
-        <div class="note">Compact print layout modeled on the scanned form. :contentReference[oaicite:1]{index=1}</div>
+        <div class="note">Multi-row printable layout modeled on the scanned form. :contentReference[oaicite:2]{index=2}</div>
       </div>
 
       <div class="header-box">
@@ -430,25 +400,23 @@
     <div class="controls">
       <button id="flightBtn" class="flight-btn active" type="button">Flight Mode</button>
       <button id="dutyBtn" class="duty-btn" type="button">Duty Mode</button>
-      <button id="clearBtn" class="clear-btn" type="button">Clear</button>
-      <button id="saveBtn" class="save-btn" type="button">Save Entry</button>
+      <button id="addRowBtn" class="add-btn" type="button">Add Row</button>
+      <button id="clearCurrentBtn" class="clear-btn" type="button">Clear Current Row</button>
+      <button id="saveAllBtn" class="save-btn" type="button">Save All Rows</button>
+      <button id="loadSavedBtn" class="load-btn" type="button">Load Saved Rows</button>
     </div>
 
-    <div class="mode-line">MODE: <span id="modeDisplay">FLIGHT</span></div>
+    <div class="mode-line">MODE: <span id="modeDisplay">FLIGHT</span> | CURRENT ROW: <span id="currentRowDisplay">1</span></div>
 
-    <div class="entry-frame">
-      <div id="entryGrid" class="entry-grid"></div>
+    <div class="page-grid-wrap">
+      <div id="pageGrid" class="page-grid"></div>
     </div>
 
     <div id="status" class="status"></div>
 
     <div class="saved-wrap">
-      <div class="saved-title">Saved Entries</div>
+      <div class="saved-title">Saved Batches / Entries</div>
       <div id="savedList"></div>
-    </div>
-
-    <div class="footer-note">
-      Date is now entered as MM/DD in the row, while year belongs in PERIOD like the scanned sheet. :contentReference[oaicite:2]{index=2}
     </div>
   </div>
 
@@ -461,22 +429,42 @@
 
     let mode = "flight";
     let isDrawing = false;
-    let dutyStartBlock = null;
+    let currentRowId = 1;
+    let rows = [];
+    let rowCounter = 1;
 
-    const entryGrid = document.getElementById("entryGrid");
+    const DEFAULT_ROW_COUNT = 8;
+
+    const pageGrid = document.getElementById("pageGrid");
     const flightBtn = document.getElementById("flightBtn");
     const dutyBtn = document.getElementById("dutyBtn");
-    const clearBtn = document.getElementById("clearBtn");
-    const saveBtn = document.getElementById("saveBtn");
+    const addRowBtn = document.getElementById("addRowBtn");
+    const clearCurrentBtn = document.getElementById("clearCurrentBtn");
+    const saveAllBtn = document.getElementById("saveAllBtn");
+    const loadSavedBtn = document.getElementById("loadSavedBtn");
     const modeDisplay = document.getElementById("modeDisplay");
-    const savedList = document.getElementById("savedList");
+    const currentRowDisplay = document.getElementById("currentRowDisplay");
     const statusEl = document.getElementById("status");
+    const savedList = document.getElementById("savedList");
 
     function setMode(newMode) {
       mode = newMode;
       modeDisplay.textContent = newMode.toUpperCase();
       flightBtn.classList.toggle("active", newMode === "flight");
       dutyBtn.classList.toggle("active", newMode === "duty");
+    }
+
+    function setCurrentRow(rowId) {
+      currentRowId = rowId;
+      currentRowDisplay.textContent = rowId;
+      document.querySelectorAll(".sheet-cell.row-label").forEach(el => {
+        el.style.outline = "";
+      });
+      const labels = document.querySelectorAll(`.sheet-cell.row-label[data-row-id="${rowId}"]`);
+      labels.forEach(el => {
+        el.style.outline = "1.5px solid #2563eb";
+        el.style.outlineOffset = "-1px";
+      });
     }
 
     function formatHalfHourBlock(blockIndex) {
@@ -502,41 +490,120 @@
         const [mm, dd] = cleaned.split("/");
         return `${yearMatch[1]}-${mm}-${dd}`;
       }
-
       return cleaned;
+    }
+
+    function autoFormatMMDDInput(input) {
+      let value = input.value.replace(/[^\d]/g, "").slice(0, 4);
+      if (value.length >= 3) value = value.slice(0, 2) + "/" + value.slice(2);
+      input.value = value;
+    }
+
+    function getRow(rowId) {
+      return rows.find(r => r.id === rowId);
+    }
+
+    function makeEmptyRow(id) {
+      return {
+        id,
+        dutyStartBlock: null
+      };
     }
 
     function createCell(className = "", text = "") {
       const div = document.createElement("div");
-      div.className = `cell ${className}`.trim();
+      div.className = `sheet-cell ${className}`.trim();
       div.textContent = text;
       return div;
     }
 
-    function createReadoutCell(id) {
+    function createInputCell(rowId, key, placeholder = "", maxLength = null) {
       const div = document.createElement("div");
-      div.className = "cell readout";
-      div.id = id;
+      div.className = "sheet-cell";
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.placeholder = placeholder;
+      input.dataset.rowId = rowId;
+      input.dataset.key = key;
+      if (maxLength) input.maxLength = maxLength;
+
+      input.addEventListener("focus", () => setCurrentRow(rowId));
+
+      if (key === "logDate") {
+        input.addEventListener("input", () => autoFormatMMDDInput(input));
+      }
+
+      div.appendChild(input);
       return div;
     }
 
-    function createInputCell(id, type = "text", placeholder = "", maxLength = null) {
-      const wrap = document.createElement("div");
-      wrap.className = "cell input-cell";
-
-      const input = document.createElement("input");
-      input.id = id;
-      input.type = type;
-      input.placeholder = placeholder;
-      if (maxLength) input.maxLength = maxLength;
-
-      wrap.appendChild(input);
-      return wrap;
+    function createReadoutCell(rowId, key, initial = "") {
+      const div = document.createElement("div");
+      div.className = "sheet-cell readout";
+      div.dataset.rowId = rowId;
+      div.dataset.key = key;
+      div.textContent = initial;
+      return div;
     }
 
-    function getDutyRange() {
+    function createFlightCell(rowId, blockIndex) {
+      const cell = document.createElement("div");
+      cell.className = "sheet-cell flight-cell";
+      cell.dataset.rowId = rowId;
+      cell.dataset.blockIndex = blockIndex;
+
+      for (let j = 0; j < 5; j++) {
+        const tenth = document.createElement("div");
+        tenth.className = "tenth";
+        tenth.dataset.rowId = rowId;
+        tenth.dataset.block = blockIndex;
+        tenth.dataset.tenth = j;
+
+        tenth.addEventListener("mousedown", (e) => {
+          e.preventDefault();
+          if (mode !== "flight") return;
+          setCurrentRow(rowId);
+          isDrawing = true;
+          paintFlight(tenth);
+        });
+
+        tenth.addEventListener("mouseenter", () => {
+          if (isDrawing && mode === "flight" && Number(tenth.dataset.rowId) === currentRowId) {
+            paintFlight(tenth);
+          }
+        });
+
+        tenth.addEventListener("click", () => {
+          if (mode !== "flight") return;
+          setCurrentRow(rowId);
+          paintFlight(tenth);
+        });
+
+        cell.appendChild(tenth);
+      }
+
+      return cell;
+    }
+
+    function createDutyCell(rowId, blockIndex) {
+      const cell = document.createElement("div");
+      cell.className = "sheet-cell duty-cell";
+      cell.dataset.rowId = rowId;
+      cell.dataset.block = blockIndex;
+
+      cell.addEventListener("click", () => {
+        if (mode !== "duty") return;
+        setCurrentRow(rowId);
+        handleDutyClick(cell);
+      });
+
+      return cell;
+    }
+
+    function getDutyRange(rowId) {
       const activeBlocks = [];
-      document.querySelectorAll(".duty-cell.on").forEach((cell) => {
+      document.querySelectorAll(`.duty-cell[data-row-id="${rowId}"].on`).forEach((cell) => {
         activeBlocks.push(Number(cell.dataset.block));
       });
 
@@ -556,204 +623,110 @@
       };
     }
 
-    function clearDutyPending() {
-      document.querySelectorAll(".duty-cell.pending").forEach((el) => {
+    function getReadout(rowId, key) {
+      return document.querySelector(`.sheet-cell.readout[data-row-id="${rowId}"][data-key="${key}"]`);
+    }
+
+    function clearDutyPending(rowId) {
+      document.querySelectorAll(`.duty-cell.pending[data-row-id="${rowId}"]`).forEach((el) => {
         el.classList.remove("pending");
       });
     }
 
-    function setDutyPending(blockIndex) {
-      clearDutyPending();
-      const cell = document.querySelector(`.duty-cell[data-block="${blockIndex}"]`);
+    function setDutyPending(rowId, blockIndex) {
+      clearDutyPending(rowId);
+      const cell = document.querySelector(`.duty-cell[data-row-id="${rowId}"][data-block="${blockIndex}"]`);
       if (cell) cell.classList.add("pending");
     }
 
-    function clearDutyRow() {
-      document.querySelectorAll(".duty-cell.on").forEach((el) => el.classList.remove("on"));
-      clearDutyPending();
-      dutyStartBlock = null;
+    function clearDutyRow(rowId) {
+      document.querySelectorAll(`.duty-cell[data-row-id="${rowId}"].on`).forEach((el) => el.classList.remove("on"));
+      clearDutyPending(rowId);
+      const row = getRow(rowId);
+      if (row) row.dutyStartBlock = null;
     }
 
-    function fillDutyRange(startBlock, stopBlock) {
+    function fillDutyRange(rowId, startBlock, stopBlock) {
       const start = Math.min(startBlock, stopBlock);
       const end = Math.max(startBlock, stopBlock);
 
-      clearDutyRow();
+      clearDutyRow(rowId);
 
       for (let i = start; i <= end; i++) {
-        const cell = document.querySelector(`.duty-cell[data-block="${i}"]`);
+        const cell = document.querySelector(`.duty-cell[data-row-id="${rowId}"][data-block="${i}"]`);
         if (cell) cell.classList.add("on");
       }
 
-      updateTotals();
+      updateTotals(rowId);
     }
 
     function handleDutyClick(cell) {
-      if (mode !== "duty") return;
+      const rowId = Number(cell.dataset.rowId);
+      const row = getRow(rowId);
+      if (!row) return;
 
       const block = Number(cell.dataset.block);
 
-      if (dutyStartBlock === null) {
-        clearDutyRow();
-        dutyStartBlock = block;
-        setDutyPending(block);
-        updateTotals();
-        statusEl.textContent = "Duty start set. Click stop time.";
+      if (row.dutyStartBlock === null) {
+        clearDutyRow(rowId);
+        row.dutyStartBlock = block;
+        setDutyPending(rowId, block);
+        updateTotals(rowId);
+        statusEl.textContent = `Row ${rowId}: duty start set. Click stop time.`;
         return;
       }
 
-      fillDutyRange(dutyStartBlock, block);
-      dutyStartBlock = null;
-      clearDutyPending();
-      statusEl.textContent = "Duty range filled.";
+      fillDutyRange(rowId, row.dutyStartBlock, block);
+      row.dutyStartBlock = null;
+      clearDutyPending(rowId);
+      statusEl.textContent = `Row ${rowId}: duty range filled.`;
     }
 
     function paintFlight(tenth) {
       if (mode !== "flight") return;
       tenth.classList.add("on");
-      updateTotals();
+      updateTotals(Number(tenth.dataset.rowId));
     }
 
-    function autoFormatMMDDInput(input) {
-      let value = input.value.replace(/[^\d]/g, "").slice(0, 4);
-      if (value.length >= 3) {
-        value = value.slice(0, 2) + "/" + value.slice(2);
-      }
-      input.value = value;
-    }
-
-    function buildLayout() {
-      entryGrid.innerHTML = "";
-
-      entryGrid.appendChild(createCell("header", "DATE"));
-      entryGrid.appendChild(createCell("header", "A/C"));
-      entryGrid.appendChild(createCell("header", "DUTY TIME"));
-      entryGrid.appendChild(createCell("header", ""));
-      entryGrid.appendChild(createCell("header", ""));
-      entryGrid.appendChild(createCell("header", "TOTALS"));
-      entryGrid.appendChild(createCell("header", "PERIOD"));
-
-      for (let i = 0; i < 48; i++) {
-        entryGrid.appendChild(createCell("header", i === 0 ? "TIME" : ""));
-      }
-
-      entryGrid.appendChild(createCell("subhead", "MM/DD"));
-      entryGrid.appendChild(createCell("subhead", "Aircraft"));
-      entryGrid.appendChild(createCell("subhead", "Start"));
-      entryGrid.appendChild(createCell("subhead", "Stop"));
-      entryGrid.appendChild(createCell("subhead", "Duty"));
-      entryGrid.appendChild(createCell("subhead", "Flight"));
-      entryGrid.appendChild(createCell("subhead", "Row"));
-
-      for (let i = 0; i < 48; i++) {
-        const text = i % 2 === 0 ? String(i / 2) : "";
-        entryGrid.appendChild(createCell("time-subhead", text));
-      }
-
-      entryGrid.appendChild(createInputCell("logDate", "text", "MM/DD", 5));
-      entryGrid.appendChild(createInputCell("aircraftName", "text", "Aircraft"));
-      entryGrid.appendChild(createReadoutCell("dutyStart"));
-      entryGrid.appendChild(createReadoutCell("dutyStop"));
-      entryGrid.appendChild(createReadoutCell("dutyTotal"));
-      entryGrid.appendChild(createReadoutCell("flightTotal"));
-      entryGrid.appendChild(createCell("row-label", "FLIGHT"));
-
-      for (let i = 0; i < 48; i++) {
-        const cell = document.createElement("div");
-        cell.className = "cell flight-cell";
-        cell.dataset.blockIndex = String(i);
-
-        for (let j = 0; j < 5; j++) {
-          const tenth = document.createElement("div");
-          tenth.className = "tenth";
-          tenth.dataset.row = "flight";
-          tenth.dataset.block = String(i);
-          tenth.dataset.tenth = String(j);
-
-          tenth.addEventListener("mousedown", (e) => {
-            e.preventDefault();
-            isDrawing = true;
-            paintFlight(tenth);
-          });
-
-          tenth.addEventListener("mouseenter", () => {
-            if (isDrawing && mode === "flight") {
-              paintFlight(tenth);
-            }
-          });
-
-          tenth.addEventListener("click", () => {
-            paintFlight(tenth);
-          });
-
-          cell.appendChild(tenth);
-        }
-
-        entryGrid.appendChild(cell);
-      }
-
-      entryGrid.appendChild(createCell("subhead", ""));
-      entryGrid.appendChild(createCell("subhead", ""));
-      entryGrid.appendChild(createCell("readout", ""));
-      entryGrid.appendChild(createCell("readout", ""));
-      entryGrid.appendChild(createCell("readout", ""));
-      entryGrid.appendChild(createCell("readout", ""));
-      entryGrid.appendChild(createCell("row-label", "DUTY"));
-
-      for (let i = 0; i < 48; i++) {
-        const cell = document.createElement("div");
-        cell.className = "cell duty-cell";
-        cell.dataset.row = "duty";
-        cell.dataset.block = String(i);
-
-        cell.addEventListener("click", () => {
-          handleDutyClick(cell);
-        });
-
-        entryGrid.appendChild(cell);
-      }
-
-      const logDateInput = document.getElementById("logDate");
-      logDateInput.addEventListener("input", () => autoFormatMMDDInput(logDateInput));
-
-      document.getElementById("dutyStart").textContent = "--:--";
-      document.getElementById("dutyStop").textContent = "--:--";
-      document.getElementById("dutyTotal").textContent = "0.0";
-      document.getElementById("flightTotal").textContent = "0.0";
-    }
-
-    function updateTotals() {
+    function updateTotals(rowId) {
       let flight = 0;
       let duty = 0;
 
-      document.querySelectorAll(".tenth.on").forEach(() => {
+      document.querySelectorAll(`.tenth.on[data-row-id="${rowId}"]`).forEach(() => {
         flight += 0.1;
       });
 
-      document.querySelectorAll(".duty-cell.on").forEach(() => {
+      document.querySelectorAll(`.duty-cell.on[data-row-id="${rowId}"]`).forEach(() => {
         duty += 0.5;
       });
 
-      const dutyRange = getDutyRange();
+      const dutyRange = getDutyRange(rowId);
 
-      document.getElementById("flightTotal").textContent = flight.toFixed(1);
-      document.getElementById("dutyTotal").textContent = duty.toFixed(1);
-      document.getElementById("dutyStart").textContent = dutyRange ? dutyRange.startText : "--:--";
-      document.getElementById("dutyStop").textContent = dutyRange ? dutyRange.stopText : "--:--";
+      getReadout(rowId, "flightTotal").textContent = flight.toFixed(1);
+      getReadout(rowId, "dutyTotal").textContent = duty.toFixed(1);
+      getReadout(rowId, "dutyStart").textContent = dutyRange ? dutyRange.startText : "--:--";
+      getReadout(rowId, "dutyStop").textContent = dutyRange ? dutyRange.stopText : "--:--";
     }
 
-    function clearGrid() {
-      document.querySelectorAll(".tenth.on").forEach((el) => el.classList.remove("on"));
-      clearDutyRow();
-      updateTotals();
-      statusEl.textContent = "";
+    function clearRow(rowId) {
+      document.querySelectorAll(`.tenth.on[data-row-id="${rowId}"]`).forEach(el => el.classList.remove("on"));
+      clearDutyRow(rowId);
+
+      const dateInput = document.querySelector(`input[data-row-id="${rowId}"][data-key="logDate"]`);
+      const acInput = document.querySelector(`input[data-row-id="${rowId}"][data-key="aircraftName"]`);
+
+      if (dateInput) dateInput.value = "";
+      if (acInput) acInput.value = "";
+
+      updateTotals(rowId);
+      statusEl.textContent = `Row ${rowId} cleared.`;
     }
 
-    function getFlightBlocks() {
+    function getFlightBlocks(rowId) {
       const blocks = [];
       for (let i = 0; i < 48; i++) {
         let count = 0;
-        document.querySelectorAll(`.tenth[data-block="${i}"].on`).forEach(() => {
+        document.querySelectorAll(`.tenth[data-row-id="${rowId}"][data-block="${i}"].on`).forEach(() => {
           count += 1;
         });
         blocks.push(Number((count * 0.1).toFixed(1)));
@@ -761,40 +734,132 @@
       return blocks;
     }
 
-    function getDutyBlocks() {
+    function getDutyBlocks(rowId) {
       const blocks = [];
       for (let i = 0; i < 48; i++) {
-        const cell = document.querySelector(`.duty-cell[data-block="${i}"]`);
+        const cell = document.querySelector(`.duty-cell[data-row-id="${rowId}"][data-block="${i}"]`);
         blocks.push(cell && cell.classList.contains("on") ? 0.5 : 0);
       }
       return blocks;
     }
 
-    function loadGridFromData(flightBlocks, dutyBlocks) {
-      clearGrid();
+    function loadRowFromData(rowId, entry) {
+      const dateInput = document.querySelector(`input[data-row-id="${rowId}"][data-key="logDate"]`);
+      const acInput = document.querySelector(`input[data-row-id="${rowId}"][data-key="aircraftName"]`);
 
-      if (Array.isArray(flightBlocks)) {
-        flightBlocks.forEach((value, blockIndex) => {
+      if (dateInput) dateInput.value = formatDateForRow(entry.log_date) || "";
+      if (acInput) acInput.value = entry.aircraft_name || "";
+
+      clearRow(rowId);
+
+      if (dateInput) dateInput.value = formatDateForRow(entry.log_date) || "";
+      if (acInput) acInput.value = entry.aircraft_name || "";
+
+      if (Array.isArray(entry.flight_blocks)) {
+        entry.flight_blocks.forEach((value, blockIndex) => {
           const tenthsToFill = Math.round((Number(value) || 0) * 10);
           for (let i = 0; i < tenthsToFill; i++) {
-            const tenth = document.querySelector(`.tenth[data-block="${blockIndex}"][data-tenth="${i}"]`);
+            const tenth = document.querySelector(`.tenth[data-row-id="${rowId}"][data-block="${blockIndex}"][data-tenth="${i}"]`);
             if (tenth) tenth.classList.add("on");
           }
         });
       }
 
-      if (Array.isArray(dutyBlocks)) {
-        dutyBlocks.forEach((value, blockIndex) => {
+      if (Array.isArray(entry.duty_blocks)) {
+        entry.duty_blocks.forEach((value, blockIndex) => {
           if (Number(value) > 0) {
-            const cell = document.querySelector(`.duty-cell[data-block="${blockIndex}"]`);
+            const cell = document.querySelector(`.duty-cell[data-row-id="${rowId}"][data-block="${blockIndex}"]`);
             if (cell) cell.classList.add("on");
           }
         });
       }
 
-      clearDutyPending();
-      dutyStartBlock = null;
-      updateTotals();
+      const row = getRow(rowId);
+      if (row) row.dutyStartBlock = null;
+
+      clearDutyPending(rowId);
+      updateTotals(rowId);
+    }
+
+    function addDataRow(rowId) {
+      pageGrid.appendChild(createInputCell(rowId, "logDate", "MM/DD", 5));
+      pageGrid.appendChild(createInputCell(rowId, "aircraftName", "Aircraft"));
+      pageGrid.appendChild(createReadoutCell(rowId, "dutyStart", "--:--"));
+      pageGrid.appendChild(createReadoutCell(rowId, "dutyStop", "--:--"));
+      pageGrid.appendChild(createReadoutCell(rowId, "dutyTotal", "0.0"));
+      pageGrid.appendChild(createReadoutCell(rowId, "flightTotal", "0.0"));
+
+      const flightLabel = createCell("row-label", "FLIGHT");
+      flightLabel.dataset.rowId = rowId;
+      flightLabel.addEventListener("click", () => setCurrentRow(rowId));
+      pageGrid.appendChild(flightLabel);
+
+      for (let i = 0; i < 48; i++) {
+        pageGrid.appendChild(createFlightCell(rowId, i));
+      }
+
+      pageGrid.appendChild(createCell("subhead", ""));
+      pageGrid.appendChild(createCell("subhead", ""));
+      pageGrid.appendChild(createCell("readout", ""));
+      pageGrid.appendChild(createCell("readout", ""));
+      pageGrid.appendChild(createCell("readout", ""));
+      pageGrid.appendChild(createCell("readout", ""));
+
+      const dutyLabel = createCell("row-label", "DUTY");
+      dutyLabel.dataset.rowId = rowId;
+      dutyLabel.addEventListener("click", () => setCurrentRow(rowId));
+      pageGrid.appendChild(dutyLabel);
+
+      for (let i = 0; i < 48; i++) {
+        pageGrid.appendChild(createDutyCell(rowId, i));
+      }
+    }
+
+    function buildPage() {
+      pageGrid.innerHTML = "";
+      rows = [];
+      rowCounter = 1;
+
+      pageGrid.appendChild(createCell("header", "DATE"));
+      pageGrid.appendChild(createCell("header", "A/C"));
+      pageGrid.appendChild(createCell("header", "DUTY TIME"));
+      pageGrid.appendChild(createCell("header", ""));
+      pageGrid.appendChild(createCell("header", ""));
+      pageGrid.appendChild(createCell("header", "TOTALS"));
+      pageGrid.appendChild(createCell("header", "ROW"));
+
+      for (let i = 0; i < 48; i++) {
+        pageGrid.appendChild(createCell("header", i === 0 ? "TIME" : ""));
+      }
+
+      pageGrid.appendChild(createCell("subhead", "MM/DD"));
+      pageGrid.appendChild(createCell("subhead", "Aircraft"));
+      pageGrid.appendChild(createCell("subhead", "Start"));
+      pageGrid.appendChild(createCell("subhead", "Stop"));
+      pageGrid.appendChild(createCell("subhead", "Duty"));
+      pageGrid.appendChild(createCell("subhead", "Flight"));
+      pageGrid.appendChild(createCell("subhead", "Type"));
+
+      for (let i = 0; i < 48; i++) {
+        const text = i % 2 === 0 ? String(i / 2) : "";
+        pageGrid.appendChild(createCell("sheet-cell time-subhead", text));
+      }
+
+      for (let i = 0; i < DEFAULT_ROW_COUNT; i++) {
+        const row = makeEmptyRow(rowCounter++);
+        rows.push(row);
+        addDataRow(row.id);
+      }
+
+      setCurrentRow(1);
+    }
+
+    function addBlankRow() {
+      const row = makeEmptyRow(rowCounter++);
+      rows.push(row);
+      addDataRow(row.id);
+      setCurrentRow(row.id);
+      statusEl.textContent = `Added row ${row.id}.`;
     }
 
     async function getCurrentUser() {
@@ -806,7 +871,65 @@
       return data.session?.user ?? null;
     }
 
-    async function saveEntry() {
+    function collectRowPayloads(userId) {
+      const pilotName = document.getElementById("pilotName").value.trim();
+      const logPeriod = document.getElementById("logPeriod").value.trim();
+      const payloads = [];
+
+      for (const row of rows) {
+        const rowId = row.id;
+        const logDateRaw = document.querySelector(`input[data-row-id="${rowId}"][data-key="logDate"]`)?.value.trim() || "";
+        const aircraftName = document.querySelector(`input[data-row-id="${rowId}"][data-key="aircraftName"]`)?.value.trim() || "";
+
+        const flightBlocks = getFlightBlocks(rowId);
+        const dutyBlocks = getDutyBlocks(rowId);
+        const flightTotal = Number(getReadout(rowId, "flightTotal").textContent || "0");
+        const dutyTotal = Number(getReadout(rowId, "dutyTotal").textContent || "0");
+        const dutyRange = getDutyRange(rowId);
+
+        const hasAnyData =
+          logDateRaw ||
+          aircraftName ||
+          flightTotal > 0 ||
+          dutyTotal > 0;
+
+        if (!hasAnyData) continue;
+
+        if (!/^\d{2}\/\d{2}$/.test(logDateRaw)) {
+          throw new Error(`Row ${rowId}: enter date as MM/DD.`);
+        }
+
+        if (!aircraftName) {
+          throw new Error(`Row ${rowId}: please enter an aircraft.`);
+        }
+
+        if (flightTotal > dutyTotal) {
+          throw new Error(`Row ${rowId}: flight cannot exceed duty.`);
+        }
+
+        if (dutyTotal > 14) {
+          throw new Error(`Row ${rowId}: duty exceeds 14 hours.`);
+        }
+
+        payloads.push({
+          log_date: buildStoredDate(logDateRaw, logPeriod),
+          aircraft_name: aircraftName,
+          flight_blocks: flightBlocks,
+          duty_blocks: dutyBlocks,
+          flt1: flightTotal,
+          duty: dutyTotal,
+          duty_start: dutyRange ? dutyRange.startText : null,
+          duty_stop: dutyRange ? dutyRange.stopText : null,
+          pilot_name: pilotName || null,
+          period: logPeriod || null,
+          user_id: userId
+        });
+      }
+
+      return payloads;
+    }
+
+    async function saveAllRows() {
       statusEl.textContent = "";
 
       const user = await getCurrentUser();
@@ -815,60 +938,20 @@
         return;
       }
 
-      const logDateRaw = document.getElementById("logDate").value.trim();
-      const aircraftName = document.getElementById("aircraftName").value.trim();
-      const pilotName = document.getElementById("pilotName").value.trim();
-      const logPeriod = document.getElementById("logPeriod").value.trim();
-      const flightBlocks = getFlightBlocks();
-      const dutyBlocks = getDutyBlocks();
-
-      const flightTotal = Number(document.getElementById("flightTotal").textContent);
-      const dutyTotal = Number(document.getElementById("dutyTotal").textContent);
-
-      const dutyRange = getDutyRange();
-      const dutyStart = dutyRange ? dutyRange.startText : null;
-      const dutyStop = dutyRange ? dutyRange.stopText : null;
-
-      if (!/^\d{2}\/\d{2}$/.test(logDateRaw)) {
-        statusEl.textContent = "Enter date as MM/DD.";
+      let payloads;
+      try {
+        payloads = collectRowPayloads(user.id);
+      } catch (err) {
+        statusEl.textContent = err.message;
         return;
       }
 
-      if (!aircraftName) {
-        statusEl.textContent = "Please enter an aircraft.";
+      if (payloads.length === 0) {
+        statusEl.textContent = "No filled rows to save.";
         return;
       }
 
-      if (flightTotal === 0 && dutyTotal === 0) {
-        statusEl.textContent = "Nothing entered yet.";
-        return;
-      }
-
-      if (dutyTotal > 14) {
-        statusEl.textContent = "Duty exceeds 14 hours.";
-        return;
-      }
-
-      if (flightTotal > dutyTotal) {
-        statusEl.textContent = "Flight cannot exceed duty.";
-        return;
-      }
-
-      const payload = {
-        log_date: buildStoredDate(logDateRaw, logPeriod),
-        aircraft_name: aircraftName,
-        flight_blocks: flightBlocks,
-        duty_blocks: dutyBlocks,
-        flt1: flightTotal,
-        duty: dutyTotal,
-        duty_start: dutyStart,
-        duty_stop: dutyStop,
-        pilot_name: pilotName || null,
-        period: logPeriod || null,
-        user_id: user.id
-      };
-
-      const { error } = await sb.from("logs").insert([payload]);
+      const { error } = await sb.from("logs").insert(payloads);
 
       if (error) {
         statusEl.textContent = error.message;
@@ -876,7 +959,7 @@
         return;
       }
 
-      statusEl.textContent = "Saved!";
+      statusEl.textContent = `Saved ${payloads.length} row(s).`;
       await loadSavedEntries();
     }
 
@@ -907,7 +990,9 @@
 
       savedList.innerHTML = "";
 
-      data.forEach((entry) => {
+      const preview = data.slice(0, 12);
+
+      preview.forEach((entry, index) => {
         const row = document.createElement("div");
         row.className = "saved-row";
 
@@ -928,14 +1013,12 @@
         const loadBtn = document.createElement("button");
         loadBtn.type = "button";
         loadBtn.className = "load-btn";
-        loadBtn.textContent = "Load";
+        loadBtn.textContent = "Load to Row";
         loadBtn.onclick = () => {
-          document.getElementById("logDate").value = formatDateForRow(entry.log_date) || "";
-          document.getElementById("aircraftName").value = entry.aircraft_name || "";
+          loadRowFromData(currentRowId, entry);
           document.getElementById("pilotName").value = entry.pilot_name || "";
           document.getElementById("logPeriod").value = entry.period || "";
-          loadGridFromData(entry.flight_blocks, entry.duty_blocks);
-          statusEl.textContent = "Entry loaded.";
+          statusEl.textContent = `Loaded saved entry into row ${currentRowId}.`;
         };
 
         const deleteBtn = document.createElement("button");
@@ -954,8 +1037,16 @@
 
         actions.appendChild(loadBtn);
         actions.appendChild(deleteBtn);
+        row.appendChild(actions);
         savedList.appendChild(row);
       });
+
+      if (data.length > preview.length) {
+        const more = document.createElement("div");
+        more.className = "saved-row";
+        more.innerHTML = `<div class="saved-meta">Showing ${preview.length} of ${data.length} saved entries.</div>`;
+        savedList.appendChild(more);
+      }
     }
 
     document.addEventListener("mouseup", () => {
@@ -964,12 +1055,13 @@
 
     flightBtn.addEventListener("click", () => setMode("flight"));
     dutyBtn.addEventListener("click", () => setMode("duty"));
-    clearBtn.addEventListener("click", clearGrid);
-    saveBtn.addEventListener("click", saveEntry);
+    addRowBtn.addEventListener("click", addBlankRow);
+    clearCurrentBtn.addEventListener("click", () => clearRow(currentRowId));
+    saveAllBtn.addEventListener("click", saveAllRows);
+    loadSavedBtn.addEventListener("click", loadSavedEntries);
 
-    buildLayout();
+    buildPage();
     setMode("flight");
-    updateTotals();
     loadSavedEntries();
   </script>
 </body>
