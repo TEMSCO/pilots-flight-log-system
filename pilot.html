@@ -50,36 +50,28 @@
       }
     };
 
-    window.loadLogs = async function () {
-      const { data, error } = await sb
-        .from("logs")
-        .select("*");
+   window.addLog = async function () {
+  const date = document.getElementById("date").value;
+  const aircraft = document.getElementById("aircraft").value;
+  const hours = document.getElementById("hours").value;
 
-      const list = document.getElementById("logList");
-      const totalDisplay = document.getElementById("totalHours");
+  const { data: userData } = await sb.auth.getUser();
+  const user = userData.user;
 
-      list.innerHTML = "";
+  const { error } = await sb
+    .from("logs")
+    .insert([{
+      date,
+      aircraft,
+      hours,
+      user_id: user.id
+    }]);
 
-      let total = 0;
-
-      if (data) {
-        data.forEach(log => {
-          const li = document.createElement("li");
-          li.textContent = `${log.date} - ${log.aircraft} - ${log.hours} hrs`;
-          list.appendChild(li);
-
-          const hoursNum = parseFloat(log.hours);
-          if (!isNaN(hoursNum)) {
-            total += hoursNum;
-          }
-        });
-      }
-
-      totalDisplay.innerText = total.toFixed(1);
-    };
-
-    // load data when page opens
+  if (error) {
+    console.error(error);
+    document.getElementById("status").innerText = error.message;
+  } else {
+    document.getElementById("status").innerText = "Flight saved!";
     window.loadLogs();
-
-  });
-</script>
+  }
+};
