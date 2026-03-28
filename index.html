@@ -2,35 +2,82 @@
 <html>
 <head>
   <title>Pilot Dashboard</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .container {
+      background: #1e293b;
+      padding: 25px;
+      border-radius: 12px;
+      width: 400px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border: none;
+    }
+
+    button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+
+    .save-btn {
+      background: #22c55e;
+      color: white;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .edit-btn {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .delete-btn {
+      background: #ef4444;
+      color: white;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: #334155;
+      margin-bottom: 8px;
+      padding: 10px;
+      border-radius: 6px;
+    }
+
+    .total {
+      margin-top: 15px;
+      font-size: 18px;
+      text-align: center;
+    }
+  </style>
 </head>
-<body>
-
-  <h1>Pilot Dashboard</h1>
-
-  <h3>Add Flight Log</h3>
-
-  <input id="date" type="date"><br><br>
-  <input id="aircraft" placeholder="Aircraft"><br><br>
-  <input id="hours" placeholder="Flight Hours"><br><br>
-
-  <button onclick="addLog()">Save Flight</button>
-
-  <p id="status"></p>
-
-  <h3>Saved Flights</h3>
-  <ul id="logList"></ul>
-
-  <h3>Total Hours: <span id="totalHours">0</span></h3>
-
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-
-  <script>
-  window.addEventListener("load", () => {
-
-    const sb = window.supabase.createClient(
-      "https://xjisftmfjsjomgsjzkod.supabase.co",
-      "sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS"
-    );
 
     // LOAD LOGS
     window.loadLogs = async function () {
