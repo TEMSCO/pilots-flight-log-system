@@ -46,9 +46,37 @@
         document.getElementById("status").innerText = error.message;
       } else {
         document.getElementById("status").innerText = "Flight saved!";
-        window.loadLogs();
+       window.loadLogs = async function () {
+  const { data: userData } = await sb.auth.getUser();
+  const user = userData.user;
+
+  const { data, error } = await sb
+    .from("logs")
+    .select("*")
+    .eq("user_id", user.id);
+
+  const list = document.getElementById("logList");
+  const totalDisplay = document.getElementById("totalHours");
+
+  list.innerHTML = "";
+
+  let total = 0;
+
+  if (data) {
+    data.forEach(log => {
+      const li = document.createElement("li");
+      li.textContent = `${log.date} - ${log.aircraft} - ${log.hours} hrs`;
+      list.appendChild(li);
+
+      const hoursNum = parseFloat(log.hours);
+      if (!isNaN(hoursNum)) {
+        total += hoursNum;
       }
-    };
+    });
+  }
+
+  totalDisplay.innerText = total.toFixed(1);
+};
 
    window.addLog = async function () {
   const date = document.getElementById("date").value;
