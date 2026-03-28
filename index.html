@@ -1,171 +1,36 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Flight Log</title>
+<body style="background:black;color:white;">
 
-  <style>
-    body {
-      font-family: Arial;
-      background: #0f172a;
-      color: white;
-      padding: 20px;
-    }
+<h3>Mode: <span id="mode">flight</span></h3>
 
-    h2 { text-align: center; }
+<button onclick="setMode('flight')">Flight</button>
+<button onclick="setMode('duty')">Duty</button>
 
-    .controls {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
+<br><br>
 
-    button {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .flight-btn { background: #22c55e; }
-    .duty-btn { background: #facc15; color: black; }
-    .active { outline: 3px solid white; }
-
-    /* GRID */
-    .grid {
-      display: grid;
-      grid-template-columns: 80px repeat(48, 1fr);
-    }
-
-    .cell, .header, .label {
-      border: 1px solid #475569; /* ✅ GRID LINES BACK */
-    }
-
-    .cell {
-      height: 25px;
-      background: #1e293b;
-      cursor: pointer;
-    }
-
-    .header {
-      font-size: 10px;
-      text-align: center;
-      background: #334155;
-    }
-
-    .label {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      background: #1e293b;
-    }
-
-    .flight { background: #22c55e; }
-    .duty { background: #facc15; }
-
-    .totals {
-      margin-top: 15px;
-    }
-  </style>
-</head>
-
-<body>
-
-<h2>✈️ Flight & Duty Log</h2>
-
-<div class="controls">
-  <button id="flightBtn" class="flight-btn active">Flight Mode</button>
-  <button id="dutyBtn" class="duty-btn">Duty Mode</button>
-</div>
-
-<div id="modeDisplay">Mode: Flight</div>
-
-<div class="grid" id="grid"></div>
-
-<div class="totals">
-  Flight: <span id="flightTotal">0.0</span> |
-  Duty: <span id="dutyTotal">0.0</span>
-</div>
+<div id="flightRow">FLIGHT ROW (click me)</div>
+<div id="dutyRow">DUTY ROW (click me)</div>
 
 <script>
 let mode = "flight";
-let isMouseDown = false;
 
-const grid = document.getElementById("grid");
-
-// MODE BUTTONS
-flightBtn.onclick = () => {
-  mode = "flight";
-  modeDisplay.innerText = "Mode: Flight";
-  flightBtn.classList.add("active");
-  dutyBtn.classList.remove("active");
-};
-
-dutyBtn.onclick = () => {
-  mode = "duty";
-  modeDisplay.innerText = "Mode: Duty";
-  dutyBtn.classList.add("active");
-  flightBtn.classList.remove("active");
-};
-
-// HEADER ROW
-grid.innerHTML += "<div></div>";
-for (let i = 0; i < 48; i++) {
-  grid.innerHTML += `<div class="header">${i % 2 === 0 ? i/2 : ""}</div>`;
+function setMode(m) {
+  mode = m;
+  document.getElementById("mode").innerText = m;
 }
 
-// CREATE ROWS
-["flight", "duty"].forEach(type => {
-  grid.innerHTML += `<div class="label">${type.toUpperCase()}</div>`;
-
-  for (let i = 0; i < 48; i++) {
-    const cell = document.createElement("div");
-
-    cell.className = "cell";
-    cell.dataset.row = type;
-
-    // CLICK
-    cell.addEventListener("mousedown", () => {
-      isMouseDown = true;
-      paint(cell);
-    });
-
-    // DRAG
-    cell.addEventListener("mouseenter", () => {
-      if (isMouseDown) paint(cell);
-    });
-
-    grid.appendChild(cell);
+document.getElementById("flightRow").onclick = () => {
+  if (mode === "flight") {
+    alert("FLIGHT WORKS");
   }
-});
+};
 
-// STOP DRAG
-document.addEventListener("mouseup", () => {
-  isMouseDown = false;
-});
-
-// PAINT (VERY SIMPLE — NO BUGS)
-function paint(cell) {
-  if (cell.dataset.row !== mode) return;
-
-  cell.classList.add(mode);
-
-  calculateTotals();
-}
-
-// TOTALS
-function calculateTotals() {
-  let flight = 0;
-  let duty = 0;
-
-  document.querySelectorAll(".cell").forEach(cell => {
-    if (cell.classList.contains("flight")) flight += 0.5;
-    if (cell.classList.contains("duty")) duty += 0.5;
-  });
-
-  document.getElementById("flightTotal").innerText = flight.toFixed(1);
-  document.getElementById("dutyTotal").innerText = duty.toFixed(1);
-}
+document.getElementById("dutyRow").onclick = () => {
+  if (mode === "duty") {
+    alert("DUTY WORKS");
+  }
+};
 </script>
 
 </body>
