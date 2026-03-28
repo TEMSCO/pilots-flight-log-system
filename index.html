@@ -1,63 +1,81 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Pilot Logbook (Final)</title>
+  <title>Pilot Logbook Pro</title>
 
   <style>
     body {
       font-family: Arial;
-      background: #0f172a;
-      color: white;
+      background: linear-gradient(180deg, #020617, #0f172a);
+      color: #e2e8f0;
       display: flex;
       justify-content: center;
-      padding: 30px;
+      padding: 20px;
     }
 
     .container {
-      background: #1e293b;
+      width: 1000px;
+      background: #020617;
       padding: 20px;
-      border-radius: 10px;
-      width: 950px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      border-radius: 12px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.7);
     }
 
-    h2, h3 { text-align: center; }
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #38bdf8;
+    }
+
+    .profile {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
 
     input {
       width: 100%;
       padding: 8px;
-      margin-bottom: 6px;
-      border-radius: 5px;
+      border-radius: 6px;
       border: none;
+      margin-bottom: 6px;
+      background: #1e293b;
+      color: white;
     }
 
     button {
       padding: 6px 10px;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
-      margin: 2px;
     }
 
-    .save-btn { background: #22c55e; color: white; width: 100%; }
-    .print-btn { background: #f59e0b; color: white; width: 100%; margin-top: 10px; }
-    .edit-btn { background: #3b82f6; color: white; }
-    .delete-btn { background: #ef4444; color: white; }
+    .save-btn { background: #22c55e; width: 100%; }
+    .print-btn { background: #f59e0b; width: 100%; margin-top: 10px; }
+    .edit-btn { background: #3b82f6; }
+    .delete-btn { background: #ef4444; }
 
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
-    }
-
-    th, td {
-      padding: 5px;
-      border-bottom: 1px solid #475569;
-      text-align: center;
       font-size: 12px;
     }
 
-    th { background: #0f172a; }
+    th, td {
+      padding: 6px;
+      border-bottom: 1px solid #334155;
+      text-align: center;
+    }
+
+    th { background: #020617; }
+
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+      font-size: 14px;
+    }
 
     canvas {
       margin-top: 20px;
@@ -71,14 +89,20 @@
 
 <div class="container">
 
-  <h2>Pilot Logbook (FAA Style)</h2>
+  <h1>✈️ Pilot Logbook Pro</h1>
+
+  <!-- PILOT PROFILE -->
+  <div class="profile">
+    <input id="pilotName" placeholder="Pilot Name">
+    <input id="license" placeholder="License #">
+  </div>
 
   <h3>Add Flight</h3>
 
   <input id="date" type="date">
   <input id="aircraft" placeholder="Aircraft">
 
-  <input id="flight" placeholder="Total Flight Time">
+  <input id="flight" placeholder="Total Time (hrs)">
   <input id="pic" placeholder="PIC">
   <input id="sic" placeholder="SIC">
 
@@ -93,8 +117,6 @@
 
   <p id="status"></p>
 
-  <h3>Flight Logs</h3>
-
   <table>
     <thead>
       <tr>
@@ -108,13 +130,16 @@
         <th>Dual</th>
         <th>Duty</th>
         <th>Remarks</th>
-        <th>Actions</th>
+        <th></th>
       </tr>
     </thead>
     <tbody id="logList"></tbody>
   </table>
 
-  <h3>Total Flight Hours: <span id="totalHours">0</span></h3>
+  <div class="stats">
+    <div>Total Hours: <b id="totalHours">0</b></div>
+    <div>Total Flights: <b id="totalFlights">0</b></div>
+  </div>
 
   <button class="print-btn" onclick="printLogbook()">Print Logbook</button>
 
@@ -140,13 +165,12 @@ window.addEventListener("load", () => {
     if (chart) chart.destroy();
 
     chart = new Chart(ctx, {
-      type: "line",
+      type: "bar",
       data: {
         labels: data.map(d => d.date),
         datasets: [{
           label: "Flight Time",
-          data: data.map(d => parseFloat(d.flight)),
-          borderWidth: 2
+          data: data.map(d => parseFloat(d.flight) || 0)
         }]
       }
     });
@@ -209,13 +233,19 @@ window.addEventListener("load", () => {
     }
 
     document.getElementById("totalHours").innerText = total.toFixed(1);
+    document.getElementById("totalFlights").innerText = data?.length || 0;
   };
 
   window.addLog = async function () {
     const { data: userData } = await sb.auth.getUser();
     const user = userData.user;
 
-    const log = {
+    if (!date.value || !aircraft.value || !flight.value) {
+      status.innerText = "Missing required fields";
+      return;
+    }
+
+    const { error } = await sb.from("logs").insert([{
       date: date.value,
       aircraft: aircraft.value,
       flight: flight.value,
@@ -227,24 +257,18 @@ window.addEventListener("load", () => {
       duty: duty.value,
       remarks: remarks.value,
       user_id: user.id
-    };
+    }]);
 
-    const { error } = await sb.from("logs").insert([log]);
-
-    if (error) {
-      status.innerText = error.message;
-    } else {
-      status.innerText = "Saved!";
-      loadLogs();
-    }
+    status.innerText = error ? error.message : "Saved!";
+    loadLogs();
   };
 
-  window.deleteLog = async function (id) {
+  window.deleteLog = async id => {
     await sb.from("logs").delete().eq("id", id);
     loadLogs();
   };
 
-  window.editLog = function (log) {
+  window.editLog = log => {
     const newFlight = prompt("Edit Flight Time:", log.flight);
     if (!newFlight) return;
 
@@ -254,7 +278,6 @@ window.addEventListener("load", () => {
       .then(loadLogs);
   };
 
-  // ✈️ EXACT REPLICA PRINT
   window.printLogbook = async function () {
     const { data: userData } = await sb.auth.getUser();
     const user = userData.user;
@@ -263,94 +286,42 @@ window.addEventListener("load", () => {
       .from("logs")
       .select("*")
       .eq("user_id", user.id)
-      .order("date", { ascending: true });
+      .order("date");
 
-    const rowsPerPage = 12;
-    let pagesHTML = "";
+    const name = document.getElementById("pilotName").value;
+    const license = document.getElementById("license").value;
 
-    for (let i = 0; i < data.length; i += rowsPerPage) {
-      const pageData = data.slice(i, i + rowsPerPage);
+    let rows = data.map(log => `
+      <tr>
+        <td>${log.date}</td>
+        <td>${log.aircraft}</td>
+        <td>${log.flight}</td>
+        <td>${log.pic}</td>
+        <td>${log.sic}</td>
+        <td>${log.night}</td>
+        <td>${log.training}</td>
+        <td>${log.dual}</td>
+        <td>${log.duty}</td>
+        <td>${log.remarks}</td>
+      </tr>
+    `).join("");
 
-      let rows = "";
-      let total = 0;
-
-      pageData.forEach(log => {
-        rows += `
-          <tr>
-            <td>${log.date}</td>
-            <td>${log.aircraft}</td>
-            <td>${log.flight || ""}</td>
-            <td>${log.pic || ""}</td>
-            <td>${log.sic || ""}</td>
-            <td>${log.night || ""}</td>
-            <td>${log.training || ""}</td>
-            <td>${log.dual || ""}</td>
-            <td>${log.duty || ""}</td>
-            <td>${log.remarks || ""}</td>
-          </tr>
-        `;
-        total += parseFloat(log.flight) || 0;
-      });
-
-      const emptyRows = rowsPerPage - pageData.length;
-      for (let j = 0; j < emptyRows; j++) {
-        rows += `<tr>
-          <td>&nbsp;</td><td></td><td></td><td></td><td></td>
-          <td></td><td></td><td></td><td></td><td></td>
-        </tr>`;
-      }
-
-      pagesHTML += `
-        <div class="page">
-          <div class="title">PILOT FLIGHT & DUTY TIME LOG</div>
-          <div class="meta">
-            Name: __________ | License: __________ | Page ${Math.floor(i/rowsPerPage)+1}
-          </div>
-
-          <table>
-            <tr>
-              <th rowspan="2">DATE</th>
-              <th rowspan="2">AIRCRAFT</th>
-              <th rowspan="2">TOTAL</th>
-              <th colspan="2">PILOT</th>
-              <th colspan="3">CONDITIONS</th>
-              <th rowspan="2">DUTY</th>
-              <th rowspan="2">REMARKS</th>
-            </tr>
-            <tr>
-              <th>PIC</th><th>SIC</th>
-              <th>NIGHT</th><th>INST</th><th>DUAL</th>
-            </tr>
-            ${rows}
-          </table>
-
-          <div class="footer">
-            Total: ${total.toFixed(1)} hrs
-            <div style="margin-top:20px;">
-              _______________________<br>Signature
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    const win = window.open("", "", "width=1100,height=800");
+    const win = window.open("", "", "width=1000,height=800");
 
     win.document.write(`
       <html>
-      <head>
-        <style>
-          body { font-family: Arial; }
-          .page { page-break-after: always; padding: 20px; }
-          .title { text-align:center; font-weight:bold; margin-bottom:5px; }
-          .meta { font-size:12px; margin-bottom:10px; }
-          table { width:100%; border-collapse:collapse; font-size:11px; }
-          th, td { border:1px solid black; padding:3px; text-align:center; height:25px; }
-          th { background:#eee; }
-          td:last-child { text-align:left; }
-        </style>
-      </head>
-      <body>${pagesHTML}</body>
+      <body>
+        <h3 style="text-align:center">Pilot Logbook</h3>
+        <div>Name: ${name} | License: ${license}</div>
+        <table border="1" width="100%" style="border-collapse:collapse;font-size:12px">
+          <tr>
+            <th>Date</th><th>A/C</th><th>Total</th><th>PIC</th>
+            <th>SIC</th><th>Night</th><th>Inst</th><th>Dual</th>
+            <th>Duty</th><th>Remarks</th>
+          </tr>
+          ${rows}
+        </table>
+      </body>
       </html>
     `);
 
