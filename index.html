@@ -162,7 +162,6 @@
       letter-spacing: 0.3px;
     }
 
-    /* Align aircraft summary strip over timeline width only */
     .aircraft-layout {
       display: grid;
       grid-template-columns: 348px 1fr 158px;
@@ -260,19 +259,19 @@
     .page-grid {
       display: grid;
       grid-template-columns:
-        44px
-        36px
-        36px
-        36px
-        40px
-        40px
-        40px
-        40px
-        36px
+        44px   /* date */
+        36px   /* pic */
+        36px   /* night */
+        36px   /* trng */
+        40px   /* duty start */
+        40px   /* duty stop */
+        40px   /* duty total */
+        40px   /* flight total */
+        36px   /* row label */
         repeat(48, minmax(9px, 1fr))
-        30px
-        48px
-        80px;
+        30px   /* ldgs */
+        48px   /* route */
+        80px;  /* remarks */
       min-width: 1030px;
     }
 
@@ -435,7 +434,7 @@
       }
 
       .aircraft-layout {
-        grid-template-columns: 304px 1fr 138px;
+        grid-template-columns: 348px 1fr 158px;
         margin-bottom: 4px;
       }
 
@@ -450,20 +449,6 @@
       .page-grid {
         min-width: 0;
         width: 100%;
-        grid-template-columns:
-          40px
-          32px
-          32px
-          32px
-          36px
-          36px
-          36px
-          36px
-          32px
-          repeat(48, minmax(8px, 1fr))
-          26px
-          42px
-          68px;
       }
 
       .sheet-cell {
@@ -479,14 +464,6 @@
       .duty-cell,
       .tenth {
         min-height: 16px;
-      }
-
-      .sheet-title .form-title {
-        font-size: 18px;
-      }
-
-      .sheet-title .company {
-        font-size: 11px;
       }
     }
 
@@ -522,7 +499,7 @@
       <div class="sheet-title">
         <div class="company">TEMSCO HELICOPTERS INC.</div>
         <div class="form-title">Pilot's Flight & Duty Time Log</div>
-        <div class="note">7-day printable layout with tighter aircraft summary strip and per-day PIC/NIGHT/TRNG boxes. :contentReference[oaicite:1]{index=1}</div>
+        <div class="note">7-day printable layout with per-row PIC/NIGHT/TRNG boxes and aircraft-specific clearing. :contentReference[oaicite:1]{index=1}</div>
       </div>
 
       <div class="header-box">
@@ -632,14 +609,10 @@
 
     function updateAircraftPicTotals() {
       const totals = new Array(aircraftOptions.length).fill(0);
-
       document.querySelectorAll(".tenth.on").forEach((el) => {
         const idx = Number(el.dataset.aircraftIndex ?? 0);
-        if (idx >= 0 && idx < totals.length) {
-          totals[idx] += 0.1;
-        }
+        if (idx >= 0 && idx < totals.length) totals[idx] += 0.1;
       });
-
       totals.forEach((total, index) => {
         const input = getMetricInput(index, "pic");
         if (input) input.value = total.toFixed(1);
@@ -657,7 +630,6 @@
 
     function buildAircraftBar() {
       aircraftBar.innerHTML = "";
-
       aircraftOptions.forEach((option, index) => {
         const stack = document.createElement("div");
         stack.className = "aircraft-stack";
@@ -694,36 +666,19 @@
         const metrics = document.createElement("div");
         metrics.className = "aircraft-metrics";
 
-        const picBox = document.createElement("div");
-        picBox.className = "aircraft-metric";
-        picBox.dataset.aircraftIndex = index;
-        picBox.dataset.metric = "pic";
-        picBox.innerHTML = `
-          <div class="aircraft-metric-label">PIC</div>
-          <div class="aircraft-metric-value"><input type="text" value="0.0" readonly></div>
-        `;
-
-        const nightBox = document.createElement("div");
-        nightBox.className = "aircraft-metric";
-        nightBox.dataset.aircraftIndex = index;
-        nightBox.dataset.metric = "night";
-        nightBox.innerHTML = `
-          <div class="aircraft-metric-label">NIGHT</div>
-          <div class="aircraft-metric-value"><input type="text" value=""></div>
-        `;
-
-        const trngBox = document.createElement("div");
-        trngBox.className = "aircraft-metric";
-        trngBox.dataset.aircraftIndex = index;
-        trngBox.dataset.metric = "trng";
-        trngBox.innerHTML = `
-          <div class="aircraft-metric-label">TRNG</div>
-          <div class="aircraft-metric-value"><input type="text" value=""></div>
-        `;
-
-        metrics.appendChild(picBox);
-        metrics.appendChild(nightBox);
-        metrics.appendChild(trngBox);
+        ["pic", "night", "trng"].forEach((metric) => {
+          const box = document.createElement("div");
+          box.className = "aircraft-metric";
+          box.dataset.aircraftIndex = index;
+          box.dataset.metric = metric;
+          box.innerHTML = `
+            <div class="aircraft-metric-label">${metric.toUpperCase()}</div>
+            <div class="aircraft-metric-value">
+              <input type="text" value="${metric === "pic" ? "0.0" : ""}" ${metric === "pic" ? "readonly" : ""}>
+            </div>
+          `;
+          metrics.appendChild(box);
+        });
 
         stack.appendChild(chip);
         stack.appendChild(metrics);
@@ -751,11 +706,9 @@
     function setCurrentRow(rowId) {
       currentRowId = rowId;
       currentRowDisplay.textContent = rowId;
-
       document.querySelectorAll(".sheet-cell.row-label").forEach(el => {
         el.style.outline = "";
       });
-
       document.querySelectorAll(`.sheet-cell.row-label[data-row-id="${rowId}"]`).forEach(el => {
         el.style.outline = "1.5px solid #2563eb";
         el.style.outlineOffset = "-1px";
@@ -786,7 +739,6 @@
     function buildStoredDate(mmdd, periodValue) {
       const cleaned = (mmdd || "").trim();
       if (!/^\d{2}\/\d{2}$/.test(cleaned)) return cleaned;
-
       const yearMatch = (periodValue || "").match(/\b(20\d{2}|19\d{2})\b/);
       if (yearMatch) {
         const [mm, dd] = cleaned.split("/");
@@ -798,7 +750,6 @@
     function updatePeriodFromRows() {
       const firstDate = getInput(1, "logDate")?.value.trim() || "";
       const lastDate = getInput(DAY_COUNT, "logDate")?.value.trim() || "";
-
       if (/^\d{2}\/\d{2}$/.test(firstDate) && /^\d{2}\/\d{2}$/.test(lastDate)) {
         const year = getPeriodYear();
         logPeriodEl.value = `${firstDate}/${year} to ${lastDate}/${year}`;
@@ -814,10 +765,7 @@
     }
 
     function makeEmptyRow(id) {
-      return {
-        id,
-        dutyStartBlock: null
-      };
+      return { id, dutyStartBlock: null };
     }
 
     function getRow(rowId) {
@@ -988,7 +936,7 @@
     function clearSelectedModeForCurrentRow() {
       if (mode === "flight") {
         clearSelectedAircraftOnly(currentRowId);
-        statusEl.textContent = `Day ${currentRowId}: cleared ${getAircraftLabel(selectedAircraftIndex)} flight marks only.`;
+        statusEl.textContent = `Day ${currentRowId}: cleared ${getAircraftLabel(selectedAircraftIndex)} only.`;
       } else {
         clearDutyOnly(currentRowId);
         statusEl.textContent = `Day ${currentRowId}: duty row cleared.`;
@@ -1439,7 +1387,7 @@
       if (result.error && /column .* does not exist|schema cache/i.test(result.error.message)) {
         result = await sb.from("logs").insert(stripOptionalFields(payloads));
         if (!result.error) {
-          statusEl.textContent = `Saved ${payloads.length} day(s). Aircraft colors and/or some optional row fields may not persist yet because one or more DB columns are missing.`;
+          statusEl.textContent = `Saved ${payloads.length} day(s). Some optional fields may not persist yet because one or more DB columns are missing.`;
           await loadSavedEntries();
           return;
         }
