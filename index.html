@@ -268,6 +268,7 @@
       display: grid;
       grid-template-columns: repeat(48, 1fr);
       height: 18px;
+      width: 100%;
     }
 
     .flight-block {
@@ -275,6 +276,7 @@
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       min-width: 0;
+      height: 18px;
     }
 
     .flight-block:last-child,
@@ -296,6 +298,9 @@
       min-height: 18px;
       background: white;
       cursor: pointer;
+      display: block;
+      width: 100%;
+      height: 18px;
     }
 
     .duty-block.on { background: var(--duty); }
@@ -429,7 +434,7 @@
       <div class="sheet-title">
         <div class="company">TEMSCO HELICOPTERS INC.</div>
         <div class="form-title">Pilot's Flight & Duty Time Log</div>
-        <div class="note">Daily PIC / NIGHT / TRNG band is now above FLT. Landings removed. FLT total moved left of Remarks.</div>
+        <div class="note">Duty hour blocks restored. Top extra metric boxes removed. Stray extra row removed.</div>
       </div>
 
       <div class="header-box">
@@ -487,7 +492,7 @@
             <th class="subhead">Stop</th>
             <th class="subhead">Duty</th>
             <th class="subhead">Type</th>
-            ${Array.from({length:48}, (_, i) => `<th class="subhead">${i % 2 === 0 ? i/2 : ""}</th>`).join("")}
+            ${Array.from({length:48}, (_, i) => `<th class="subhead">${i % 2 === 0 ? i / 2 : ""}</th>`).join("")}
             <th class="subhead">From/To</th>
             <th class="subhead">Total</th>
             <th class="subhead">Notes</th>
@@ -517,9 +522,9 @@
     const tableBody = document.getElementById("tableBody");
 
     const aircraftOptions = [
-      { id: "md500",   label: "MD500",   color: "#22c55e" },
-      { id: "as350",   label: "AS350",   color: "#3b82f6" },
-      { id: "ec130",   label: "EC130",   color: "#14b8a6" },
+      { id: "md500", label: "MD500", color: "#22c55e" },
+      { id: "as350", label: "AS350", color: "#3b82f6" },
+      { id: "ec130", label: "EC130", color: "#14b8a6" },
       { id: "bell212", label: "BELL212", color: "#f59e0b" },
       { id: "bell214", label: "BELL214", color: "#8b5cf6" },
       { id: "bell205", label: "BELL205", color: "#ef4444" }
@@ -692,6 +697,7 @@
     function updateTotals(dayId) {
       let flight = 0;
       let duty = 0;
+
       document.querySelectorAll(`.tenth.on[data-day-id="${dayId}"]`).forEach(() => flight += 0.1);
       document.querySelectorAll(`.duty-block.on[data-day-id="${dayId}"]`).forEach(() => duty += 0.5);
 
@@ -867,11 +873,13 @@
         cell.className = "duty-block";
         cell.dataset.dayId = dayId;
         cell.dataset.block = block;
+
         cell.addEventListener("click", () => {
           if (mode !== "duty") return;
           setCurrentRow(dayId);
           handleDutyClick(cell);
         });
+
         grid.appendChild(cell);
       }
 
