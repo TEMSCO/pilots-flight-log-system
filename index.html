@@ -158,7 +158,7 @@
 
     .aircraft-layout {
       display: grid;
-      grid-template-columns: 250px 1fr 170px;
+      grid-template-columns: 204px 1fr 200px;
       gap: 0;
       margin-bottom: 6px;
       align-items: start;
@@ -251,7 +251,7 @@
 
     .log-table {
       width: 100%;
-      min-width: 1180px;
+      min-width: 1190px;
       border-collapse: collapse;
       table-layout: fixed;
       font-size: 8px;
@@ -279,31 +279,13 @@
       font-size: 7px;
     }
 
-    .daycell {
-      width: 44px;
-    }
-
-    .smallcol {
-      width: 40px;
-    }
-
-    .labelcol {
-      width: 40px;
-      background: var(--subtle);
-      font-weight: bold;
-    }
-
-    .ldgscol {
-      width: 30px;
-    }
-
-    .routecol {
-      width: 48px;
-    }
-
-    .remarkscol {
-      width: 80px;
-    }
+    .daycell { width: 44px; }
+    .smallcol { width: 40px; }
+    .labelcol { width: 40px; background: var(--subtle); font-weight: bold; }
+    .ldgscol { width: 30px; }
+    .routecol { width: 48px; }
+    .remarkscol { width: 80px; }
+    .flttotalcol { width: 44px; }
 
     .rowspan-input input,
     .rowspan-input textarea {
@@ -330,12 +312,7 @@
       padding: 0;
     }
 
-    .flight-grid {
-      display: grid;
-      grid-template-columns: repeat(48, 1fr);
-      height: 18px;
-    }
-
+    .flight-grid,
     .duty-grid {
       display: grid;
       grid-template-columns: repeat(48, 1fr);
@@ -361,9 +338,7 @@
       background: white;
     }
 
-    .tenth:last-child {
-      border-right: none;
-    }
+    .tenth:last-child { border-right: none; }
 
     .duty-block {
       border-right: 1px solid #94a3b8;
@@ -372,10 +347,7 @@
       cursor: pointer;
     }
 
-    .duty-block.on {
-      background: var(--duty);
-    }
-
+    .duty-block.on { background: var(--duty); }
     .duty-block.pending {
       outline: 1.5px solid #000;
       outline-offset: -1px;
@@ -460,36 +432,18 @@
     }
 
     .saved-row:last-child { border-bottom: none; }
-
-    .saved-meta {
-      font-size: 10px;
-      line-height: 1.25;
-    }
-
-    .saved-actions {
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-    }
+    .saved-meta { font-size: 10px; line-height: 1.25; }
+    .saved-actions { display: flex; gap: 4px; flex-wrap: wrap; }
 
     @media print {
-      body {
-        background: white;
-        padding: 0;
-      }
-
+      body { background: white; padding: 0; }
       .sheet {
         max-width: 100%;
         border: none;
         box-shadow: none;
         padding: 0;
       }
-
-      .controls,
-      .status,
-      .saved-wrap {
-        display: none;
-      }
+      .controls, .status, .saved-wrap { display: none; }
     }
 
     @media (max-width: 1100px) {
@@ -521,7 +475,7 @@
       <div class="sheet-title">
         <div class="company">TEMSCO HELICOPTERS INC.</div>
         <div class="form-title">Pilot's Flight & Duty Time Log</div>
-        <div class="note">Each day now includes the aircraft-linked middle metrics band: 7 days × 6 aircraft × 3 boxes = 126 boxes.</div>
+        <div class="note">Daily aircraft PIC / NIGHT / TRNG band is now below DUTY, and FLT total is moved to the far right.</div>
       </div>
 
       <div class="header-box">
@@ -567,24 +521,24 @@
             <th class="smallcol">START</th>
             <th class="smallcol">STOP</th>
             <th class="smallcol">DUTY</th>
-            <th class="smallcol">FLT</th>
             <th class="labelcol">ROW</th>
             <th colspan="48">TIME</th>
             <th class="ldgscol">LDGS</th>
             <th class="routecol">ROUTE</th>
             <th class="remarkscol">REMARKS</th>
+            <th class="flttotalcol">FLT</th>
           </tr>
           <tr>
             <th class="subhead">MM/DD</th>
             <th class="subhead">Start</th>
             <th class="subhead">Stop</th>
             <th class="subhead">Duty</th>
-            <th class="subhead">Flt</th>
             <th class="subhead">Type</th>
             ${Array.from({length:48}, (_, i) => `<th class="subhead">${i % 2 === 0 ? i/2 : ""}</th>`).join("")}
             <th class="subhead">No.</th>
             <th class="subhead">From/To</th>
             <th class="subhead">Notes</th>
+            <th class="subhead">Total</th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -842,10 +796,10 @@
         stopText = formatHalfHourBlock(activeBlocks[activeBlocks.length - 1] + 1);
       }
 
-      getReadout(dayId, "flightTotal").textContent = flight.toFixed(1);
-      getReadout(dayId, "dutyTotal").textContent = duty.toFixed(1);
       getReadout(dayId, "dutyStart").textContent = startText;
       getReadout(dayId, "dutyStop").textContent = stopText;
+      getReadout(dayId, "dutyTotal").textContent = duty.toFixed(1);
+      getReadout(dayId, "flightTotal").textContent = flight.toFixed(1);
 
       updateDayAircraftPicTotals(dayId);
       updateTopPicTotals();
@@ -1014,20 +968,22 @@
 
     function addDayRows(dayId) {
       const trFlight = document.createElement("tr");
-      const trMetrics = document.createElement("tr");
       const trDuty = document.createElement("tr");
+      const trMetrics = document.createElement("tr");
 
-      const makeRowspanCell = (key, className = "", isTextarea = false) => {
+      const makeRowspanInput = (key, className = "", isTextarea = false) => {
         const td = document.createElement("td");
         td.rowSpan = 3;
         td.className = `rowspan-input ${className}`.trim();
         td.dataset.dayId = dayId;
         td.dataset.key = key;
+
         const input = isTextarea ? document.createElement("textarea") : document.createElement("input");
         if (!isTextarea) input.type = "text";
         input.dataset.dayId = dayId;
         input.dataset.key = key;
         input.addEventListener("focus", () => setCurrentRow(dayId));
+
         if (key === "logDate") {
           input.maxLength = 5;
           input.placeholder = "MM/DD";
@@ -1036,25 +992,25 @@
             updatePeriodFromRows();
           });
         }
+
         td.appendChild(input);
         return td;
       };
 
-      const makeReadout = (key) => {
+      const makeRowspanReadout = (key, initial) => {
         const td = document.createElement("td");
         td.rowSpan = 3;
         td.className = "readout";
         td.dataset.dayId = dayId;
         td.dataset.key = key;
-        td.textContent = key.includes("Total") ? "0.0" : "--:--";
+        td.textContent = initial;
         return td;
       };
 
-      trFlight.appendChild(makeRowspanCell("logDate", "daycell"));
-      trFlight.appendChild(makeReadout("dutyStart"));
-      trFlight.appendChild(makeReadout("dutyStop"));
-      trFlight.appendChild(makeReadout("dutyTotal"));
-      trFlight.appendChild(makeReadout("flightTotal"));
+      trFlight.appendChild(makeRowspanInput("logDate", "daycell"));
+      trFlight.appendChild(makeRowspanReadout("dutyStart", "--:--"));
+      trFlight.appendChild(makeRowspanReadout("dutyStop", "--:--"));
+      trFlight.appendChild(makeRowspanReadout("dutyTotal", "0.0"));
 
       const fltLabel = document.createElement("td");
       fltLabel.className = "labelcol-cell labelcol";
@@ -1069,22 +1025,10 @@
       fltTimeline.appendChild(buildFlightGrid(dayId));
       trFlight.appendChild(fltTimeline);
 
-      trFlight.appendChild(makeRowspanCell("landings", "ldgscol"));
-      trFlight.appendChild(makeRowspanCell("route", "routecol"));
-      trFlight.appendChild(makeRowspanCell("remarks", "remarkscol", true));
-
-      const metricsLabel = document.createElement("td");
-      metricsLabel.className = "labelcol-cell labelcol";
-      metricsLabel.dataset.dayId = dayId;
-      metricsLabel.textContent = "A/C";
-      metricsLabel.addEventListener("click", () => setCurrentRow(dayId));
-      trMetrics.appendChild(metricsLabel);
-
-      const metricsBand = document.createElement("td");
-      metricsBand.colSpan = 48;
-      metricsBand.className = "metrics-band-cell";
-      metricsBand.appendChild(buildDayAircraftMetrics(dayId));
-      trMetrics.appendChild(metricsBand);
+      trFlight.appendChild(makeRowspanInput("landings", "ldgscol"));
+      trFlight.appendChild(makeRowspanInput("route", "routecol"));
+      trFlight.appendChild(makeRowspanInput("remarks", "remarkscol", true));
+      trFlight.appendChild(makeRowspanReadout("flightTotal", "0.0"));
 
       const dutyLabel = document.createElement("td");
       dutyLabel.className = "labelcol-cell labelcol";
@@ -1099,9 +1043,22 @@
       dutyTimeline.appendChild(buildDutyGrid(dayId));
       trDuty.appendChild(dutyTimeline);
 
+      const metricsLabel = document.createElement("td");
+      metricsLabel.className = "labelcol-cell labelcol";
+      metricsLabel.dataset.dayId = dayId;
+      metricsLabel.textContent = "A/C";
+      metricsLabel.addEventListener("click", () => setCurrentRow(dayId));
+      trMetrics.appendChild(metricsLabel);
+
+      const metricsBand = document.createElement("td");
+      metricsBand.colSpan = 48;
+      metricsBand.className = "metrics-band-cell";
+      metricsBand.appendChild(buildDayAircraftMetrics(dayId));
+      trMetrics.appendChild(metricsBand);
+
       tableBody.appendChild(trFlight);
-      tableBody.appendChild(trMetrics);
       tableBody.appendChild(trDuty);
+      tableBody.appendChild(trMetrics);
     }
 
     function buildTable() {
@@ -1225,6 +1182,47 @@
       const { data, error } = await sb.auth.getSession();
       if (error) return null;
       return data.session?.user ?? null;
+    }
+
+    function getFlightBlocks(dayId) {
+      const blocks = [];
+      for (let i = 0; i < 48; i++) {
+        let count = 0;
+        document.querySelectorAll(`.tenth[data-day-id="${dayId}"][data-block="${i}"].on`).forEach(() => count += 1);
+        blocks.push(Number((count * 0.1).toFixed(1)));
+      }
+      return blocks;
+    }
+
+    function getFlightMarks(dayId) {
+      const marks = [];
+      for (let i = 0; i < 48; i++) {
+        const blockMarks = [];
+        for (let j = 0; j < 5; j++) {
+          const tenth = document.querySelector(`.tenth[data-day-id="${dayId}"][data-block="${i}"][data-tenth="${j}"]`);
+          blockMarks.push(tenth?.classList.contains("on") ? Number(tenth.dataset.aircraftIndex ?? 0) : null);
+        }
+        marks.push(blockMarks);
+      }
+      return marks;
+    }
+
+    function getDutyBlocks(dayId) {
+      const blocks = [];
+      for (let i = 0; i < 48; i++) {
+        const cell = document.querySelector(`.duty-block[data-day-id="${dayId}"][data-block="${i}"]`);
+        blocks.push(cell && cell.classList.contains("on") ? 0.5 : 0);
+      }
+      return blocks;
+    }
+
+    function getUsedAircraftNames(dayId) {
+      const used = new Set();
+      document.querySelectorAll(`.tenth.on[data-day-id="${dayId}"]`).forEach((el) => {
+        const idx = Number(el.dataset.aircraftIndex ?? 0);
+        used.add(getAircraftLabel(idx));
+      });
+      return Array.from(used);
     }
 
     function collectPayloads(userId) {
