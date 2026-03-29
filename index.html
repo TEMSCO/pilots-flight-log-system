@@ -162,9 +162,10 @@
       letter-spacing: 0.3px;
     }
 
+    /* Aircraft summary aligned to timeline width */
     .aircraft-layout {
       display: grid;
-      grid-template-columns: 348px 1fr 158px;
+      grid-template-columns: 284px 1fr 158px;
       gap: 0;
       margin-bottom: 6px;
       align-items: start;
@@ -260,9 +261,6 @@
       display: grid;
       grid-template-columns:
         44px   /* date */
-        36px   /* pic */
-        36px   /* night */
-        36px   /* trng */
         40px   /* duty start */
         40px   /* duty stop */
         40px   /* duty total */
@@ -272,7 +270,7 @@
         30px   /* ldgs */
         48px   /* route */
         80px;  /* remarks */
-      min-width: 1030px;
+      min-width: 970px;
     }
 
     .sheet-cell {
@@ -434,7 +432,7 @@
       }
 
       .aircraft-layout {
-        grid-template-columns: 348px 1fr 158px;
+        grid-template-columns: 284px 1fr 158px;
         margin-bottom: 4px;
       }
 
@@ -499,7 +497,7 @@
       <div class="sheet-title">
         <div class="company">TEMSCO HELICOPTERS INC.</div>
         <div class="form-title">Pilot's Flight & Duty Time Log</div>
-        <div class="note">7-day printable layout with per-row PIC/NIGHT/TRNG boxes and aircraft-specific clearing. :contentReference[oaicite:1]{index=1}</div>
+        <div class="note">Aircraft-linked PIC / NIGHT / TRNG totals are grouped under each aircraft header, like the scanned sheet. :contentReference[oaicite:0]{index=0}</div>
       </div>
 
       <div class="header-box">
@@ -599,10 +597,6 @@
       return document.querySelector(`.aircraft-metric[data-aircraft-index="${index}"][data-metric="${metric}"] input`);
     }
 
-    function getRowMetricInput(rowId, metric) {
-      return document.querySelector(`.sheet-cell[data-row-id="${rowId}"][data-key="${metric}"] input`);
-    }
-
     function updateSelectedAircraftDisplay() {
       selectedAircraftDisplay.textContent = getAircraftLabel(selectedAircraftIndex);
     }
@@ -617,15 +611,6 @@
         const input = getMetricInput(index, "pic");
         if (input) input.value = total.toFixed(1);
       });
-    }
-
-    function updateRowPicTotal(rowId) {
-      let total = 0;
-      document.querySelectorAll(`.tenth.on[data-row-id="${rowId}"]`).forEach(() => {
-        total += 0.1;
-      });
-      const input = getRowMetricInput(rowId, "rowPic");
-      if (input) input.value = total.toFixed(1);
     }
 
     function buildAircraftBar() {
@@ -930,7 +915,6 @@
       });
       updateTotals(rowId);
       updateAircraftPicTotals();
-      updateRowPicTotal(rowId);
     }
 
     function clearSelectedModeForCurrentRow() {
@@ -986,7 +970,6 @@
       tenth.style.background = getAircraftColor(selectedAircraftIndex);
       updateTotals(Number(tenth.dataset.rowId));
       updateAircraftPicTotals();
-      updateRowPicTotal(Number(tenth.dataset.rowId));
     }
 
     function updateTotals(rowId) {
@@ -1060,13 +1043,12 @@
       });
       clearDutyOnly(rowId);
 
-      ["logDate", "rowNight", "rowTrng", "landings", "route", "remarks"].forEach(key => {
+      ["logDate", "landings", "route", "remarks"].forEach(key => {
         const input = getInput(rowId, key);
         if (input) input.value = "";
       });
 
       updateTotals(rowId);
-      updateRowPicTotal(rowId);
       updateAircraftPicTotals();
       updatePeriodFromRows();
     }
@@ -1093,7 +1075,6 @@
           });
         });
         updateAircraftPicTotals();
-        updateRowPicTotal(rowId);
         return;
       }
 
@@ -1112,22 +1093,17 @@
       }
 
       updateAircraftPicTotals();
-      updateRowPicTotal(rowId);
     }
 
     function loadDayFromData(rowId, entry) {
       clearEntireDay(rowId);
 
       const dateInput = getInput(rowId, "logDate");
-      const rowNightInput = getInput(rowId, "rowNight");
-      const rowTrngInput = getInput(rowId, "rowTrng");
       const landingsInput = getInput(rowId, "landings");
       const routeInput = getInput(rowId, "route");
       const remarksInput = getInput(rowId, "remarks");
 
       if (dateInput) dateInput.value = formatDateForRow(entry.log_date) || "";
-      if (rowNightInput) rowNightInput.value = entry.row_night || "";
-      if (rowTrngInput) rowTrngInput.value = entry.row_trng || "";
       if (landingsInput) landingsInput.value = entry.landings || "";
       if (routeInput) routeInput.value = entry.route || "";
       if (remarksInput) remarksInput.value = entry.remarks || "";
@@ -1150,25 +1126,12 @@
       updateTotals(rowId);
       updatePeriodFromRows();
       updateAircraftPicTotals();
-      updateRowPicTotal(rowId);
     }
 
     function addDay(rowId) {
       const dateCell = createInputCell(rowId, "logDate", "MM/DD", 5);
       dateCell.style.gridRow = "span 2";
       pageGrid.appendChild(dateCell);
-
-      const rowPicCell = createInputCell(rowId, "rowPic", "", null, false, true);
-      rowPicCell.style.gridRow = "span 2";
-      pageGrid.appendChild(rowPicCell);
-
-      const rowNightCell = createInputCell(rowId, "rowNight", "");
-      rowNightCell.style.gridRow = "span 2";
-      pageGrid.appendChild(rowNightCell);
-
-      const rowTrngCell = createInputCell(rowId, "rowTrng", "");
-      rowTrngCell.style.gridRow = "span 2";
-      pageGrid.appendChild(rowTrngCell);
 
       const dutyStartCell = createReadoutCell(rowId, "dutyStart", "--:--");
       dutyStartCell.style.gridRow = "span 2";
@@ -1215,8 +1178,6 @@
       for (let i = 0; i < 48; i++) {
         pageGrid.appendChild(createDutyCell(rowId, i));
       }
-
-      updateRowPicTotal(rowId);
     }
 
     function buildPage() {
@@ -1224,9 +1185,6 @@
       rows = [];
 
       pageGrid.appendChild(createCell("header", "DATE"));
-      pageGrid.appendChild(createCell("header", "PIC"));
-      pageGrid.appendChild(createCell("header", "NGT"));
-      pageGrid.appendChild(createCell("header", "TRG"));
       pageGrid.appendChild(createCell("header", "START"));
       pageGrid.appendChild(createCell("header", "STOP"));
       pageGrid.appendChild(createCell("header", "DUTY"));
@@ -1242,9 +1200,6 @@
       pageGrid.appendChild(createCell("header", "REMARKS"));
 
       pageGrid.appendChild(createCell("subhead", "MM/DD"));
-      pageGrid.appendChild(createCell("subhead", "PIC"));
-      pageGrid.appendChild(createCell("subhead", "NIGHT"));
-      pageGrid.appendChild(createCell("subhead", "TRNG"));
       pageGrid.appendChild(createCell("subhead", "Start"));
       pageGrid.appendChild(createCell("subhead", "Stop"));
       pageGrid.appendChild(createCell("subhead", "Duty"));
@@ -1287,8 +1242,6 @@
       for (const row of rows) {
         const rowId = row.id;
         const logDateRaw = getInput(rowId, "logDate")?.value.trim() || "";
-        const rowNight = getInput(rowId, "rowNight")?.value.trim() || "";
-        const rowTrng = getInput(rowId, "rowTrng")?.value.trim() || "";
         const landings = getInput(rowId, "landings")?.value.trim() || "";
         const route = getInput(rowId, "route")?.value.trim() || "";
         const remarks = getInput(rowId, "remarks")?.value.trim() || "";
@@ -1303,8 +1256,6 @@
 
         const hasAnyData =
           logDateRaw ||
-          rowNight ||
-          rowTrng ||
           landings ||
           route ||
           remarks ||
@@ -1341,8 +1292,6 @@
           duty_stop: dutyRange ? dutyRange.stopText : null,
           pilot_name: pilotName || null,
           period: logPeriod || null,
-          row_night: rowNight || null,
-          row_trng: rowTrng || null,
           landings: landings || null,
           route: route || null,
           remarks: remarks || null,
@@ -1355,7 +1304,7 @@
 
     function stripOptionalFields(payloads) {
       return payloads.map(p => {
-        const { row_night, row_trng, landings, route, remarks, flight_marks, ...rest } = p;
+        const { landings, route, remarks, flight_marks, ...rest } = p;
         return rest;
       });
     }
@@ -1413,7 +1362,7 @@
 
       let query = await sb
         .from("logs")
-        .select("id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, row_night, row_trng, landings, route, remarks, flight_blocks, flight_marks, duty_blocks")
+        .select("id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, landings, route, remarks, flight_blocks, flight_marks, duty_blocks")
         .eq("user_id", user.id)
         .order("id", { ascending: false });
 
@@ -1451,8 +1400,6 @@
             DUTY ${entry.duty_start || "--:--"}-${entry.duty_stop || "--:--"} |
             DUTY ${Number(entry.duty || 0).toFixed(1)} |
             FLT ${Number(entry.flt1 || 0).toFixed(1)}
-            ${entry.row_night ? `| NIGHT ${entry.row_night}` : ""}
-            ${entry.row_trng ? `| TRNG ${entry.row_trng}` : ""}
             ${entry.landings ? `| LDGS ${entry.landings}` : ""}
             ${entry.route ? `| ROUTE ${entry.route}` : ""}
             ${entry.remarks ? `| ${entry.remarks}` : ""}
