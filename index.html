@@ -98,7 +98,6 @@
 
     .header-value input,
     .aircraft-chip input,
-    .aircraft-metric input,
     .log-table input,
     .log-table textarea {
       width: 100%;
@@ -115,7 +114,6 @@
 
     .header-value input:focus,
     .aircraft-chip input:focus,
-    .aircraft-metric input:focus,
     .log-table input:focus,
     .log-table textarea:focus {
       outline: 1.5px solid #60a5fa;
@@ -158,7 +156,7 @@
 
     .aircraft-layout {
       display: grid;
-      grid-template-columns: 204px 1fr 200px;
+      grid-template-columns: 204px 1fr 170px;
       gap: 0;
       margin-bottom: 6px;
       align-items: start;
@@ -173,12 +171,6 @@
       display: grid;
       grid-template-columns: repeat(6, 1fr);
       gap: 3px;
-    }
-
-    .aircraft-stack {
-      display: grid;
-      grid-template-rows: auto auto;
-      gap: 2px;
     }
 
     .aircraft-chip {
@@ -203,46 +195,6 @@
       padding: 3px 2px;
     }
 
-    .aircraft-metrics {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1px;
-    }
-
-    .aircraft-metric {
-      border: 1px solid var(--line);
-      background: white;
-      min-height: 28px;
-      display: grid;
-      grid-template-rows: 11px 1fr;
-    }
-
-    .aircraft-metric-label {
-      border-bottom: 1px solid var(--line);
-      background: var(--subtle);
-      font-size: 6px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .aircraft-metric-value {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 8px;
-      font-weight: bold;
-      padding: 1px;
-      text-align: center;
-    }
-
-    .aircraft-metric-value input {
-      text-align: center;
-      font-size: 8px;
-      padding: 1px;
-    }
-
     .table-wrap {
       overflow-x: auto;
       border: 1.5px solid var(--line);
@@ -251,7 +203,7 @@
 
     .log-table {
       width: 100%;
-      min-width: 1190px;
+      min-width: 1160px;
       border-collapse: collapse;
       table-layout: fixed;
       font-size: 8px;
@@ -282,10 +234,9 @@
     .daycell { width: 44px; }
     .smallcol { width: 40px; }
     .labelcol { width: 40px; background: var(--subtle); font-weight: bold; }
-    .ldgscol { width: 30px; }
-    .routecol { width: 48px; }
-    .remarkscol { width: 80px; }
+    .routecol { width: 54px; }
     .flttotalcol { width: 44px; }
+    .remarkscol { width: 90px; }
 
     .rowspan-input input,
     .rowspan-input textarea {
@@ -396,6 +347,9 @@
       text-align: center;
       font-size: 8px;
       padding: 1px;
+      width: 100%;
+      border: none;
+      background: transparent;
     }
 
     .status {
@@ -475,7 +429,7 @@
       <div class="sheet-title">
         <div class="company">TEMSCO HELICOPTERS INC.</div>
         <div class="form-title">Pilot's Flight & Duty Time Log</div>
-        <div class="note">Daily aircraft PIC / NIGHT / TRNG band is now below DUTY, and FLT total is moved to the far right.</div>
+        <div class="note">Daily PIC / NIGHT / TRNG band is now above FLT. Landings removed. FLT total moved left of Remarks.</div>
       </div>
 
       <div class="header-box">
@@ -523,10 +477,9 @@
             <th class="smallcol">DUTY</th>
             <th class="labelcol">ROW</th>
             <th colspan="48">TIME</th>
-            <th class="ldgscol">LDGS</th>
             <th class="routecol">ROUTE</th>
-            <th class="remarkscol">REMARKS</th>
             <th class="flttotalcol">FLT</th>
+            <th class="remarkscol">REMARKS</th>
           </tr>
           <tr>
             <th class="subhead">MM/DD</th>
@@ -535,10 +488,9 @@
             <th class="subhead">Duty</th>
             <th class="subhead">Type</th>
             ${Array.from({length:48}, (_, i) => `<th class="subhead">${i % 2 === 0 ? i/2 : ""}</th>`).join("")}
-            <th class="subhead">No.</th>
             <th class="subhead">From/To</th>
-            <th class="subhead">Notes</th>
             <th class="subhead">Total</th>
+            <th class="subhead">Notes</th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -598,10 +550,6 @@
 
     function getAircraftColor(index) {
       return aircraftOptions[index]?.color || "#22c55e";
-    }
-
-    function getTopMetricInput(index, metric) {
-      return document.querySelector(`.aircraft-metric[data-aircraft-index="${index}"][data-metric="${metric}"] input`);
     }
 
     function getDayMetricInput(dayId, aircraftIndex, metric) {
@@ -692,36 +640,9 @@
       input.value = value;
     }
 
-    function updateTopPicTotals() {
-      const totals = Array(AIRCRAFT_COUNT).fill(0);
-      document.querySelectorAll(".tenth.on").forEach((el) => {
-        const idx = Number(el.dataset.aircraftIndex ?? 0);
-        if (idx >= 0 && idx < AIRCRAFT_COUNT) totals[idx] += 0.1;
-      });
-      totals.forEach((t, idx) => {
-        const input = getTopMetricInput(idx, "pic");
-        if (input) input.value = t.toFixed(1);
-      });
-    }
-
-    function updateDayAircraftPicTotals(dayId) {
-      const totals = Array(AIRCRAFT_COUNT).fill(0);
-      document.querySelectorAll(`.tenth.on[data-day-id="${dayId}"]`).forEach((el) => {
-        const idx = Number(el.dataset.aircraftIndex ?? 0);
-        if (idx >= 0 && idx < AIRCRAFT_COUNT) totals[idx] += 0.1;
-      });
-      totals.forEach((t, idx) => {
-        const input = getDayMetricInput(dayId, idx, "pic");
-        if (input) input.value = t.toFixed(1);
-      });
-    }
-
     function buildAircraftBar() {
       aircraftBar.innerHTML = "";
       aircraftOptions.forEach((option, index) => {
-        const stack = document.createElement("div");
-        stack.className = "aircraft-stack";
-
         const chip = document.createElement("div");
         chip.className = "aircraft-chip";
         chip.dataset.aircraftIndex = index;
@@ -746,35 +667,26 @@
         });
 
         chip.appendChild(input);
-
-        const metrics = document.createElement("div");
-        metrics.className = "aircraft-metrics";
-
-        ["pic", "night", "trng"].forEach((metric) => {
-          const box = document.createElement("div");
-          box.className = "aircraft-metric";
-          box.dataset.aircraftIndex = index;
-          box.dataset.metric = metric;
-          box.innerHTML = `
-            <div class="aircraft-metric-label">${metric.toUpperCase()}</div>
-            <div class="aircraft-metric-value">
-              <input type="text" value="${metric === "pic" ? "0.0" : ""}" ${metric === "pic" ? "readonly" : ""}>
-            </div>
-          `;
-          metrics.appendChild(box);
-        });
-
-        stack.appendChild(chip);
-        stack.appendChild(metrics);
-        aircraftBar.appendChild(stack);
+        aircraftBar.appendChild(chip);
       });
 
       refreshAircraftSelection();
-      updateTopPicTotals();
     }
 
     function getRowState(dayId) {
       return rows.find(r => r.id === dayId);
+    }
+
+    function updateDayAircraftPicTotals(dayId) {
+      const totals = Array(AIRCRAFT_COUNT).fill(0);
+      document.querySelectorAll(`.tenth.on[data-day-id="${dayId}"]`).forEach((el) => {
+        const idx = Number(el.dataset.aircraftIndex ?? 0);
+        if (idx >= 0 && idx < AIRCRAFT_COUNT) totals[idx] += 0.1;
+      });
+      totals.forEach((t, idx) => {
+        const input = getDayMetricInput(dayId, idx, "pic");
+        if (input) input.value = t.toFixed(1);
+      });
     }
 
     function updateTotals(dayId) {
@@ -802,7 +714,6 @@
       getReadout(dayId, "flightTotal").textContent = flight.toFixed(1);
 
       updateDayAircraftPicTotals(dayId);
-      updateTopPicTotals();
     }
 
     function clearDutyOnly(dayId) {
@@ -889,10 +800,11 @@
           box.dataset.aircraftIndex = aircraftIndex;
           box.dataset.metric = metric;
 
+          const labelText = dayId === 1 ? metric.toUpperCase() : "";
           const inputAttrs = metric === "pic" ? 'readonly value="0.0"' : 'value=""';
 
           box.innerHTML = `
-            <div class="lbl">${metric.toUpperCase()}</div>
+            <div class="lbl">${labelText}</div>
             <div class="val"><input type="text" ${inputAttrs}></div>
           `;
           group.appendChild(box);
@@ -967,9 +879,9 @@
     }
 
     function addDayRows(dayId) {
+      const trMetrics = document.createElement("tr");
       const trFlight = document.createElement("tr");
       const trDuty = document.createElement("tr");
-      const trMetrics = document.createElement("tr");
 
       const makeRowspanInput = (key, className = "", isTextarea = false) => {
         const td = document.createElement("td");
@@ -1007,41 +919,10 @@
         return td;
       };
 
-      trFlight.appendChild(makeRowspanInput("logDate", "daycell"));
-      trFlight.appendChild(makeRowspanReadout("dutyStart", "--:--"));
-      trFlight.appendChild(makeRowspanReadout("dutyStop", "--:--"));
-      trFlight.appendChild(makeRowspanReadout("dutyTotal", "0.0"));
-
-      const fltLabel = document.createElement("td");
-      fltLabel.className = "labelcol-cell labelcol";
-      fltLabel.dataset.dayId = dayId;
-      fltLabel.textContent = "FLT";
-      fltLabel.addEventListener("click", () => setCurrentRow(dayId));
-      trFlight.appendChild(fltLabel);
-
-      const fltTimeline = document.createElement("td");
-      fltTimeline.colSpan = 48;
-      fltTimeline.className = "timeline-cell";
-      fltTimeline.appendChild(buildFlightGrid(dayId));
-      trFlight.appendChild(fltTimeline);
-
-      trFlight.appendChild(makeRowspanInput("landings", "ldgscol"));
-      trFlight.appendChild(makeRowspanInput("route", "routecol"));
-      trFlight.appendChild(makeRowspanInput("remarks", "remarkscol", true));
-      trFlight.appendChild(makeRowspanReadout("flightTotal", "0.0"));
-
-      const dutyLabel = document.createElement("td");
-      dutyLabel.className = "labelcol-cell labelcol";
-      dutyLabel.dataset.dayId = dayId;
-      dutyLabel.textContent = "DUTY";
-      dutyLabel.addEventListener("click", () => setCurrentRow(dayId));
-      trDuty.appendChild(dutyLabel);
-
-      const dutyTimeline = document.createElement("td");
-      dutyTimeline.colSpan = 48;
-      dutyTimeline.className = "timeline-cell";
-      dutyTimeline.appendChild(buildDutyGrid(dayId));
-      trDuty.appendChild(dutyTimeline);
+      trMetrics.appendChild(makeRowspanInput("logDate", "daycell"));
+      trMetrics.appendChild(makeRowspanReadout("dutyStart", "--:--"));
+      trMetrics.appendChild(makeRowspanReadout("dutyStop", "--:--"));
+      trMetrics.appendChild(makeRowspanReadout("dutyTotal", "0.0"));
 
       const metricsLabel = document.createElement("td");
       metricsLabel.className = "labelcol-cell labelcol";
@@ -1056,9 +937,39 @@
       metricsBand.appendChild(buildDayAircraftMetrics(dayId));
       trMetrics.appendChild(metricsBand);
 
+      trMetrics.appendChild(makeRowspanInput("route", "routecol"));
+      trMetrics.appendChild(makeRowspanReadout("flightTotal", "0.0"));
+      trMetrics.appendChild(makeRowspanInput("remarks", "remarkscol", true));
+
+      const fltLabel = document.createElement("td");
+      fltLabel.className = "labelcol-cell labelcol";
+      fltLabel.dataset.dayId = dayId;
+      fltLabel.textContent = "FLT";
+      fltLabel.addEventListener("click", () => setCurrentRow(dayId));
+      trFlight.appendChild(fltLabel);
+
+      const fltTimeline = document.createElement("td");
+      fltTimeline.colSpan = 48;
+      fltTimeline.className = "timeline-cell";
+      fltTimeline.appendChild(buildFlightGrid(dayId));
+      trFlight.appendChild(fltTimeline);
+
+      const dutyLabel = document.createElement("td");
+      dutyLabel.className = "labelcol-cell labelcol";
+      dutyLabel.dataset.dayId = dayId;
+      dutyLabel.textContent = "DUTY";
+      dutyLabel.addEventListener("click", () => setCurrentRow(dayId));
+      trDuty.appendChild(dutyLabel);
+
+      const dutyTimeline = document.createElement("td");
+      dutyTimeline.colSpan = 48;
+      dutyTimeline.className = "timeline-cell";
+      dutyTimeline.appendChild(buildDutyGrid(dayId));
+      trDuty.appendChild(dutyTimeline);
+
+      tableBody.appendChild(trMetrics);
       tableBody.appendChild(trFlight);
       tableBody.appendChild(trDuty);
-      tableBody.appendChild(trMetrics);
     }
 
     function buildTable() {
@@ -1092,7 +1003,7 @@
       });
       clearDutyOnly(dayId);
 
-      ["logDate", "landings", "route", "remarks"].forEach((key) => {
+      ["logDate", "route", "remarks"].forEach((key) => {
         const input = getInput(dayId, key);
         if (input) input.value = "";
       });
@@ -1100,7 +1011,6 @@
       setDayAircraftMetrics(dayId, null);
       updateTotals(dayId);
       updatePeriodFromRows();
-      updateTopPicTotals();
     }
 
     function applyFlightMarksToDay(dayId, flightMarks, fallbackBlocks) {
@@ -1149,12 +1059,10 @@
       clearEntireDay(dayId);
 
       const dateInput = getInput(dayId, "logDate");
-      const landingsInput = getInput(dayId, "landings");
       const routeInput = getInput(dayId, "route");
       const remarksInput = getInput(dayId, "remarks");
 
       if (dateInput) dateInput.value = formatDateForRow(entry.log_date) || "";
-      if (landingsInput) landingsInput.value = entry.landings || "";
       if (routeInput) routeInput.value = entry.route || "";
       if (remarksInput) remarksInput.value = entry.remarks || "";
 
@@ -1175,7 +1083,6 @@
 
       updateTotals(dayId);
       updatePeriodFromRows();
-      updateTopPicTotals();
     }
 
     async function getCurrentUser() {
@@ -1232,13 +1139,12 @@
 
       for (let dayId = 1; dayId <= DAY_COUNT; dayId++) {
         const logDateRaw = getInput(dayId, "logDate")?.value.trim() || "";
-        const landings = getInput(dayId, "landings")?.value.trim() || "";
         const route = getInput(dayId, "route")?.value.trim() || "";
         const remarks = getInput(dayId, "remarks")?.value.trim() || "";
         const flightTotal = Number(getReadout(dayId, "flightTotal").textContent || "0");
         const dutyTotal = Number(getReadout(dayId, "dutyTotal").textContent || "0");
 
-        const hasAnyData = logDateRaw || landings || route || remarks || flightTotal > 0 || dutyTotal > 0;
+        const hasAnyData = logDateRaw || route || remarks || flightTotal > 0 || dutyTotal > 0;
         if (!hasAnyData) continue;
 
         if (!/^\d{2}\/\d{2}$/.test(logDateRaw)) {
@@ -1269,7 +1175,6 @@
           duty_stop: getReadout(dayId, "dutyStop").textContent === "--:--" ? null : getReadout(dayId, "dutyStop").textContent,
           pilot_name: pilotName || null,
           period: logPeriod || null,
-          landings: landings || null,
           route: route || null,
           remarks: remarks || null,
           user_id: userId
@@ -1281,7 +1186,7 @@
 
     function stripOptionalFields(payloads) {
       return payloads.map(p => {
-        const { day_aircraft_metrics, flight_marks, landings, route, remarks, ...rest } = p;
+        const { day_aircraft_metrics, flight_marks, route, remarks, ...rest } = p;
         return rest;
       });
     }
@@ -1336,14 +1241,14 @@
 
       let query = await sb
         .from("logs")
-        .select("id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, landings, route, remarks, flight_blocks, flight_marks, duty_blocks, day_aircraft_metrics")
+        .select("id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, route, remarks, flight_blocks, flight_marks, duty_blocks, day_aircraft_metrics")
         .eq("user_id", user.id)
         .order("id", { ascending: false });
 
       if (query.error && /column .* does not exist|schema cache/i.test(query.error.message)) {
         query = await sb
           .from("logs")
-          .select("id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, landings, route, remarks, flight_blocks, duty_blocks")
+          .select("id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, route, remarks, flight_blocks, duty_blocks")
           .eq("user_id", user.id)
           .order("id", { ascending: false });
       }
@@ -1370,7 +1275,6 @@
             DUTY ${entry.duty_start || "--:--"}-${entry.duty_stop || "--:--"} |
             DUTY ${Number(entry.duty || 0).toFixed(1)} |
             FLT ${Number(entry.flt1 || 0).toFixed(1)}
-            ${entry.landings ? `| LDGS ${entry.landings}` : ""}
             ${entry.route ? `| ROUTE ${entry.route}` : ""}
             ${entry.remarks ? `| ${entry.remarks}` : ""}
           </div>
@@ -1423,7 +1327,6 @@
     buildAircraftBar();
     buildTable();
     updatePeriodFromRows();
-    updateTopPicTotals();
     loadSavedEntries();
   </script>
 </body>
