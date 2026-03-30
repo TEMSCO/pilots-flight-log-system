@@ -486,6 +486,14 @@
       gap: 1px;
     }
 
+    
+    .day-aircraft-box.no-label {
+      grid-template-rows: 1fr;
+    }
+    .day-aircraft-box.no-label .lbl {
+      display: none;
+    }
+
     .day-aircraft-box {
       border: 1px solid var(--line);
       min-height: 28px;
@@ -509,6 +517,76 @@
       align-items: center;
       justify-content: center;
       padding: 1px;
+    }
+
+    
+    
+    .day-aircraft-box[data-metric="pic"] input {
+      font-size: clamp(12px, 1.2vw, 16px);
+      font-weight: bold;
+    }
+
+    .day-aircraft-box.no-label[data-metric="pic"] input {
+      font-size: clamp(14px, 1.5vw, 18px);
+    }
+
+    .flttotalcol,
+    .readout[data-key="flightTotal"],
+    .readout[data-key="dutyTotal"] {
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .alert-exceed {
+      color: #b91c1c !important;
+      font-weight: 700 !important;
+    }
+
+    .day-aircraft-box.compact {
+      grid-template-rows: 1fr;
+      min-height: 24px;
+    }
+
+    .day-aircraft-box.compact .lbl {
+      display: none;
+    }
+
+    .metrics-header-cell {
+      padding: 0 !important;
+      background: white;
+    }
+
+    .header-band {
+      padding: 0;
+      min-height: 24px;
+    }
+
+    .header-label-box {
+      min-height: 24px;
+      background: white;
+      font-size: 8px;
+      font-weight: bold;
+      color: #334155;
+    }
+
+    .header-label-box .val {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .day-aircraft-box[data-metric="pic"] input {
+      font-size: clamp(12px, 1.2vw, 16px);
+      font-weight: bold;
+    }
+
+    .day-aircraft-box.compact[data-metric="pic"] input {
+      font-size: clamp(14px, 1.5vw, 18px);
+    }
+
+    .day-aircraft-box.no-label input {
+      font-size: 11px;
     }
 
     .day-aircraft-box input {
@@ -876,7 +954,7 @@
       <div class="sheet-title">
         <div class="company">TEMSCO HELICOPTERS INC.</div>
         <div class="form-title">Pilot's Flight & Duty Time Log</div>
-        <div class="note">v12 cleaned layout: cert field added, (133)/(class) header restored, route column slashed, hour labels inside daily timelines, FLT/DUTY rows restored, aircraft bar aligned to FLT/DUTY timeline edges, and print sizing locked for 8.5 x 11 landscape.</div>
+        <div class="note">v19 cleaned layout: PIC/NIGHT/TRNG labels locked into the first row boxes, PIC/NIGHT/TRNG boxes moved into a single-height band, FLT and DUTY totals enlarged, and totals over 8.0 FLT or 14.0 DUTY turn red.</div>
       </div>
 
       <div class="header-box">
@@ -994,6 +1072,26 @@
             <th class="subhead">(class)</th>
             <th class="subhead">Total</th>
             <th class="subhead">Notes</th>
+          </tr>
+          <tr>
+            <th class="subhead"></th>
+            <th class="subhead"></th>
+            <th class="subhead"></th>
+            <th class="subhead"></th>
+            <th class="subhead"></th>
+            <th class="metrics-header-cell" colspan="48">
+              <div class="day-aircraft-band header-band">
+                <div class="day-aircraft-group"><div class="day-aircraft-box compact header-label-box"><div class="val">PIC</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">NIGHT</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">TRNG</div></div></div>
+                <div class="day-aircraft-group"><div class="day-aircraft-box compact header-label-box"><div class="val">PIC</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">NIGHT</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">TRNG</div></div></div>
+                <div class="day-aircraft-group"><div class="day-aircraft-box compact header-label-box"><div class="val">PIC</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">NIGHT</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">TRNG</div></div></div>
+                <div class="day-aircraft-group"><div class="day-aircraft-box compact header-label-box"><div class="val">PIC</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">NIGHT</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">TRNG</div></div></div>
+                <div class="day-aircraft-group"><div class="day-aircraft-box compact header-label-box"><div class="val">PIC</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">NIGHT</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">TRNG</div></div></div>
+                <div class="day-aircraft-group"><div class="day-aircraft-box compact header-label-box"><div class="val">PIC</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">NIGHT</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">TRNG</div></div></div>
+              </div>
+            </th>
+            <th class="subhead"></th>
+            <th class="subhead"></th>
+            <th class="subhead"></th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -1387,10 +1485,16 @@
         stopText = formatHalfHourBlock(activeBlocks[activeBlocks.length - 1] + 1);
       }
 
+      const dutyReadout = getReadout(dayId, "dutyTotal");
+      const flightReadout = getReadout(dayId, "flightTotal");
+
       getReadout(dayId, "dutyStart").textContent = startText;
       getReadout(dayId, "dutyStop").textContent = stopText;
-      getReadout(dayId, "dutyTotal").textContent = duty.toFixed(1);
-      getReadout(dayId, "flightTotal").textContent = flight.toFixed(1);
+      dutyReadout.textContent = duty.toFixed(1);
+      flightReadout.textContent = flight.toFixed(1);
+
+      dutyReadout.classList.toggle("alert-exceed", duty > 14);
+      flightReadout.classList.toggle("alert-exceed", flight > 8);
 
       updateDayAircraftPicTotals(dayId);
       computeWeeklySummary();
@@ -1476,16 +1580,15 @@
 
         ["pic", "night", "trng"].forEach((metric) => {
           const box = document.createElement("div");
-          box.className = "day-aircraft-box";
+          box.className = "day-aircraft-box compact";
           box.dataset.dayId = dayId;
           box.dataset.aircraftIndex = aircraftIndex;
           box.dataset.metric = metric;
 
-          const labelText = dayId === 1 ? metric.toUpperCase() : "";
           const inputAttrs = metric === "pic" ? 'readonly value="0.0"' : 'value=""';
 
           box.innerHTML = `
-            <div class="lbl">${labelText}</div>
+            <div class="lbl"></div>
             <div class="val"><input type="text" ${inputAttrs}></div>
           `;
 
@@ -2407,6 +2510,7 @@
   </script>
 </body>
 </html>
+
 
 
   
