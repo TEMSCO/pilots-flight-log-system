@@ -74,7 +74,7 @@
 
     .top-panels {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 8px;
       margin-bottom: 8px;
     }
@@ -123,6 +123,52 @@
       font-weight: bold;
       min-height: 16px;
     }
+
+    .debug-panel {
+      border: 1px solid var(--line);
+      background: white;
+    }
+
+    .debug-grid {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 4px 8px;
+      font-size: 10px;
+      line-height: 1.35;
+    }
+
+    .debug-grid .k {
+      font-weight: bold;
+      color: #334155;
+    }
+
+    .debug-grid .v {
+      word-break: break-word;
+      font-family: Consolas, Monaco, monospace;
+      color: #0f172a;
+    }
+
+    .debug-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .debug-log {
+      margin-top: 8px;
+      border: 1px solid var(--soft-line);
+      background: #f8fafc;
+      padding: 6px;
+      min-height: 72px;
+      max-height: 160px;
+      overflow: auto;
+      font-size: 10px;
+      line-height: 1.35;
+      white-space: pre-wrap;
+      font-family: Consolas, Monaco, monospace;
+    }
+
 
     .header-box-row {
       display: grid;
@@ -611,6 +657,10 @@
     }
 
     @media (max-width: 1100px) {
+      .top-panels {
+        grid-template-columns: 1fr;
+      }
+
       .aircraft-layout {
         grid-template-columns: 1fr;
       }
@@ -688,6 +738,29 @@
           <div id="restMetric" class="summary-metric"><div class="label">Rest Alerts</div><div id="restAlerts" class="value">0</div></div>
         </div>
       </div>
+
+
+      <div class="debug-panel">
+        <div class="panel-title">Admin / Debug</div>
+        <div class="panel-body">
+          <div class="debug-grid">
+            <div class="k">Session</div><div id="debugSessionState" class="v">checking...</div>
+            <div class="k">User Email</div><div id="debugUserEmail" class="v">-</div>
+            <div class="k">User ID</div><div id="debugUserId" class="v">-</div>
+            <div class="k">Last Action</div><div id="debugLastAction" class="v">app boot</div>
+            <div class="k">Last Error</div><div id="debugLastError" class="v">none</div>
+            <div class="k">DB Probe</div><div id="debugDbProbe" class="v">not run</div>
+            <div class="k">Draft</div><div id="debugDraftState" class="v">unknown</div>
+          </div>
+          <div class="debug-actions">
+            <button id="runDebugBtn" class="secondary-btn" type="button">Run Diagnostics</button>
+            <button id="clearDebugBtn" class="secondary-btn" type="button">Clear Debug Log</button>
+          </div>
+          <div id="debugLog" class="debug-log">debug panel ready</div>
+          <div class="tiny-note">This panel is read-only except for diagnostics. It helps surface auth, RLS, UUID/type, and save/load errors directly in the browser.</div>
+        </div>
+      </div>
+
     </div>
 
     <div class="controls">
@@ -821,12 +894,100 @@
     const weekDaysEl = document.getElementById("weekDays");
     const restAlertsEl = document.getElementById("restAlerts");
     const restMetricEl = document.getElementById("restMetric");
+    const debugSessionState = document.getElementById("debugSessionState");
+    const debugUserEmail = document.getElementById("debugUserEmail");
+    const debugUserId = document.getElementById("debugUserId");
+    const debugLastAction = document.getElementById("debugLastAction");
+    const debugLastError = document.getElementById("debugLastError");
+    const debugDbProbe = document.getElementById("debugDbProbe");
+    const debugDraftState = document.getElementById("debugDraftState");
+    const debugLogEl = document.getElementById("debugLog");
+    const runDebugBtn = document.getElementById("runDebugBtn");
+    const clearDebugBtn = document.getElementById("clearDebugBtn");
 
     document.getElementById("hourScaleHolder").innerHTML = Array.from({ length: 48 }, (_, i) => `<span style="display:inline-block;width:${100/48}%">${i % 2 === 0 ? i / 2 : ""}</span>`).join("");
 
     function setStatus(message, tone = "ok") {
       statusEl.textContent = message;
       statusEl.className = `status ${tone}`;
+    }
+
+    function nowStamp() {
+      return new Date().toLocaleString();
+    }
+
+    function appendDebugLog(message) {
+      if (!debugLogEl) return;
+      debugLogEl.textContent = `[${nowStamp()}] ${message}
+` + debugLogEl.textContent;
+    }
+
+    function setDebugAction(message) {
+      debugLastAction.textContent = message;
+      appendDebugLog(`ACTION: ${message}`);
+    }
+
+    function setDebugError(message) {
+      const safeMessage = message || 'none';
+      debugLastError.textContent = safeMessage;
+      if (safeMessage !== 'none') appendDebugLog(`ERROR: ${safeMessage}`);
+    }
+
+    function updateDebugDraftState() {
+      try {
+        const raw = localStorage.getItem(DRAFT_KEY);
+        if (!raw) {
+          debugDraftState.textContent = 'no browser draft';
+          return;
+        }
+        const draft = JSON.parse(raw);
+        const usedDays = Array.isArray(draft.days) ? draft.days.filter(day => day && (day.logDate || day.route || day.remarks || (day.flightMarks || []).flat().some(v => v !== null) || (day.dutyBlocks || []).some(v => Number(v) > 0))).length : 0;
+        debugDraftState.textContent = `draft present (${usedDays} day(s))`;
+      } catch (err) {
+        debugDraftState.textContent = `draft unreadable: ${err.message}`;
+      }
+    }
+
+    async function runDiagnostics() {
+      setDebugAction('run diagnostics');
+      setDebugError('none');
+      debugDbProbe.textContent = 'running...';
+      try {
+        const user = await getCurrentUser();
+        debugSessionState.textContent = user ? 'signed in' : 'signed out';
+        debugUserEmail.textContent = user?.email || '-';
+        debugUserId.textContent = user?.id || '-';
+
+        if (!user) {
+          debugDbProbe.textContent = 'skipped: no session';
+          appendDebugLog('DIAG: no user session, DB probe skipped');
+          updateDebugDraftState();
+          return;
+        }
+
+        const probe = await sb
+          .from('logs')
+          .select('id, user_id, log_date', { count: 'exact' })
+          .eq('user_id', user.id)
+          .order('log_date', { ascending: false })
+          .limit(3);
+
+        if (probe.error) {
+          debugDbProbe.textContent = probe.error.message;
+          setDebugError(probe.error.message);
+          appendDebugLog('DIAG HINT: if policy compares auth.uid() uuid to user_id text, cast or convert user_id to uuid');
+          return;
+        }
+
+        const rowCount = typeof probe.count === 'number' ? probe.count : (probe.data || []).length;
+        const newest = probe.data?.[0]?.log_date || 'none';
+        debugDbProbe.textContent = `ok | rows=${rowCount} | newest=${newest}`;
+        appendDebugLog(`DIAG: DB probe succeeded with ${rowCount} row(s); newest log_date=${newest}`);
+        updateDebugDraftState();
+      } catch (err) {
+        debugDbProbe.textContent = err.message;
+        setDebugError(err.message);
+      }
     }
 
     function getAircraftLabel(index) {
@@ -1455,6 +1616,7 @@
     }
 
     async function sendMagicLink() {
+      setDebugAction('send magic link');
       const email = authEmail.value.trim();
       if (!email) {
         setStatus("Enter an email address first.", "warn");
@@ -1463,6 +1625,7 @@
       const redirectTo = window.location.href.split("#")[0];
       const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo } });
       if (error) {
+        setDebugError(error.message);
         setStatus(error.message, "error");
         return;
       }
@@ -1470,8 +1633,10 @@
     }
 
     async function signOut() {
+      setDebugAction('sign out');
       const { error } = await sb.auth.signOut();
       if (error) {
+        setDebugError(error.message);
         setStatus(error.message, "error");
         return;
       }
@@ -1587,6 +1752,7 @@
     }
 
     async function saveAllRows() {
+      setDebugAction('save 7 days');
       const user = await getCurrentUser();
       if (!user) {
         setStatus("Not logged in. Please use the magic-link sign-in first.", "warn");
@@ -1597,6 +1763,7 @@
       try {
         payloads = collectPayloads(user.id);
       } catch (err) {
+        setDebugError(err.message);
         setStatus(err.message, "error");
         return;
       }
@@ -1619,13 +1786,16 @@
       }
 
       if (result.error) {
+        setDebugError(result.error.message);
         setStatus(result.error.message, "error");
         return;
       }
 
+      setDebugError("none");
       setStatus(`Saved ${payloads.length} day(s).`);
       await loadSavedEntries();
       await loadHistory();
+      await runDiagnostics();
     }
 
 
@@ -1731,6 +1901,7 @@
     }
 
     async function loadHistory() {
+      setDebugAction(`load history (${historyMonthsBack.value} months)`);
       const user = await getCurrentUser();
       if (!user) {
         historySummary.innerHTML = '';
@@ -1765,6 +1936,7 @@
     }
 
     async function loadSavedEntries() {
+      setDebugAction('load saved entries');
       const user = await getCurrentUser();
       if (!user) {
         savedList.innerHTML = `<div class="saved-row"><div class="saved-meta">No user session.</div></div>`;
@@ -1834,12 +2006,15 @@
         deleteBtn.onclick = async () => {
           const { error } = await sb.from("logs").delete().eq("id", entry.id);
           if (error) {
-            setStatus(error.message, "error");
+            setDebugError(error.message);
+        setStatus(error.message, "error");
             return;
           }
+          setDebugError("none");
           setStatus("Entry deleted.");
           await loadSavedEntries();
           await loadHistory();
+          await runDiagnostics();
         };
 
         actions.appendChild(loadBtn);
@@ -1911,6 +2086,7 @@
       persistTimer = window.setTimeout(() => {
         try {
           localStorage.setItem(DRAFT_KEY, JSON.stringify(collectDraftState()));
+          updateDebugDraftState();
         } catch (err) {
           console.warn("Draft save failed", err);
         }
@@ -1923,6 +2099,7 @@
         if (!raw) return;
         const draft = JSON.parse(raw);
         applyDraftState(draft);
+        updateDebugDraftState();
         setStatus("Restored browser draft.");
       } catch (err) {
         console.warn("Draft load failed", err);
@@ -1930,11 +2107,14 @@
     }
 
     function clearBrowserDraft() {
+      setDebugAction('clear browser draft');
       localStorage.removeItem(DRAFT_KEY);
+      updateDebugDraftState();
       setStatus("Browser draft cleared.");
     }
 
     function exportCsv() {
+      setDebugAction('export csv');
       const headers = ["log_date", "pilot_name", "period", "aircraft_name", "duty_start", "duty_stop", "duty", "flight_total", "route", "remarks"];
       const lines = [headers.join(",")];
 
@@ -1980,9 +2160,11 @@
     });
 
     sb.auth.onAuthStateChange(async () => {
+      setDebugAction("auth state changed");
       await refreshAuthState();
       await loadSavedEntries();
       await loadHistory();
+      await runDiagnostics();
     });
 
     dutyBtn.addEventListener("click", () => setMode("duty"));
@@ -1994,6 +2176,8 @@
     emailLoginBtn.addEventListener("click", sendMagicLink);
     signOutBtn.addEventListener("click", signOut);
     refreshHistoryBtn.addEventListener("click", loadHistory);
+    runDebugBtn.addEventListener("click", runDiagnostics);
+    clearDebugBtn.addEventListener("click", () => { debugLogEl.textContent = "debug log cleared"; setDebugError("none"); });
     historyMonthsBack.addEventListener("change", loadHistory);
     document.getElementById("pilotName").addEventListener("input", persistDraftSoon);
     logPeriodEl.addEventListener("input", persistDraftSoon);
@@ -2006,6 +2190,7 @@
     refreshAuthState();
     loadSavedEntries();
     loadHistory();
+    runDiagnostics();
   </script>
 </body>
 </html>
