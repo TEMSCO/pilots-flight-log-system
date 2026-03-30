@@ -492,6 +492,113 @@
     .saved-meta { font-size: 10px; line-height: 1.25; }
     .saved-actions { display: flex; gap: 4px; flex-wrap: wrap; }
 
+
+
+    .history-wrap {
+      margin-top: 10px;
+      border: 1.5px solid var(--line);
+      background: white;
+    }
+
+    .history-toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px;
+      border-bottom: 1px solid var(--soft-line);
+      background: #f8fafc;
+    }
+
+    .history-controls {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .history-select {
+      min-height: 30px;
+      border: 1px solid var(--soft-line);
+      padding: 5px 8px;
+      font-size: 11px;
+      background: white;
+    }
+
+    .history-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 8px;
+      padding: 8px;
+      border-bottom: 1px solid var(--soft-line);
+    }
+
+    .history-card {
+      border: 1px solid var(--soft-line);
+      background: var(--subtle);
+      padding: 8px;
+    }
+
+    .history-card .label {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: #475569;
+      margin-bottom: 4px;
+      font-weight: bold;
+    }
+
+    .history-card .value {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .history-month-group {
+      border-bottom: 1px solid var(--soft-line);
+      padding: 8px;
+    }
+
+    .history-month-group:last-child {
+      border-bottom: none;
+    }
+
+    .history-month-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .history-month-stats {
+      color: #334155;
+    }
+
+    .history-entry {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 7px;
+      border: 1px solid var(--soft-line);
+      margin-top: 6px;
+      background: white;
+    }
+
+    .history-entry-meta {
+      font-size: 10px;
+      line-height: 1.35;
+    }
+
+    .history-entry-actions {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
     @media print {
       body { background: white; padding: 0; }
       .sheet {
@@ -500,7 +607,7 @@
         box-shadow: none;
         padding: 0;
       }
-      .controls, .status, .saved-wrap, .top-panels, .summary-box { display: none; }
+      .controls, .status, .saved-wrap, .history-wrap, .top-panels, .summary-box { display: none; }
     }
 
     @media (max-width: 1100px) {
@@ -539,7 +646,7 @@
       <div class="sheet-title">
         <div class="company">TEMSCO HELICOPTERS INC.</div>
         <div class="form-title">Pilot's Flight & Duty Time Log</div>
-        <div class="note">Added email sign-in, browser autosave, weekly summary, duplicate-day upsert, and CSV export.</div>
+        <div class="note">Added email sign-in, browser autosave, weekly summary, duplicate-day upsert, CSV export, and a DB-backed history view.</div>
       </div>
 
       <div class="header-box">
@@ -640,6 +747,25 @@
       <div class="saved-title">Saved Entries</div>
       <div id="savedList"></div>
     </div>
+
+    <div class="history-wrap">
+      <div class="saved-title">History</div>
+      <div class="history-toolbar">
+        <div class="history-controls">
+          <label for="historyMonthsBack" style="font-size:11px;font-weight:bold;">Show</label>
+          <select id="historyMonthsBack" class="history-select">
+            <option value="1">Last 1 month</option>
+            <option value="3" selected>Last 3 months</option>
+            <option value="6">Last 6 months</option>
+            <option value="12">Last 12 months</option>
+          </select>
+          <button id="refreshHistoryBtn" class="secondary-btn" type="button">Refresh History</button>
+        </div>
+        <div class="tiny-note">Monthly totals are calculated from saved rows in Supabase for the signed-in pilot.</div>
+      </div>
+      <div id="historySummary" class="history-summary-grid"></div>
+      <div id="historyList"></div>
+    </div>
   </div>
 
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
@@ -684,6 +810,10 @@
     const selectedAircraftDisplay = document.getElementById("selectedAircraftDisplay");
     const statusEl = document.getElementById("status");
     const savedList = document.getElementById("savedList");
+    const historyList = document.getElementById("historyList");
+    const historySummary = document.getElementById("historySummary");
+    const historyMonthsBack = document.getElementById("historyMonthsBack");
+    const refreshHistoryBtn = document.getElementById("refreshHistoryBtn");
     const logPeriodEl = document.getElementById("logPeriod");
     const aircraftBar = document.getElementById("aircraftBar");
     const weekFlightEl = document.getElementById("weekFlight");
@@ -1483,6 +1613,7 @@
         if (!result.error) {
           setStatus("Saved core data, but optional DB columns are missing for metrics/marks/notes.", "warn");
           await loadSavedEntries();
+          await loadHistory();
           return;
         }
       }
@@ -1494,6 +1625,143 @@
 
       setStatus(`Saved ${payloads.length} day(s).`);
       await loadSavedEntries();
+      await loadHistory();
+    }
+
+
+    function formatDisplayMonth(ym) {
+      const [y, m] = ym.split("-").map(Number);
+      return new Date(y, (m || 1) - 1, 1).toLocaleString(undefined, { month: "long", year: "numeric" });
+    }
+
+    function formatHistoryDate(dateValue) {
+      if (!dateValue) return "-";
+      const d = new Date(`${dateValue}T00:00:00`);
+      if (Number.isNaN(d.getTime())) return formatDateForRow(dateValue);
+      return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+    }
+
+    function getHistoryStartDate(monthsBack) {
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+      d.setDate(1);
+      d.setMonth(d.getMonth() - (Number(monthsBack || 3) - 1));
+      return d.toISOString().slice(0, 10);
+    }
+
+    function renderHistorySummary(entries) {
+      const totals = entries.reduce((acc, entry) => {
+        acc.flight += Number(entry.flt1 || 0);
+        acc.duty += Number(entry.duty || 0);
+        acc.days += 1;
+        if (entry.log_date) acc.months.add(String(entry.log_date).slice(0, 7));
+        return acc;
+      }, { flight: 0, duty: 0, days: 0, months: new Set() });
+
+      historySummary.innerHTML = `
+        <div class="history-card"><div class="label">Saved Days</div><div class="value">${totals.days}</div></div>
+        <div class="history-card"><div class="label">Flight Hours</div><div class="value">${totals.flight.toFixed(1)}</div></div>
+        <div class="history-card"><div class="label">Duty Hours</div><div class="value">${totals.duty.toFixed(1)}</div></div>
+        <div class="history-card"><div class="label">Months Covered</div><div class="value">${totals.months.size}</div></div>
+      `;
+    }
+
+    function renderHistory(entries) {
+      if (!entries.length) {
+        renderHistorySummary([]);
+        historyList.innerHTML = `<div class="saved-row"><div class="saved-meta">No saved history in the selected date range.</div></div>`;
+        return;
+      }
+
+      renderHistorySummary(entries);
+      const grouped = new Map();
+      entries.forEach((entry) => {
+        const key = String(entry.log_date || "unknown").slice(0, 7);
+        if (!grouped.has(key)) grouped.set(key, []);
+        grouped.get(key).push(entry);
+      });
+
+      historyList.innerHTML = "";
+      Array.from(grouped.entries()).sort((a, b) => b[0].localeCompare(a[0])).forEach(([monthKey, monthEntries]) => {
+        const monthFlight = monthEntries.reduce((sum, entry) => sum + Number(entry.flt1 || 0), 0);
+        const monthDuty = monthEntries.reduce((sum, entry) => sum + Number(entry.duty || 0), 0);
+        const group = document.createElement("div");
+        group.className = "history-month-group";
+        group.innerHTML = `
+          <div class="history-month-header">
+            <div>${formatDisplayMonth(monthKey)}</div>
+            <div class="history-month-stats">${monthEntries.length} day(s) | FLT ${monthFlight.toFixed(1)} | DUTY ${monthDuty.toFixed(1)}</div>
+          </div>
+        `;
+
+        monthEntries.sort((a, b) => String(b.log_date).localeCompare(String(a.log_date))).forEach((entry) => {
+          const row = document.createElement("div");
+          row.className = "history-entry";
+          row.innerHTML = `
+            <div class="history-entry-meta">
+              <strong>${formatHistoryDate(entry.log_date)}</strong> |
+              A/C ${entry.aircraft_name || "-"} |
+              DUTY ${entry.duty_start || "--:--"}-${entry.duty_stop || "--:--"} |
+              DUTY ${Number(entry.duty || 0).toFixed(1)} |
+              FLT ${Number(entry.flt1 || 0).toFixed(1)}
+              ${entry.route ? `| ROUTE ${entry.route}` : ""}
+              ${entry.remarks ? `| ${entry.remarks}` : ""}
+            </div>
+            <div class="history-entry-actions"></div>
+          `;
+          const actions = row.querySelector('.history-entry-actions');
+          const loadBtn = document.createElement('button');
+          loadBtn.type = 'button';
+          loadBtn.className = 'load-btn';
+          loadBtn.textContent = 'Load to Day';
+          loadBtn.onclick = () => {
+            loadDayFromData(currentRowId, entry);
+            document.getElementById('pilotName').value = entry.pilot_name || '';
+            document.getElementById('logPeriod').value = entry.period || '';
+            computeWeeklySummary();
+            setStatus(`Loaded ${formatDateForRow(entry.log_date)} into day ${currentRowId}.`);
+          };
+          actions.appendChild(loadBtn);
+          row.appendChild(actions);
+          group.appendChild(row);
+        });
+
+        historyList.appendChild(group);
+      });
+    }
+
+    async function loadHistory() {
+      const user = await getCurrentUser();
+      if (!user) {
+        historySummary.innerHTML = '';
+        historyList.innerHTML = `<div class="saved-row"><div class="saved-meta">Sign in to view saved history.</div></div>`;
+        return;
+      }
+
+      const startDate = getHistoryStartDate(historyMonthsBack.value);
+      let query = await sb
+        .from('logs')
+        .select('id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, route, remarks, flight_blocks, flight_marks, duty_blocks, day_aircraft_metrics')
+        .eq('user_id', user.id)
+        .gte('log_date', startDate)
+        .order('log_date', { ascending: false });
+
+      if (query.error && /column .* does not exist|schema cache/i.test(query.error.message)) {
+        query = await sb
+          .from('logs')
+          .select('id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, route, remarks, flight_blocks, duty_blocks')
+          .eq('user_id', user.id)
+          .gte('log_date', startDate)
+          .order('log_date', { ascending: false });
+      }
+
+      if (query.error) {
+        historySummary.innerHTML = '';
+        historyList.innerHTML = `<div class="saved-row"><div class="saved-meta">${query.error.message}</div></div>`;
+        return;
+      }
+
+      renderHistory(query.data || []);
     }
 
     async function loadSavedEntries() {
@@ -1571,6 +1839,7 @@
           }
           setStatus("Entry deleted.");
           await loadSavedEntries();
+          await loadHistory();
         };
 
         actions.appendChild(loadBtn);
@@ -1713,6 +1982,7 @@
     sb.auth.onAuthStateChange(async () => {
       await refreshAuthState();
       await loadSavedEntries();
+      await loadHistory();
     });
 
     dutyBtn.addEventListener("click", () => setMode("duty"));
@@ -1723,6 +1993,8 @@
     clearDraftBtn.addEventListener("click", clearBrowserDraft);
     emailLoginBtn.addEventListener("click", sendMagicLink);
     signOutBtn.addEventListener("click", signOut);
+    refreshHistoryBtn.addEventListener("click", loadHistory);
+    historyMonthsBack.addEventListener("change", loadHistory);
     document.getElementById("pilotName").addEventListener("input", persistDraftSoon);
     logPeriodEl.addEventListener("input", persistDraftSoon);
 
@@ -1733,9 +2005,11 @@
     computeWeeklySummary();
     refreshAuthState();
     loadSavedEntries();
+    loadHistory();
   </script>
 </body>
 </html>
+
 
   
   
