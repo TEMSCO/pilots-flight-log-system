@@ -2,6 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TEMSCO Pilot Flight & Duty Time Log</title>
   <style>
     :root {
@@ -12,6 +13,13 @@
       --header: #e5e7eb;
       --subtle: #f8fafc;
       --duty: #facc15;
+      --ok: #065f46;
+      --ok-bg: #d1fae5;
+      --warn: #92400e;
+      --warn-bg: #fef3c7;
+      --info-bg: #e0e7ff;
+      --danger: #991b1b;
+      --danger-bg: #fee2e2;
     }
 
     * { box-sizing: border-box; }
@@ -64,9 +72,56 @@
       margin-top: 3px;
     }
 
-    .header-box {
+    .top-panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .panel,
+    .header-box,
+    .summary-box {
       border: 1px solid var(--line);
       background: white;
+    }
+
+    .panel-title,
+    .saved-title,
+    .summary-title {
+      background: var(--header);
+      border-bottom: 1px solid var(--line);
+      padding: 5px 7px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.2px;
+      font-size: 11px;
+    }
+
+    .panel-body {
+      padding: 8px;
+    }
+
+    .inline-grid {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .auth-help,
+    .tiny-note {
+      font-size: 10px;
+      line-height: 1.3;
+      color: #475569;
+      margin-top: 6px;
+    }
+
+    .auth-state {
+      margin-top: 6px;
+      font-size: 11px;
+      font-weight: bold;
+      min-height: 16px;
     }
 
     .header-box-row {
@@ -99,7 +154,8 @@
     .header-value input,
     .aircraft-chip input,
     .log-table input,
-    .log-table textarea {
+    .log-table textarea,
+    .panel input {
       width: 100%;
       height: 100%;
       border: none;
@@ -107,15 +163,25 @@
       font-family: Arial, sans-serif;
     }
 
-    .header-value input {
-      padding: 5px 6px;
+    .header-value input,
+    .panel input {
+      padding: 7px 8px;
       font-size: 11px;
+      border: 1px solid var(--soft-line);
+      background: white;
+      min-height: 30px;
+    }
+
+    .header-value input {
+      border: none;
+      min-height: auto;
     }
 
     .header-value input:focus,
     .aircraft-chip input:focus,
     .log-table input:focus,
-    .log-table textarea:focus {
+    .log-table textarea:focus,
+    .panel input:focus {
       outline: 1.5px solid #60a5fa;
       outline-offset: -1px;
     }
@@ -138,11 +204,18 @@
       font-size: 11px;
     }
 
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     .duty-btn { background: #fef3c7; }
     .clear-btn { background: #fee2e2; }
     .save-btn { background: #d1fae5; }
     .load-btn { background: #e0e7ff; }
     .delete-btn { background: #fee2e2; }
+    .auth-btn { background: #e0f2fe; }
+    .secondary-btn { background: #f8fafc; }
 
     .active { outline: 1.5px solid var(--line); }
 
@@ -365,20 +438,45 @@
       font-weight: bold;
     }
 
+    .status.ok { color: var(--ok); }
+    .status.warn { color: var(--warn); }
+    .status.error { color: var(--danger); }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      padding: 8px;
+    }
+
+    .summary-metric {
+      border: 1px solid var(--soft-line);
+      background: var(--subtle);
+      padding: 7px;
+      min-height: 52px;
+    }
+
+    .summary-metric .label {
+      font-size: 10px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #475569;
+      margin-bottom: 4px;
+    }
+
+    .summary-metric .value {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .summary-metric.warn {
+      background: var(--warn-bg);
+    }
+
     .saved-wrap {
       margin-top: 10px;
       border: 1.5px solid var(--line);
       background: white;
-    }
-
-    .saved-title {
-      background: var(--header);
-      border-bottom: 1px solid var(--line);
-      padding: 5px 7px;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 0.2px;
-      font-size: 11px;
     }
 
     .saved-row {
@@ -402,7 +500,7 @@
         box-shadow: none;
         padding: 0;
       }
-      .controls, .status, .saved-wrap { display: none; }
+      .controls, .status, .saved-wrap, .top-panels, .summary-box { display: none; }
     }
 
     @media (max-width: 1100px) {
@@ -412,6 +510,10 @@
       .aircraft-left-spacer,
       .aircraft-right-spacer {
         display: none;
+      }
+      .top-panels,
+      .summary-grid {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -425,6 +527,9 @@
       .aircraft-bar {
         grid-template-columns: repeat(2, 1fr);
       }
+      .inline-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -434,7 +539,7 @@
       <div class="sheet-title">
         <div class="company">TEMSCO HELICOPTERS INC.</div>
         <div class="form-title">Pilot's Flight & Duty Time Log</div>
-        <div class="note">Duty hour blocks restored. Top extra metric boxes removed. Stray extra row removed.</div>
+        <div class="note">Added email sign-in, browser autosave, weekly summary, duplicate-day upsert, and CSV export.</div>
       </div>
 
       <div class="header-box">
@@ -453,11 +558,38 @@
       </div>
     </div>
 
+    <div class="top-panels">
+      <div class="panel">
+        <div class="panel-title">Supabase Sign-In</div>
+        <div class="panel-body">
+          <div class="inline-grid">
+            <input id="authEmail" type="email" placeholder="pilot@temscoair.com" />
+            <button id="emailLoginBtn" class="auth-btn" type="button">Send Magic Link</button>
+            <button id="signOutBtn" class="secondary-btn" type="button">Sign Out</button>
+          </div>
+          <div id="authState" class="auth-state">Checking session...</div>
+          <div class="auth-help">Your original save flow required an existing session but had no login UI. This adds a simple email magic-link flow.</div>
+        </div>
+      </div>
+
+      <div class="summary-box">
+        <div class="summary-title">Weekly Summary</div>
+        <div class="summary-grid">
+          <div class="summary-metric"><div class="label">Flight</div><div id="weekFlight" class="value">0.0</div></div>
+          <div class="summary-metric"><div class="label">Duty</div><div id="weekDuty" class="value">0.0</div></div>
+          <div class="summary-metric"><div class="label">Days Used</div><div id="weekDays" class="value">0</div></div>
+          <div id="restMetric" class="summary-metric"><div class="label">Rest Alerts</div><div id="restAlerts" class="value">0</div></div>
+        </div>
+      </div>
+    </div>
+
     <div class="controls">
       <button id="dutyBtn" class="duty-btn" type="button">Duty Mode</button>
       <button id="clearSelectedBtn" class="clear-btn" type="button">Clear Selected Aircraft</button>
       <button id="saveAllBtn" class="save-btn" type="button">Save 7 Days</button>
       <button id="loadSavedBtn" class="load-btn" type="button">Load Saved Rows</button>
+      <button id="exportCsvBtn" class="secondary-btn" type="button">Export CSV</button>
+      <button id="clearDraftBtn" class="delete-btn" type="button">Clear Browser Draft</button>
     </div>
 
     <div class="mode-line">
@@ -492,7 +624,7 @@
             <th class="subhead">Stop</th>
             <th class="subhead">Duty</th>
             <th class="subhead">Type</th>
-            ${Array.from({length:48}, (_, i) => `<th class="subhead">${i % 2 === 0 ? i / 2 : ""}</th>`).join("")}
+            <th class="subhead" colspan="48" id="hourScaleHolder"></th>
             <th class="subhead">From/To</th>
             <th class="subhead">Total</th>
             <th class="subhead">Notes</th>
@@ -520,6 +652,7 @@
     const DAY_COUNT = 7;
     const AIRCRAFT_COUNT = 6;
     const tableBody = document.getElementById("tableBody");
+    const DRAFT_KEY = "temsco_pilot_log_draft_v2";
 
     const aircraftOptions = [
       { id: "md500", label: "MD500", color: "#22c55e" },
@@ -540,6 +673,12 @@
     const clearSelectedBtn = document.getElementById("clearSelectedBtn");
     const saveAllBtn = document.getElementById("saveAllBtn");
     const loadSavedBtn = document.getElementById("loadSavedBtn");
+    const exportCsvBtn = document.getElementById("exportCsvBtn");
+    const clearDraftBtn = document.getElementById("clearDraftBtn");
+    const emailLoginBtn = document.getElementById("emailLoginBtn");
+    const signOutBtn = document.getElementById("signOutBtn");
+    const authEmail = document.getElementById("authEmail");
+    const authState = document.getElementById("authState");
     const modeDisplay = document.getElementById("modeDisplay");
     const currentRowDisplay = document.getElementById("currentRowDisplay");
     const selectedAircraftDisplay = document.getElementById("selectedAircraftDisplay");
@@ -547,6 +686,18 @@
     const savedList = document.getElementById("savedList");
     const logPeriodEl = document.getElementById("logPeriod");
     const aircraftBar = document.getElementById("aircraftBar");
+    const weekFlightEl = document.getElementById("weekFlight");
+    const weekDutyEl = document.getElementById("weekDuty");
+    const weekDaysEl = document.getElementById("weekDays");
+    const restAlertsEl = document.getElementById("restAlerts");
+    const restMetricEl = document.getElementById("restMetric");
+
+    document.getElementById("hourScaleHolder").innerHTML = Array.from({ length: 48 }, (_, i) => `<span style="display:inline-block;width:${100/48}%">${i % 2 === 0 ? i / 2 : ""}</span>`).join("");
+
+    function setStatus(message, tone = "ok") {
+      statusEl.textContent = message;
+      statusEl.className = `status ${tone}`;
+    }
 
     function getAircraftLabel(index) {
       const input = document.querySelector(`.aircraft-chip[data-aircraft-index="${index}"] input`);
@@ -578,6 +729,7 @@
         chip.classList.toggle("selected", index === selectedAircraftIndex);
       });
       updateSelectedAircraftDisplay();
+      persistDraftSoon();
     }
 
     function setMode(newMode) {
@@ -601,6 +753,13 @@
       const hours = Math.floor(blockIndex / 2);
       const minutes = blockIndex % 2 === 0 ? "00" : "30";
       return `${String(hours).padStart(2, "0")}:${minutes}`;
+    }
+
+    function timeToMinutes(text) {
+      if (!text || text === "--:--") return null;
+      const [h, m] = text.split(":").map(Number);
+      if (Number.isNaN(h) || Number.isNaN(m)) return null;
+      return h * 60 + m;
     }
 
     function formatDateForRow(dateValue) {
@@ -661,7 +820,10 @@
           refreshAircraftSelection();
           setMode("flight");
         });
-        input.addEventListener("input", updateSelectedAircraftDisplay);
+        input.addEventListener("input", () => {
+          updateSelectedAircraftDisplay();
+          persistDraftSoon();
+        });
 
         chip.addEventListener("click", (e) => {
           if (e.target !== input) {
@@ -694,6 +856,41 @@
       });
     }
 
+    function computeWeeklySummary() {
+      let flight = 0;
+      let duty = 0;
+      let days = 0;
+      let restAlerts = 0;
+      let previousDutyStop = null;
+
+      for (let dayId = 1; dayId <= DAY_COUNT; dayId++) {
+        const dayFlight = Number(getReadout(dayId, "flightTotal")?.textContent || 0);
+        const dayDuty = Number(getReadout(dayId, "dutyTotal")?.textContent || 0);
+        const dutyStart = getReadout(dayId, "dutyStart")?.textContent || "--:--";
+        const dutyStop = getReadout(dayId, "dutyStop")?.textContent || "--:--";
+
+        flight += dayFlight;
+        duty += dayDuty;
+        if (dayFlight > 0 || dayDuty > 0 || (getInput(dayId, "logDate")?.value || "").trim()) days += 1;
+
+        const currentStart = timeToMinutes(dutyStart);
+        if (previousDutyStop !== null && currentStart !== null) {
+          let gap = currentStart - previousDutyStop;
+          if (gap < 0) gap += 24 * 60;
+          if (gap < 600) restAlerts += 1;
+        }
+
+        const currentStop = timeToMinutes(dutyStop);
+        previousDutyStop = currentStop;
+      }
+
+      weekFlightEl.textContent = flight.toFixed(1);
+      weekDutyEl.textContent = duty.toFixed(1);
+      weekDaysEl.textContent = String(days);
+      restAlertsEl.textContent = String(restAlerts);
+      restMetricEl.classList.toggle("warn", restAlerts > 0);
+    }
+
     function updateTotals(dayId) {
       let flight = 0;
       let duty = 0;
@@ -720,6 +917,8 @@
       getReadout(dayId, "flightTotal").textContent = flight.toFixed(1);
 
       updateDayAircraftPicTotals(dayId);
+      computeWeeklySummary();
+      persistDraftSoon();
     }
 
     function clearDutyOnly(dayId) {
@@ -746,10 +945,10 @@
     function clearSelectedModeForCurrentRow() {
       if (mode === "flight") {
         clearSelectedAircraftOnly(currentRowId);
-        statusEl.textContent = `Day ${currentRowId}: cleared ${getAircraftLabel(selectedAircraftIndex)} only.`;
+        setStatus(`Day ${currentRowId}: cleared ${getAircraftLabel(selectedAircraftIndex)} only.`);
       } else {
         clearDutyOnly(currentRowId);
-        statusEl.textContent = `Day ${currentRowId}: duty row cleared.`;
+        setStatus(`Day ${currentRowId}: duty row cleared.`);
       }
     }
 
@@ -762,7 +961,7 @@
         clearDutyOnly(dayId);
         state.dutyStartBlock = block;
         cell.classList.add("pending");
-        statusEl.textContent = `Day ${dayId}: duty start set. Click stop time.`;
+        setStatus(`Day ${dayId}: duty start set. Click stop time.`, "warn");
         return;
       }
 
@@ -780,7 +979,7 @@
 
       state.dutyStartBlock = null;
       updateTotals(dayId);
-      statusEl.textContent = `Day ${dayId}: duty range filled.`;
+      setStatus(`Day ${dayId}: duty range filled.`);
     }
 
     function paintFlight(tenth) {
@@ -813,6 +1012,13 @@
             <div class="lbl">${labelText}</div>
             <div class="val"><input type="text" ${inputAttrs}></div>
           `;
+
+          const input = box.querySelector("input");
+          if (metric !== "pic") {
+            input.addEventListener("input", persistDraftSoon);
+            input.addEventListener("focus", () => setCurrentRow(dayId));
+          }
+
           group.appendChild(box);
         });
 
@@ -903,14 +1109,18 @@
         input.dataset.dayId = dayId;
         input.dataset.key = key;
         input.addEventListener("focus", () => setCurrentRow(dayId));
+        input.addEventListener("input", () => {
+          if (key === "logDate") {
+            autoFormatMMDDInput(input);
+            updatePeriodFromRows();
+          }
+          persistDraftSoon();
+          computeWeeklySummary();
+        });
 
         if (key === "logDate") {
           input.maxLength = 5;
           input.placeholder = "MM/DD";
-          input.addEventListener("input", () => {
-            autoFormatMMDDInput(input);
-            updatePeriodFromRows();
-          });
         }
 
         td.appendChild(input);
@@ -985,6 +1195,7 @@
       for (let day = 1; day <= DAY_COUNT; day++) addDayRows(day);
       setCurrentRow(1);
       setMode("flight");
+      computeWeeklySummary();
     }
 
     function getDayAircraftMetrics(dayId) {
@@ -1001,6 +1212,7 @@
         if (night) night.value = data?.[idx]?.night || "";
         if (trng) trng.value = data?.[idx]?.trng || "";
       });
+      persistDraftSoon();
     }
 
     function clearEntireDay(dayId) {
@@ -1019,6 +1231,7 @@
       setDayAircraftMetrics(dayId, null);
       updateTotals(dayId);
       updatePeriodFromRows();
+      persistDraftSoon();
     }
 
     function applyFlightMarksToDay(dayId, flightMarks, fallbackBlocks) {
@@ -1091,12 +1304,49 @@
 
       updateTotals(dayId);
       updatePeriodFromRows();
+      persistDraftSoon();
     }
 
     async function getCurrentUser() {
       const { data, error } = await sb.auth.getSession();
       if (error) return null;
       return data.session?.user ?? null;
+    }
+
+    async function refreshAuthState() {
+      const user = await getCurrentUser();
+      if (user?.email) {
+        authState.textContent = `Signed in as ${user.email}`;
+        authState.style.color = "var(--ok)";
+      } else {
+        authState.textContent = "Not signed in.";
+        authState.style.color = "var(--danger)";
+      }
+    }
+
+    async function sendMagicLink() {
+      const email = authEmail.value.trim();
+      if (!email) {
+        setStatus("Enter an email address first.", "warn");
+        return;
+      }
+      const redirectTo = window.location.href.split("#")[0];
+      const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo } });
+      if (error) {
+        setStatus(error.message, "error");
+        return;
+      }
+      setStatus(`Magic link sent to ${email}.`, "ok");
+    }
+
+    async function signOut() {
+      const { error } = await sb.auth.signOut();
+      if (error) {
+        setStatus(error.message, "error");
+        return;
+      }
+      await refreshAuthState();
+      setStatus("Signed out.", "ok");
     }
 
     function getFlightBlocks(dayId) {
@@ -1144,6 +1394,7 @@
       const pilotName = document.getElementById("pilotName").value.trim();
       const logPeriod = document.getElementById("logPeriod").value.trim();
       const payloads = [];
+      const seenDates = new Set();
 
       for (let dayId = 1; dayId <= DAY_COUNT; dayId++) {
         const logDateRaw = getInput(dayId, "logDate")?.value.trim() || "";
@@ -1165,13 +1416,19 @@
           throw new Error(`Day ${dayId}: duty exceeds 14 hours.`);
         }
 
+        const storedDate = buildStoredDate(logDateRaw, logPeriod);
+        if (seenDates.has(storedDate)) {
+          throw new Error(`Duplicate date entered: ${logDateRaw}.`);
+        }
+        seenDates.add(storedDate);
+
         const usedAircraft = getUsedAircraftNames(dayId);
         if (flightTotal > 0 && usedAircraft.length === 0) {
           throw new Error(`Day ${dayId}: select an aircraft and paint flight time.`);
         }
 
         payloads.push({
-          log_date: buildStoredDate(logDateRaw, logPeriod),
+          log_date: storedDate,
           aircraft_name: usedAircraft.join(", ") || null,
           flight_blocks: getFlightBlocks(dayId),
           flight_marks: getFlightMarks(dayId),
@@ -1200,10 +1457,9 @@
     }
 
     async function saveAllRows() {
-      statusEl.textContent = "";
       const user = await getCurrentUser();
       if (!user) {
-        statusEl.textContent = "Not logged in. Please sign in first.";
+        setStatus("Not logged in. Please use the magic-link sign-in first.", "warn");
         return;
       }
 
@@ -1211,32 +1467,32 @@
       try {
         payloads = collectPayloads(user.id);
       } catch (err) {
-        statusEl.textContent = err.message;
+        setStatus(err.message, "error");
         return;
       }
 
       if (payloads.length === 0) {
-        statusEl.textContent = "No filled days to save.";
+        setStatus("No filled days to save.", "warn");
         return;
       }
 
-      let result = await sb.from("logs").insert(payloads);
+      let result = await sb.from("logs").upsert(payloads, { onConflict: "user_id,log_date" });
 
       if (result.error && /column .* does not exist|schema cache/i.test(result.error.message)) {
-        result = await sb.from("logs").insert(stripOptionalFields(payloads));
+        result = await sb.from("logs").upsert(stripOptionalFields(payloads), { onConflict: "user_id,log_date" });
         if (!result.error) {
-          statusEl.textContent = "Saved core data, but day_aircraft_metrics / flight_marks are not persisting because optional DB columns are missing.";
+          setStatus("Saved core data, but optional DB columns are missing for metrics/marks/notes.", "warn");
           await loadSavedEntries();
           return;
         }
       }
 
       if (result.error) {
-        statusEl.textContent = result.error.message;
+        setStatus(result.error.message, "error");
         return;
       }
 
-      statusEl.textContent = `Saved ${payloads.length} day(s).`;
+      setStatus(`Saved ${payloads.length} day(s).`);
       await loadSavedEntries();
     }
 
@@ -1251,14 +1507,14 @@
         .from("logs")
         .select("id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, route, remarks, flight_blocks, flight_marks, duty_blocks, day_aircraft_metrics")
         .eq("user_id", user.id)
-        .order("id", { ascending: false });
+        .order("log_date", { ascending: false });
 
       if (query.error && /column .* does not exist|schema cache/i.test(query.error.message)) {
         query = await sb
           .from("logs")
           .select("id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, route, remarks, flight_blocks, duty_blocks")
           .eq("user_id", user.id)
-          .order("id", { ascending: false });
+          .order("log_date", { ascending: false });
       }
 
       if (query.error) {
@@ -1273,7 +1529,7 @@
       }
 
       savedList.innerHTML = "";
-      data.slice(0, 14).forEach((entry) => {
+      data.slice(0, 21).forEach((entry) => {
         const row = document.createElement("div");
         row.className = "saved-row";
         row.innerHTML = `
@@ -1299,7 +1555,8 @@
           loadDayFromData(currentRowId, entry);
           document.getElementById("pilotName").value = entry.pilot_name || "";
           document.getElementById("logPeriod").value = entry.period || "";
-          statusEl.textContent = `Loaded saved entry into day ${currentRowId}.`;
+          computeWeeklySummary();
+          setStatus(`Loaded saved entry into day ${currentRowId}.`);
         };
 
         const deleteBtn = document.createElement("button");
@@ -1309,10 +1566,10 @@
         deleteBtn.onclick = async () => {
           const { error } = await sb.from("logs").delete().eq("id", entry.id);
           if (error) {
-            statusEl.textContent = error.message;
+            setStatus(error.message, "error");
             return;
           }
-          statusEl.textContent = "Entry deleted.";
+          setStatus("Entry deleted.");
           await loadSavedEntries();
         };
 
@@ -1323,22 +1580,163 @@
       });
     }
 
+    function collectDraftState() {
+      return {
+        pilotName: document.getElementById("pilotName").value,
+        logPeriod: document.getElementById("logPeriod").value,
+        selectedAircraftIndex,
+        aircraftLabels: aircraftOptions.map((_, index) => getAircraftLabel(index)),
+        days: Array.from({ length: DAY_COUNT }, (_, idx) => {
+          const dayId = idx + 1;
+          return {
+            logDate: getInput(dayId, "logDate")?.value || "",
+            route: getInput(dayId, "route")?.value || "",
+            remarks: getInput(dayId, "remarks")?.value || "",
+            flightMarks: getFlightMarks(dayId),
+            dutyBlocks: getDutyBlocks(dayId),
+            metrics: getDayAircraftMetrics(dayId)
+          };
+        })
+      };
+    }
+
+    function applyDraftState(draft) {
+      if (!draft) return;
+      document.getElementById("pilotName").value = draft.pilotName || "";
+      document.getElementById("logPeriod").value = draft.logPeriod || "";
+
+      (draft.aircraftLabels || []).forEach((label, index) => {
+        const input = document.querySelector(`.aircraft-chip[data-aircraft-index="${index}"] input`);
+        if (input && label) input.value = label;
+      });
+
+      if (Number.isInteger(draft.selectedAircraftIndex)) {
+        selectedAircraftIndex = Math.max(0, Math.min(AIRCRAFT_COUNT - 1, draft.selectedAircraftIndex));
+      }
+      refreshAircraftSelection();
+
+      (draft.days || []).forEach((day, idx) => {
+        const dayId = idx + 1;
+        if (getInput(dayId, "logDate")) getInput(dayId, "logDate").value = day.logDate || "";
+        if (getInput(dayId, "route")) getInput(dayId, "route").value = day.route || "";
+        if (getInput(dayId, "remarks")) getInput(dayId, "remarks").value = day.remarks || "";
+        setDayAircraftMetrics(dayId, day.metrics || null);
+        applyFlightMarksToDay(dayId, day.flightMarks || [], null);
+        clearDutyOnly(dayId);
+        (day.dutyBlocks || []).forEach((value, blockIndex) => {
+          if (Number(value) > 0) {
+            const cell = document.querySelector(`.duty-block[data-day-id="${dayId}"][data-block="${blockIndex}"]`);
+            if (cell) cell.classList.add("on");
+          }
+        });
+        updateTotals(dayId);
+      });
+
+      updatePeriodFromRows();
+      computeWeeklySummary();
+    }
+
+    let persistTimer = null;
+    function persistDraftSoon() {
+      window.clearTimeout(persistTimer);
+      persistTimer = window.setTimeout(() => {
+        try {
+          localStorage.setItem(DRAFT_KEY, JSON.stringify(collectDraftState()));
+        } catch (err) {
+          console.warn("Draft save failed", err);
+        }
+      }, 120);
+    }
+
+    function loadBrowserDraft() {
+      try {
+        const raw = localStorage.getItem(DRAFT_KEY);
+        if (!raw) return;
+        const draft = JSON.parse(raw);
+        applyDraftState(draft);
+        setStatus("Restored browser draft.");
+      } catch (err) {
+        console.warn("Draft load failed", err);
+      }
+    }
+
+    function clearBrowserDraft() {
+      localStorage.removeItem(DRAFT_KEY);
+      setStatus("Browser draft cleared.");
+    }
+
+    function exportCsv() {
+      const headers = ["log_date", "pilot_name", "period", "aircraft_name", "duty_start", "duty_stop", "duty", "flight_total", "route", "remarks"];
+      const lines = [headers.join(",")];
+
+      for (let dayId = 1; dayId <= DAY_COUNT; dayId++) {
+        const logDateRaw = getInput(dayId, "logDate")?.value.trim() || "";
+        const route = getInput(dayId, "route")?.value.trim() || "";
+        const remarks = getInput(dayId, "remarks")?.value.trim() || "";
+        const flightTotal = getReadout(dayId, "flightTotal")?.textContent || "0.0";
+        const dutyTotal = getReadout(dayId, "dutyTotal")?.textContent || "0.0";
+        const hasAnyData = logDateRaw || route || remarks || Number(flightTotal) > 0 || Number(dutyTotal) > 0;
+        if (!hasAnyData) continue;
+
+        const row = [
+          buildStoredDate(logDateRaw, logPeriodEl.value),
+          document.getElementById("pilotName").value.trim(),
+          logPeriodEl.value.trim(),
+          getUsedAircraftNames(dayId).join("; "),
+          getReadout(dayId, "dutyStart")?.textContent || "",
+          getReadout(dayId, "dutyStop")?.textContent || "",
+          dutyTotal,
+          flightTotal,
+          route,
+          remarks
+        ].map(value => `"${String(value || "").replaceAll('"', '""')}"`);
+
+        lines.push(row.join(","));
+      }
+
+      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `pilot_log_${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      setStatus("CSV exported.");
+    }
+
     document.addEventListener("mouseup", () => {
       isDrawing = false;
+    });
+
+    sb.auth.onAuthStateChange(async () => {
+      await refreshAuthState();
+      await loadSavedEntries();
     });
 
     dutyBtn.addEventListener("click", () => setMode("duty"));
     clearSelectedBtn.addEventListener("click", clearSelectedModeForCurrentRow);
     saveAllBtn.addEventListener("click", saveAllRows);
     loadSavedBtn.addEventListener("click", loadSavedEntries);
+    exportCsvBtn.addEventListener("click", exportCsv);
+    clearDraftBtn.addEventListener("click", clearBrowserDraft);
+    emailLoginBtn.addEventListener("click", sendMagicLink);
+    signOutBtn.addEventListener("click", signOut);
+    document.getElementById("pilotName").addEventListener("input", persistDraftSoon);
+    logPeriodEl.addEventListener("input", persistDraftSoon);
 
     buildAircraftBar();
     buildTable();
+    loadBrowserDraft();
     updatePeriodFromRows();
+    computeWeeklySummary();
+    refreshAuthState();
     loadSavedEntries();
   </script>
 </body>
 </html>
+
   
   
    
