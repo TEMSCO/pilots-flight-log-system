@@ -33,7 +33,7 @@
     }
 
     .sheet {
-      max-width: 1500px;
+      max-width: 1380px;
       margin: 0 auto;
       background: var(--paper);
       border: 1.5px solid var(--line);
@@ -275,7 +275,7 @@
 
     .aircraft-layout {
       display: grid;
-      grid-template-columns: 204px 1fr 170px;
+      grid-template-columns: 204px 1fr 188px;
       gap: 0;
       margin-bottom: 6px;
       align-items: start;
@@ -288,8 +288,10 @@
 
     .aircraft-bar {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(6, minmax(0, 1fr));
       gap: 3px;
+      width: 100%;
+      align-items: stretch;
     }
 
     .aircraft-chip {
@@ -322,7 +324,7 @@
 
     .log-table {
       width: 100%;
-      min-width: 1160px;
+      min-width: 1260px;
       border-collapse: collapse;
       table-layout: fixed;
       font-size: 8px;
@@ -334,6 +336,7 @@
       padding: 0;
       text-align: center;
       vertical-align: middle;
+      min-height: 18px;
     }
 
     .log-table th {
@@ -350,45 +353,6 @@
       font-size: 7px;
     }
 
-    #hourScaleHolder {
-      padding: 0;
-      background: var(--subtle);
-    }
-
-    .route-slash-cell {
-      position: relative;
-      background:
-        linear-gradient(to bottom right,
-          transparent calc(50% - 0.8px),
-          var(--line) calc(50% - 0.8px),
-          var(--line) calc(50% + 0.8px),
-          transparent calc(50% + 0.8px));
-      min-width: 54px;
-    }
-
-    .route-slash-content {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      grid-template-rows: 1fr 1fr;
-      pointer-events: none;
-    }
-
-    .route-slash-top,
-    .route-slash-bottom {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 8px;
-      font-weight: bold;
-      line-height: 1;
-      background: rgba(255,255,255,0.7);
-    }
-
-    .route-slash-top {
-      border-bottom: 1px solid transparent;
-    }
-
     .daycell { width: 44px; }
     .smallcol { width: 40px; }
     .labelcol { width: 40px; background: var(--subtle); font-weight: bold; }
@@ -396,29 +360,63 @@
     .flttotalcol { width: 44px; }
     .remarkscol { width: 90px; }
 
-    .rowspan-input input,
-    .rowspan-input textarea {
-      width: 100%;
-      height: 100%;
-      font-size: 8px;
-      text-align: center;
-      padding: 1px 2px;
+    .log-table .daycell,
+    .log-table .smallcol,
+    .log-table .labelcol,
+    .log-table .routecol,
+    .log-table .flttotalcol,
+    .log-table .remarkscol {
+      min-width: unset;
+      max-width: unset;
     }
 
-    .rowspan-input textarea {
-      resize: none;
-      line-height: 1.1;
-      padding: 2px 3px;
+
+    #tableBody tr {
+      height: 18px;
     }
 
-    .readout {
-      font-weight: bold;
-      font-size: 8px;
-    }
 
     .timeline-cell,
     .metrics-band-cell {
       padding: 0;
+    }
+
+    .labelcol-cell {
+      background: var(--subtle);
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .flight-block {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      min-width: 0;
+      height: 18px;
+      border-right: 1px solid #94a3b8;
+      background: white;
+    }
+
+    .flight-block:last-child {
+      border-right: none;
+    }
+
+    .metrics-band-cell .day-aircraft-band,
+    .timeline-cell .flight-grid,
+    .timeline-cell .duty-grid {
+      width: 100%;
+    }
+
+    .route-slash-cell {
+      position: relative;
+      min-width: 54px;
+      background:
+        linear-gradient(to bottom right,
+          transparent 48.5%,
+          var(--line) 49%,
+          var(--line) 51%,
+          transparent 51.5%);
     }
 
     .flight-grid,
@@ -427,20 +425,8 @@
       grid-template-columns: repeat(48, 1fr);
       height: 18px;
       width: 100%;
-    }
-
-    .flight-block {
       position: relative;
-      border-right: 1px solid #94a3b8;
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      min-width: 0;
-      height: 18px;
-    }
-
-    .flight-block:last-child,
-    .duty-block:last-child {
-      border-right: none;
+      overflow: hidden;
     }
 
     .flight-hour-label,
@@ -738,16 +724,45 @@
       }
 
       .aircraft-layout {
+        grid-template-columns: 204px 1fr 170px !important;
         margin-bottom: 4px;
+      }
+
+      .aircraft-bar {
+        grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+        gap: 3px !important;
       }
 
       .aircraft-chip {
         min-height: 20px;
+        height: 20px;
+      }
+
+      .aircraft-layout {
+        grid-template-columns: 204px 1fr 170px;
+      }
+
+      .aircraft-left-spacer,
+      .aircraft-right-spacer {
+        display: block;
+      }
+
+      .aircraft-bar {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 2px;
+        width: 100%;
+      }
+
+      .aircraft-chip {
+        min-height: 18px;
+        width: 100%;
       }
 
       .aircraft-chip input {
         font-size: 7px;
         padding: 2px 1px;
+        line-height: 1;
+        white-space: nowrap;
       }
 
       .table-wrap {
@@ -861,14 +876,20 @@
       <div class="sheet-title">
         <div class="company">TEMSCO HELICOPTERS INC.</div>
         <div class="form-title">Pilot's Flight & Duty Time Log</div>
-        <div class="note">Added email sign-in, browser autosave, weekly summary, duplicate-day upsert, CSV export, DB-backed history, visible hour scale labels, and letter-landscape print tuning.</div>
+        <div class="note">v12 cleaned layout: cert field added, (133)/(class) header restored, route column slashed, hour labels inside daily timelines, FLT/DUTY rows restored, aircraft bar aligned to FLT/DUTY timeline edges, and print sizing locked for 8.5 x 11 landscape.</div>
       </div>
 
       <div class="header-box">
         <div class="header-box-row">
           <div class="header-label">PILOT NAME</div>
           <div class="header-value">
-            <input id="pilotName" type="text" placeholder="Pilot name" />
+            <div class="header-value-split">
+              <input id="pilotName" type="text" placeholder="Pilot name" />
+              <div class="cert-field">
+                <div class="cert-label">CERT #</div>
+                <input id="certificateNumber" type="text" placeholder="Number" />
+              </div>
+            </div>
           </div>
         </div>
         <div class="header-box-row">
@@ -959,7 +980,7 @@
             <th class="smallcol">DUTY</th>
             <th class="labelcol">ROW</th>
             <th colspan="48">TIME</th>
-            <th class="routecol"></th>
+            <th class="routecol">(133)</th>
             <th class="flttotalcol">FLT</th>
             <th class="remarkscol">REMARKS</th>
           </tr>
@@ -969,8 +990,8 @@
             <th class="subhead">Stop</th>
             <th class="subhead">Duty</th>
             <th class="subhead">Type</th>
-            <th class="subhead" colspan="48" id="hourScaleHolder"></th>
-            <th class="subhead"></th>
+            <th class="subhead" colspan="48"></th>
+            <th class="subhead">(class)</th>
             <th class="subhead">Total</th>
             <th class="subhead">Notes</th>
           </tr>
@@ -1070,7 +1091,6 @@
     const runDebugBtn = document.getElementById("runDebugBtn");
     const clearDebugBtn = document.getElementById("clearDebugBtn");
 
-    document.getElementById("hourScaleHolder").innerHTML = "";
 
     function setStatus(message, tone = "ok") {
       statusEl.textContent = message;
@@ -1106,7 +1126,7 @@
           return;
         }
         const draft = JSON.parse(raw);
-        const usedDays = Array.isArray(draft.days) ? draft.days.filter(day => day && (day.logDate || day.route || day.remarks || (day.flightMarks || []).flat().some(v => v !== null) || (day.dutyBlocks || []).some(v => Number(v) > 0))).length : 0;
+        const usedDays = Array.isArray(draft.days) ? draft.days.filter(day => day && (day.logDate || day.remarks || (day.flightMarks || []).flat().some(v => v !== null) || (day.dutyBlocks || []).some(v => Number(v) > 0))).length : 0;
         debugDraftState.textContent = `draft present (${usedDays} day(s))`;
       } catch (err) {
         debugDraftState.textContent = `draft unreadable: ${err.message}`;
@@ -1564,17 +1584,6 @@
       td.className = "routecol route-slash-cell";
       td.dataset.dayId = dayId;
       td.dataset.key = "route";
-
-      if (dayId === 1) {
-        const content = document.createElement("div");
-        content.className = "route-slash-content";
-        content.innerHTML = `
-          <div class="route-slash-top">(133)</div>
-          <div class="route-slash-bottom">(class)</div>
-        `;
-        td.appendChild(content);
-      }
-
       return td;
     }
 
@@ -1678,7 +1687,7 @@
     }
 
     function buildTable() {
-      tableBody.innerHTML = "";
+      tableBody.replaceChildren();
       for (let day = 1; day <= DAY_COUNT; day++) addDayRows(day);
       setCurrentRow(1);
       setMode("flight");
@@ -2223,6 +2232,7 @@
     function collectDraftState() {
       return {
         pilotName: document.getElementById("pilotName").value,
+        certificateNumber: document.getElementById("certificateNumber").value,
         logPeriod: document.getElementById("logPeriod").value,
         selectedAircraftIndex,
         aircraftLabels: aircraftOptions.map((_, index) => getAircraftLabel(index)),
@@ -2243,6 +2253,7 @@
     function applyDraftState(draft) {
       if (!draft) return;
       document.getElementById("pilotName").value = draft.pilotName || "";
+      document.getElementById("certificateNumber").value = draft.certificateNumber || "";
       document.getElementById("logPeriod").value = draft.logPeriod || "";
 
       (draft.aircraftLabels || []).forEach((label, index) => {
@@ -2378,15 +2389,21 @@
     document.getElementById("pilotName").addEventListener("input", persistDraftSoon);
     logPeriodEl.addEventListener("input", persistDraftSoon);
 
-    buildAircraftBar();
-    buildTable();
-    loadBrowserDraft();
-    updatePeriodFromRows();
-    computeWeeklySummary();
-    refreshAuthState();
-    loadSavedEntries();
-    loadHistory();
-    runDiagnostics();
+    try {
+      buildAircraftBar();
+      buildTable();
+      loadBrowserDraft();
+      updatePeriodFromRows();
+      computeWeeklySummary();
+      refreshAuthState();
+      loadSavedEntries();
+      loadHistory();
+      runDiagnostics();
+    } catch (err) {
+      console.error("App bootstrap failed", err);
+      statusEl.textContent = "App load error: " + err.message;
+      appendDebugLog("bootstrap error: " + err.message);
+    }
   </script>
 </body>
 </html>
