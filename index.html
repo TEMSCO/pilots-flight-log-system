@@ -352,30 +352,41 @@
 
     #hourScaleHolder {
       padding: 0;
-    }
-
-    .hour-scale {
-      display: grid;
-      grid-template-columns: repeat(24, minmax(0, 1fr));
-      width: 100%;
-      height: 100%;
-      align-items: stretch;
       background: var(--subtle);
     }
 
-    .hour-scale-cell {
+    .route-slash-cell {
+      position: relative;
+      background:
+        linear-gradient(to bottom right,
+          transparent calc(50% - 0.8px),
+          var(--line) calc(50% - 0.8px),
+          var(--line) calc(50% + 0.8px),
+          transparent calc(50% + 0.8px));
+      min-width: 54px;
+    }
+
+    .route-slash-content {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      pointer-events: none;
+    }
+
+    .route-slash-top,
+    .route-slash-bottom {
       display: flex;
       align-items: center;
       justify-content: center;
-      min-width: 0;
-      font-size: 7px;
+      font-size: 8px;
+      font-weight: bold;
       line-height: 1;
-      border-right: 1px solid #94a3b8;
-      color: var(--ink);
+      background: rgba(255,255,255,0.7);
     }
 
-    .hour-scale-cell:last-child {
-      border-right: none;
+    .route-slash-top {
+      border-bottom: 1px solid transparent;
     }
 
     .daycell { width: 44px; }
@@ -419,6 +430,7 @@
     }
 
     .flight-block {
+      position: relative;
       border-right: 1px solid #94a3b8;
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -431,7 +443,24 @@
       border-right: none;
     }
 
+    .flight-hour-label,
+    .duty-hour-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 7px;
+      font-weight: bold;
+      line-height: 1;
+      color: #475569;
+      pointer-events: none;
+      user-select: none;
+    }
+
     .tenth {
+      position: relative;
+      z-index: 1;
       border-right: 1px solid #d1d5db;
       cursor: pointer;
       min-height: 18px;
@@ -441,6 +470,7 @@
     .tenth:last-child { border-right: none; }
 
     .duty-block {
+      position: relative;
       border-right: 1px solid #94a3b8;
       min-height: 18px;
       background: white;
@@ -929,7 +959,7 @@
             <th class="smallcol">DUTY</th>
             <th class="labelcol">ROW</th>
             <th colspan="48">TIME</th>
-            <th class="routecol">ROUTE</th>
+            <th class="routecol"></th>
             <th class="flttotalcol">FLT</th>
             <th class="remarkscol">REMARKS</th>
           </tr>
@@ -940,7 +970,7 @@
             <th class="subhead">Duty</th>
             <th class="subhead">Type</th>
             <th class="subhead" colspan="48" id="hourScaleHolder"></th>
-            <th class="subhead">From/To</th>
+            <th class="subhead"></th>
             <th class="subhead">Total</th>
             <th class="subhead">Notes</th>
           </tr>
@@ -1040,7 +1070,7 @@
     const runDebugBtn = document.getElementById("runDebugBtn");
     const clearDebugBtn = document.getElementById("clearDebugBtn");
 
-    document.getElementById("hourScaleHolder").innerHTML = `<div class="hour-scale">${Array.from({ length: 24 }, (_, i) => `<span class="hour-scale-cell">${i}</span>`).join("")}</div>`;
+    document.getElementById("hourScaleHolder").innerHTML = "";
 
     function setStatus(message, tone = "ok") {
       statusEl.textContent = message;
@@ -1462,6 +1492,11 @@
         const blockEl = document.createElement("div");
         blockEl.className = "flight-block";
 
+        const hourLabel = document.createElement("div");
+        hourLabel.className = "flight-hour-label";
+        hourLabel.textContent = block % 2 === 0 ? String(block / 2) : "";
+        blockEl.appendChild(hourLabel);
+
         for (let tenth = 0; tenth < 5; tenth++) {
           const cell = document.createElement("div");
           cell.className = "tenth";
@@ -1506,6 +1541,11 @@
         cell.dataset.dayId = dayId;
         cell.dataset.block = block;
 
+        const label = document.createElement("div");
+        label.className = "duty-hour-label";
+        label.textContent = block % 2 === 0 ? String(block / 2) : "";
+        cell.appendChild(label);
+
         cell.addEventListener("click", () => {
           if (mode !== "duty") return;
           setCurrentRow(dayId);
@@ -1517,6 +1557,27 @@
 
       return grid;
     }
+
+    function buildRouteSlashCell(dayId) {
+      const td = document.createElement("td");
+      td.rowSpan = 3;
+      td.className = "routecol route-slash-cell";
+      td.dataset.dayId = dayId;
+      td.dataset.key = "route";
+
+      if (dayId === 1) {
+        const content = document.createElement("div");
+        content.className = "route-slash-content";
+        content.innerHTML = `
+          <div class="route-slash-top">(133)</div>
+          <div class="route-slash-bottom">(class)</div>
+        `;
+        td.appendChild(content);
+      }
+
+      return td;
+    }
+
 
     function addDayRows(dayId) {
       const trMetrics = document.createElement("tr");
@@ -1581,7 +1642,7 @@
       metricsBand.appendChild(buildDayAircraftMetrics(dayId));
       trMetrics.appendChild(metricsBand);
 
-      trMetrics.appendChild(makeRowspanInput("route", "routecol"));
+      trMetrics.appendChild(buildRouteSlashCell(dayId));
       trMetrics.appendChild(makeRowspanReadout("flightTotal", "0.0"));
       trMetrics.appendChild(makeRowspanInput("remarks", "remarkscol", true));
 
