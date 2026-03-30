@@ -350,6 +350,34 @@
       font-size: 7px;
     }
 
+    #hourScaleHolder {
+      padding: 0;
+    }
+
+    .hour-scale {
+      display: grid;
+      grid-template-columns: repeat(24, minmax(0, 1fr));
+      width: 100%;
+      height: 100%;
+      align-items: stretch;
+      background: var(--subtle);
+    }
+
+    .hour-scale-cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      font-size: 7px;
+      line-height: 1;
+      border-right: 1px solid #94a3b8;
+      color: var(--ink);
+    }
+
+    .hour-scale-cell:last-child {
+      border-right: none;
+    }
+
     .daycell { width: 44px; }
     .smallcol { width: 40px; }
     .labelcol { width: 40px; background: var(--subtle); font-weight: bold; }
@@ -645,15 +673,122 @@
       flex-wrap: wrap;
     }
 
+    @page {
+      size: letter landscape;
+      margin: 0.25in;
+    }
+
     @media print {
-      body { background: white; padding: 0; }
+      html, body {
+        width: 11in;
+        height: 8.5in;
+      }
+
+      body {
+        background: white;
+        padding: 0;
+        margin: 0;
+      }
+
       .sheet {
+        width: 100%;
         max-width: 100%;
         border: none;
         box-shadow: none;
         padding: 0;
       }
-      .controls, .status, .saved-wrap, .history-wrap, .top-panels, .summary-box { display: none; }
+
+      .controls, .status, .saved-wrap, .history-wrap, .top-panels, .summary-box {
+        display: none;
+      }
+
+      .mode-line {
+        margin: 3px 0 4px;
+        font-size: 8px;
+      }
+
+      .aircraft-layout {
+        margin-bottom: 4px;
+      }
+
+      .aircraft-chip {
+        min-height: 20px;
+      }
+
+      .aircraft-chip input {
+        font-size: 7px;
+        padding: 2px 1px;
+      }
+
+      .table-wrap {
+        overflow: visible;
+        border-width: 1px;
+      }
+
+      .log-table {
+        width: 100%;
+        min-width: 0;
+        font-size: 6px;
+      }
+
+      .log-table th {
+        height: 14px;
+        font-size: 6px;
+      }
+
+      .subhead {
+        height: 12px;
+        font-size: 6px;
+      }
+
+      .hour-scale-cell {
+        font-size: 6px;
+      }
+
+      .daycell { width: 34px; }
+      .smallcol { width: 34px; }
+      .labelcol { width: 30px; }
+      .routecol { width: 46px; }
+      .flttotalcol { width: 34px; }
+      .remarkscol { width: 72px; }
+
+      .rowspan-input input,
+      .rowspan-input textarea,
+      .readout {
+        font-size: 6px;
+      }
+
+      .rowspan-input textarea {
+        line-height: 1.0;
+        padding: 1px 2px;
+      }
+
+      .flight-grid,
+      .duty-grid,
+      .flight-block,
+      .tenth,
+      .duty-block {
+        height: 14px;
+        min-height: 14px;
+      }
+
+      .day-aircraft-band {
+        padding: 1px;
+      }
+
+      .day-aircraft-box {
+        min-height: 22px;
+        grid-template-rows: 8px 1fr;
+      }
+
+      .day-aircraft-box .lbl {
+        font-size: 5px;
+      }
+
+      .day-aircraft-box input {
+        font-size: 6px;
+        padding: 0;
+      }
     }
 
     @media (max-width: 1100px) {
@@ -696,7 +831,7 @@
       <div class="sheet-title">
         <div class="company">TEMSCO HELICOPTERS INC.</div>
         <div class="form-title">Pilot's Flight & Duty Time Log</div>
-        <div class="note">Added email sign-in, browser autosave, weekly summary, duplicate-day upsert, CSV export, and a DB-backed history view.</div>
+        <div class="note">Added email sign-in, browser autosave, weekly summary, duplicate-day upsert, CSV export, DB-backed history, visible hour scale labels, and letter-landscape print tuning.</div>
       </div>
 
       <div class="header-box">
@@ -905,7 +1040,7 @@
     const runDebugBtn = document.getElementById("runDebugBtn");
     const clearDebugBtn = document.getElementById("clearDebugBtn");
 
-    document.getElementById("hourScaleHolder").innerHTML = Array.from({ length: 48 }, (_, i) => `<span style="display:inline-block;width:${100/48}%">${i % 2 === 0 ? i / 2 : ""}</span>`).join("");
+    document.getElementById("hourScaleHolder").innerHTML = `<div class="hour-scale">${Array.from({ length: 24 }, (_, i) => `<span class="hour-scale-cell">${i}</span>`).join("")}</div>`;
 
     function setStatus(message, tone = "ok") {
       statusEl.textContent = message;
