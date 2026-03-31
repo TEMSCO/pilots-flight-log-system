@@ -232,6 +232,60 @@
       outline-offset: -1px;
     }
 
+    .header-box {
+      overflow: hidden;
+    }
+
+    .header-box-row {
+      min-height: 30px;
+    }
+
+    .header-value-stack {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 2px;
+      padding: 4px 8px 3px;
+    }
+
+    .header-value-stack > #pilotName {
+      width: 100%;
+      font-size: 11px;
+      line-height: 1.2;
+      padding: 0;
+    }
+
+    .cert-row {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+      width: 100%;
+    }
+
+    .cert-label {
+      font-size: 8px;
+      font-weight: bold;
+      letter-spacing: 0.2px;
+      line-height: 1;
+      flex: 0 0 auto;
+    }
+
+    #certificateNumber {
+      flex: 1 1 auto;
+      min-width: 0;
+      font-size: 10px;
+      line-height: 1.2;
+      padding: 0;
+      text-align: left;
+    }
+
+    .header-value > input#logPeriod {
+      padding: 6px 8px 5px;
+      font-size: 11px;
+      line-height: 1.2;
+    }
+
     .controls {
       display: flex;
       gap: 6px;
@@ -356,9 +410,9 @@
     .daycell { width: 44px; }
     .smallcol { width: 40px; }
     .labelcol { width: 40px; background: var(--subtle); font-weight: bold; }
-    .routecol { width: 54px; }
+    .routecol { width: 36px; }
     .flttotalcol { width: 44px; }
-    .remarkscol { width: 90px; }
+    .remarkscol { width: 112px; }
 
     .log-table .daycell,
     .log-table .smallcol,
@@ -408,9 +462,45 @@
       width: 100%;
     }
 
-    .route-slash-cell {
+    
+    .route-entry-cell {
+      padding: 0;
+      background: white;
+    }
+
+    .route-entry-cell-inner {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      height: 100%;
+      min-height: 54px;
+    }
+
+    .route-entry-half {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1px;
+    }
+
+    .route-entry-half + .route-entry-half {
+      border-top: 1px solid var(--line);
+    }
+
+    .route-entry-half input {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: transparent;
+      text-align: center;
+      font-size: 8px;
+      font-weight: bold;
+      padding: 1px;
+      text-transform: uppercase;
+    }
+
+.route-slash-cell {
       position: relative;
-      min-width: 54px;
+      min-width: 36px;
       background:
         linear-gradient(to bottom right,
           transparent 48.5%,
@@ -772,6 +862,79 @@
       margin: 0.25in;
     }
 
+
+    .currency-section {
+      border: 1.5px solid var(--line);
+      border-top: none;
+      background: white;
+      padding: 4px 6px 6px;
+      font-size: 10px;
+    }
+
+    .currency-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 3px;
+      flex-wrap: wrap;
+    }
+
+    .currency-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .currency-row .label {
+      font-weight: bold;
+      min-width: 118px;
+    }
+
+    .currency-row input {
+      border: none;
+      border-bottom: 1px solid var(--line);
+      background: transparent;
+      font-size: 10px;
+      padding: 1px 2px;
+      font-family: Arial, sans-serif;
+      min-width: 0;
+    }
+
+    .currency-row input:focus {
+      outline: 1px solid #60a5fa;
+      outline-offset: 0;
+    }
+
+    .currency-row .tiny {
+      width: 38px;
+    }
+
+    .currency-row .small {
+      width: 58px;
+    }
+
+    .currency-row .n-wide {
+      width: 100px;
+      letter-spacing: 1px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .currency-row .medium {
+      width: 100px;
+    }
+
+    .currency-row .remarks-wide {
+      width: 210px;
+    }
+
+    .currency-row .spacer {
+      flex: 1;
+      min-width: 12px;
+    }
+
+    .signature-input {
+      width: 240px;
+    }
+
     @media print {
       html, body {
         width: 11in;
@@ -802,7 +965,7 @@
       }
 
       .aircraft-layout {
-        grid-template-columns: 204px 1fr 170px !important;
+        grid-template-columns: 204px 1fr 188px !important;
         margin-bottom: 4px;
       }
 
@@ -817,7 +980,7 @@
       }
 
       .aircraft-layout {
-        grid-template-columns: 204px 1fr 170px;
+        grid-template-columns: 204px 1fr 188px;
       }
 
       .aircraft-left-spacer,
@@ -841,6 +1004,12 @@
         padding: 2px 1px;
         line-height: 1;
         white-space: nowrap;
+      }
+
+      .readout[data-key="flightTotal"],
+      .readout[data-key="dutyTotal"] {
+        font-size: 11px !important;
+        font-weight: bold;
       }
 
       .table-wrap {
@@ -871,9 +1040,9 @@
       .daycell { width: 34px; }
       .smallcol { width: 34px; }
       .labelcol { width: 30px; }
-      .routecol { width: 46px; }
+      .routecol { width: 30px; }
       .flttotalcol { width: 34px; }
-      .remarkscol { width: 72px; }
+      .remarkscol { width: 92px; }
 
       .rowspan-input input,
       .rowspan-input textarea,
@@ -946,6 +1115,209 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* ===== FINAL PRINT LOCK FIX ===== */
+    @media print {
+      .aircraft-layout {
+        display: grid !important;
+        grid-template-columns: 204px 1fr 188px !important;
+        width: 100% !important;
+        gap: 0 !important;
+        align-items: start !important;
+      }
+
+      .aircraft-bar {
+        display: grid !important;
+        grid-template-columns: repeat(6, 1fr) !important;
+        width: 100% !important;
+        gap: 2px !important;
+      }
+
+      .aircraft-chip {
+        width: 100% !important;
+        height: 18px !important;
+        min-height: 18px !important;
+      }
+
+      .table-wrap {
+        width: 100% !important;
+      }
+
+      .log-table {
+        width: 100% !important;
+        table-layout: fixed !important;
+      }
+
+      .readout[data-key="flightTotal"] {
+        font-size: 14px !important;
+        font-weight: bold !important;
+      }
+
+      .readout[data-key="dutyTotal"] {
+        font-size: 10px !important;
+        font-weight: bold !important;
+      }
+    }
+
+    /* Remarks popup */
+    .remarks-popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .remarks-popup-overlay.open {
+      display: flex;
+    }
+
+    .remarks-popup {
+      width: min(720px, 92vw);
+      background: white;
+      border: 1.5px solid var(--line);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.2);
+      padding: 12px;
+    }
+
+    .remarks-popup-title {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .remarks-popup-subtitle {
+      font-size: 11px;
+      color: #475569;
+      margin-bottom: 8px;
+    }
+
+    .remarks-popup textarea {
+      width: 100%;
+      min-height: 220px;
+      resize: vertical;
+      border: 1px solid var(--soft-line);
+      padding: 8px;
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .remarks-popup-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    @media print {
+      .remarks-popup-overlay {
+        display: none !important;
+      }
+    }
+
+    @media print {
+      .aircraft-layout {
+        display: grid !important;
+        grid-template-columns: 204px 1fr 188px !important;
+        width: 100% !important;
+        gap: 0 !important;
+        align-items: start !important;
+      }
+
+      .aircraft-left-spacer,
+      .aircraft-right-spacer {
+        display: block !important;
+        min-height: 1px !important;
+      }
+
+      .aircraft-right-spacer {
+        width: 188px !important;
+      }
+
+      .aircraft-bar {
+        display: grid !important;
+        grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+        width: 100% !important;
+        gap: 2px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        transform: none !important;
+        justify-self: stretch !important;
+      }
+
+      .aircraft-chip {
+        width: 100% !important;
+        min-height: 18px !important;
+        height: 18px !important;
+      }
+
+      .aircraft-chip input {
+        font-size: 7px !important;
+        padding: 2px 1px !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+      }
+
+      .readout[data-key="flightTotal"] {
+        font-size: 14px !important;
+        font-weight: bold !important;
+      }
+
+      .readout[data-key="dutyTotal"] {
+        font-size: 10px !important;
+        font-weight: bold !important;
+      }
+
+      .route-entry-half input {
+        font-size: 7px !important;
+      }
+    }
+
+
+    .remarks-tight {
+      font-size: 7px !important;
+      line-height: 1.0 !important;
+    }
+
+    .remarks-medium {
+      font-size: 8px !important;
+      line-height: 1.05 !important;
+    }
+
+    .remarks-normal {
+      font-size: 9px !important;
+      line-height: 1.1 !important;
+    }
+
+    /* ===== FIX REMARKS PRINT EXPANSION ===== */
+    @media print {
+      .remarkscol,
+      .rowspan-input.remarkscol {
+        vertical-align: top !important;
+        padding: 2px 3px !important;
+      }
+
+      .remarkscol textarea,
+      .rowspan-input.remarkscol textarea {
+        height: 100% !important;
+        min-height: 48px !important;
+        max-height: none !important;
+        display: block !important;
+        overflow: visible !important;
+        line-height: 1.1 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        resize: none !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+        vertical-align: top !important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -954,17 +1326,17 @@
       <div class="sheet-title">
         <div class="company">TEMSCO HELICOPTERS INC.</div>
         <div class="form-title">Pilot's Flight & Duty Time Log</div>
-        <div class="note">v19 cleaned layout: PIC/NIGHT/TRNG labels locked into the first row boxes, PIC/NIGHT/TRNG boxes moved into a single-height band, FLT and DUTY totals enlarged, and totals over 8.0 FLT or 14.0 DUTY turn red.</div>
+        <div class="note">v31 cleaned layout: remarks print area expanded with auto-scaling text, narrowed the 133 column, widened remarks, added 133 top/bottom entry fields, and kept the remarks popup editor.</div>
       </div>
 
       <div class="header-box">
         <div class="header-box-row">
           <div class="header-label">PILOT NAME</div>
           <div class="header-value">
-            <div class="header-value-split">
+            <div class="header-value-stack">
               <input id="pilotName" type="text" placeholder="Pilot name" />
-              <div class="cert-field">
-                <div class="cert-label">CERT #</div>
+              <div class="cert-row">
+                <span class="cert-label">CERT #</span>
                 <input id="certificateNumber" type="text" placeholder="Number" />
               </div>
             </div>
@@ -1098,6 +1470,45 @@
       </table>
     </div>
 
+    <div class="currency-section">
+      <div class="currency-row">
+        <span class="label">Currency Statement</span>
+        <span>Date</span>
+        <input id="currencyDateMonth" class="tiny" type="text" maxlength="2" placeholder="MM" />
+        <span>/</span>
+        <input id="currencyDateDay" class="tiny" type="text" maxlength="2" placeholder="DD" />
+        <span>/</span>
+        <input id="currencyDateYear" class="small" type="text" maxlength="4" placeholder="YYYY" />
+        <span>A/C</span>
+        <input id="currencyAircraft" class="small" type="text" />
+        <span>N</span>
+        <input id="currencyN" class="n-wide" type="text" maxlength="7" placeholder="N123AB" />
+        <span>Depart from</span>
+        <input id="currencyFrom" class="medium" type="text" />
+        <span>to</span>
+        <input id="currencyTo" class="medium" type="text" />
+      </div>
+
+      <div class="currency-row">
+        <span class="label">Duration of Flight</span>
+        <span>Day</span>
+        <input id="currencyDayDuration" class="small" type="text" />
+        <span>Night</span>
+        <input id="currencyNightDuration" class="small" type="text" />
+        <span>No. T/O &amp; Ldgs</span>
+        <input id="currencyTakeoffs" class="small" type="text" />
+        <span>Remarks</span>
+        <input id="currencyRemarks" class="remarks-wide" type="text" />
+      </div>
+
+      <div class="currency-row">
+        <span>I have complied with F.A.R. 135.267 (on back)</span>
+        <span class="spacer"></span>
+        <span>PILOT'S SIGNATURE</span>
+        <input id="pilotSignature" class="signature-input" type="text" />
+      </div>
+    </div>
+
     <div id="status" class="status"></div>
 
     <div class="saved-wrap">
@@ -1125,6 +1536,19 @@
     </div>
   </div>
 
+
+  <div id="remarksPopupOverlay" class="remarks-popup-overlay" aria-hidden="true">
+    <div class="remarks-popup" role="dialog" aria-modal="true" aria-labelledby="remarksPopupTitle">
+      <div id="remarksPopupTitle" class="remarks-popup-title">Edit Remarks</div>
+      <div id="remarksPopupSubtitle" class="remarks-popup-subtitle">Day 1 remarks</div>
+      <textarea id="remarksPopupTextarea" placeholder="Enter remarks..."></textarea>
+      <div class="remarks-popup-actions">
+        <button id="remarksPopupCancelBtn" class="secondary-btn" type="button">Close</button>
+        <button id="remarksPopupSaveBtn" class="save-btn" type="button">Save Remarks</button>
+      </div>
+    </div>
+  </div>
+
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script>
     const sb = window.supabase.createClient(
@@ -1140,7 +1564,7 @@
     const aircraftOptions = [
       { id: "md500", label: "MD500", color: "#22c55e" },
       { id: "as350", label: "AS350", color: "#3b82f6" },
-      { id: "ec130", label: "EC130", color: "#14b8a6" },
+      { id: "ec130", label: "EC130", color: "#64748b" },
       { id: "bell212", label: "BELL212", color: "#f59e0b" },
       { id: "bell214", label: "BELL214", color: "#8b5cf6" },
       { id: "bell205", label: "BELL205", color: "#ef4444" }
@@ -1171,6 +1595,49 @@
     const historySummary = document.getElementById("historySummary");
     const historyMonthsBack = document.getElementById("historyMonthsBack");
     const refreshHistoryBtn = document.getElementById("refreshHistoryBtn");
+    [
+      "currencyDateMonth", "currencyDateDay", "currencyDateYear", "currencyAircraft",
+      "currencyN", "currencyFrom", "currencyTo", "currencyDayDuration",
+      "currencyNightDuration", "currencyTakeoffs", "currencyRemarks", "pilotSignature"
+    ].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener("input", persistDraftSoon);
+      }
+    });
+
+    function isValidNNumber(val) {
+      return /^N[0-9]{1,5}[A-Z]{0,2}$/.test(val);
+    }
+
+    
+    const currencyFields = [
+      "currencyDateMonth","currencyDateDay","currencyDateYear",
+      "currencyAircraft","currencyN","currencyFrom","currencyTo",
+      "currencyDayDuration","currencyNightDuration","currencyTakeoffs",
+      "currencyRemarks","pilotSignature"
+    ];
+
+    currencyFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener("input", () => {
+          el.value = el.value.toUpperCase();
+        });
+      }
+    });
+
+const nInput = document.getElementById("currencyN");
+    if (nInput) {
+      nInput.addEventListener("input", () => {
+        nInput.value = nInput.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+        persistDraftSoon();
+      });
+
+      nInput.addEventListener("blur", () => {
+        nInput.classList.toggle("alert-exceed", !!nInput.value && !isValidNNumber(nInput.value));
+      });
+    }
     const logPeriodEl = document.getElementById("logPeriod");
     const aircraftBar = document.getElementById("aircraftBar");
     const weekFlightEl = document.getElementById("weekFlight");
@@ -1188,7 +1655,51 @@
     const debugLogEl = document.getElementById("debugLog");
     const runDebugBtn = document.getElementById("runDebugBtn");
     const clearDebugBtn = document.getElementById("clearDebugBtn");
+    const remarksPopupOverlay = document.getElementById("remarksPopupOverlay");
+    const remarksPopupSubtitle = document.getElementById("remarksPopupSubtitle");
+    const remarksPopupTextarea = document.getElementById("remarksPopupTextarea");
+    const remarksPopupSaveBtn = document.getElementById("remarksPopupSaveBtn");
+    const remarksPopupCancelBtn = document.getElementById("remarksPopupCancelBtn");
+    let activeRemarksDayId = null;
 
+
+    function applyRemarksSizing(textarea) {
+      if (!textarea) return;
+      const text = (textarea.value || "").trim();
+      textarea.classList.remove("remarks-tight", "remarks-medium", "remarks-normal");
+      if (text.length > 90) {
+        textarea.classList.add("remarks-tight");
+      } else if (text.length > 45) {
+        textarea.classList.add("remarks-medium");
+      } else {
+        textarea.classList.add("remarks-normal");
+      }
+    }
+
+    function openRemarksPopup(dayId) {
+      const remarksInput = getInput(dayId, "remarks");
+      if (!remarksInput) return;
+      activeRemarksDayId = dayId;
+      remarksPopupSubtitle.textContent = `Day ${dayId} remarks`;
+      remarksPopupTextarea.value = remarksInput.value || "";
+      remarksPopupOverlay.classList.add("open");
+      remarksPopupOverlay.setAttribute("aria-hidden", "false");
+      window.setTimeout(() => remarksPopupTextarea.focus(), 0);
+    }
+
+    function closeRemarksPopup(saveChanges = false) {
+      if (saveChanges && activeRemarksDayId !== null) {
+        const remarksInput = getInput(activeRemarksDayId, "remarks");
+        if (remarksInput) {
+          remarksInput.value = remarksPopupTextarea.value;
+          applyRemarksSizing(remarksInput);
+        }
+        persistDraftSoon();
+      }
+      remarksPopupOverlay.classList.remove("open");
+      remarksPopupOverlay.setAttribute("aria-hidden", "true");
+      activeRemarksDayId = null;
+    }
 
     function setStatus(message, tone = "ok") {
       statusEl.textContent = message;
@@ -1273,7 +1784,11 @@
       }
     }
 
-    function getAircraftLabel(index) {
+        function resizePilotNameField() {
+      // intentionally retained as a no-op for compatibility with earlier drafts
+    }
+
+function getAircraftLabel(index) {
       const input = document.querySelector(`.aircraft-chip[data-aircraft-index="${index}"] input`);
       return input?.value.trim() || aircraftOptions[index].label;
     }
@@ -1681,12 +2196,28 @@
       return grid;
     }
 
-    function buildRouteSlashCell(dayId) {
+    function buildRouteEntryCell(dayId) {
       const td = document.createElement("td");
       td.rowSpan = 3;
-      td.className = "routecol route-slash-cell";
+      td.className = "routecol route-entry-cell";
       td.dataset.dayId = dayId;
-      td.dataset.key = "route";
+      td.dataset.key = "route133";
+
+      td.innerHTML = `
+        <div class="route-entry-cell-inner">
+          <div class="route-entry-half"><input type="text" data-day-id="${dayId}" data-key="route133Top"></div>
+          <div class="route-entry-half"><input type="text" data-day-id="${dayId}" data-key="route133Bottom"></div>
+        </div>
+      `;
+
+      td.querySelectorAll("input").forEach((input) => {
+        input.addEventListener("focus", () => setCurrentRow(dayId));
+        input.addEventListener("input", () => {
+          input.value = input.value.toUpperCase();
+          persistDraftSoon();
+        });
+      });
+
       return td;
     }
 
@@ -1707,7 +2238,15 @@
         if (!isTextarea) input.type = "text";
         input.dataset.dayId = dayId;
         input.dataset.key = key;
-        input.addEventListener("focus", () => setCurrentRow(dayId));
+        input.addEventListener("focus", () => {
+          setCurrentRow(dayId);
+          if (key === "remarks") {
+            window.setTimeout(() => openRemarksPopup(dayId), 0);
+          }
+        });
+        input.addEventListener("dblclick", () => {
+          if (key === "remarks") openRemarksPopup(dayId);
+        });
         input.addEventListener("input", () => {
           if (key === "logDate") {
             autoFormatMMDDInput(input);
@@ -1720,6 +2259,13 @@
         if (key === "logDate") {
           input.maxLength = 5;
           input.placeholder = "MM/DD";
+        }
+
+        if (key === "remarks") {
+          input.placeholder = "Click to expand remarks";
+          input.readOnly = true;
+          input.style.cursor = "pointer";
+          applyRemarksSizing(input);
         }
 
         td.appendChild(input);
@@ -1754,7 +2300,7 @@
       metricsBand.appendChild(buildDayAircraftMetrics(dayId));
       trMetrics.appendChild(metricsBand);
 
-      trMetrics.appendChild(buildRouteSlashCell(dayId));
+      trMetrics.appendChild(buildRouteEntryCell(dayId));
       trMetrics.appendChild(makeRowspanReadout("flightTotal", "0.0"));
       trMetrics.appendChild(makeRowspanInput("remarks", "remarkscol", true));
 
@@ -1822,9 +2368,12 @@
       });
       clearDutyOnly(dayId);
 
-      ["logDate", "route", "remarks"].forEach((key) => {
+      ["logDate", "route", "remarks", "route133Top", "route133Bottom"].forEach((key) => {
         const input = getInput(dayId, key);
-        if (input) input.value = "";
+        if (input) {
+          input.value = "";
+          if (key === "remarks") applyRemarksSizing(input);
+        }
       });
 
       setDayAircraftMetrics(dayId, null);
@@ -1884,7 +2433,7 @@
 
       if (dateInput) dateInput.value = formatDateForRow(entry.log_date) || "";
       if (routeInput) routeInput.value = entry.route || "";
-      if (remarksInput) remarksInput.value = entry.remarks || "";
+      if (remarksInput) { remarksInput.value = entry.remarks || ""; applyRemarksSizing(remarksInput); }
 
       applyFlightMarksToDay(dayId, entry.flight_marks, entry.flight_blocks);
       setDayAircraftMetrics(dayId, entry.day_aircraft_metrics || null);
@@ -2003,10 +2552,12 @@
         const logDateRaw = getInput(dayId, "logDate")?.value.trim() || "";
         const route = getInput(dayId, "route")?.value.trim() || "";
         const remarks = getInput(dayId, "remarks")?.value.trim() || "";
+        const route133Top = document.querySelector(`[data-day-id="${dayId}"][data-key="route133Top"]`)?.value.trim() || "";
+        const route133Bottom = document.querySelector(`[data-day-id="${dayId}"][data-key="route133Bottom"]`)?.value.trim() || "";
         const flightTotal = Number(getReadout(dayId, "flightTotal").textContent || "0");
         const dutyTotal = Number(getReadout(dayId, "dutyTotal").textContent || "0");
 
-        const hasAnyData = logDateRaw || route || remarks || flightTotal > 0 || dutyTotal > 0;
+        const hasAnyData = logDateRaw || route || remarks || route133Top || route133Bottom || flightTotal > 0 || dutyTotal > 0;
         if (!hasAnyData) continue;
 
         if (!/^\d{2}\/\d{2}$/.test(logDateRaw)) {
@@ -2337,6 +2888,18 @@
         pilotName: document.getElementById("pilotName").value,
         certificateNumber: document.getElementById("certificateNumber").value,
         logPeriod: document.getElementById("logPeriod").value,
+        currencyDateMonth: document.getElementById("currencyDateMonth").value,
+        currencyDateDay: document.getElementById("currencyDateDay").value,
+        currencyDateYear: document.getElementById("currencyDateYear").value,
+        currencyAircraft: document.getElementById("currencyAircraft").value,
+        currencyN: document.getElementById("currencyN").value,
+        currencyFrom: document.getElementById("currencyFrom").value,
+        currencyTo: document.getElementById("currencyTo").value,
+        currencyDayDuration: document.getElementById("currencyDayDuration").value,
+        currencyNightDuration: document.getElementById("currencyNightDuration").value,
+        currencyTakeoffs: document.getElementById("currencyTakeoffs").value,
+        currencyRemarks: document.getElementById("currencyRemarks").value,
+        pilotSignature: document.getElementById("pilotSignature").value,
         selectedAircraftIndex,
         aircraftLabels: aircraftOptions.map((_, index) => getAircraftLabel(index)),
         days: Array.from({ length: DAY_COUNT }, (_, idx) => {
@@ -2345,6 +2908,8 @@
             logDate: getInput(dayId, "logDate")?.value || "",
             route: getInput(dayId, "route")?.value || "",
             remarks: getInput(dayId, "remarks")?.value || "",
+            route133Top: document.querySelector(`[data-day-id="${dayId}"][data-key="route133Top"]`)?.value || "",
+            route133Bottom: document.querySelector(`[data-day-id="${dayId}"][data-key="route133Bottom"]`)?.value || "",
             flightMarks: getFlightMarks(dayId),
             dutyBlocks: getDutyBlocks(dayId),
             metrics: getDayAircraftMetrics(dayId)
@@ -2358,6 +2923,18 @@
       document.getElementById("pilotName").value = draft.pilotName || "";
       document.getElementById("certificateNumber").value = draft.certificateNumber || "";
       document.getElementById("logPeriod").value = draft.logPeriod || "";
+      document.getElementById("currencyDateMonth").value = draft.currencyDateMonth || "";
+      document.getElementById("currencyDateDay").value = draft.currencyDateDay || "";
+      document.getElementById("currencyDateYear").value = draft.currencyDateYear || "";
+      document.getElementById("currencyAircraft").value = draft.currencyAircraft || "";
+      document.getElementById("currencyN").value = draft.currencyN || "";
+      document.getElementById("currencyFrom").value = draft.currencyFrom || "";
+      document.getElementById("currencyTo").value = draft.currencyTo || "";
+      document.getElementById("currencyDayDuration").value = draft.currencyDayDuration || "";
+      document.getElementById("currencyNightDuration").value = draft.currencyNightDuration || "";
+      document.getElementById("currencyTakeoffs").value = draft.currencyTakeoffs || "";
+      document.getElementById("currencyRemarks").value = draft.currencyRemarks || "";
+      document.getElementById("pilotSignature").value = draft.pilotSignature || "";
 
       (draft.aircraftLabels || []).forEach((label, index) => {
         const input = document.querySelector(`.aircraft-chip[data-aircraft-index="${index}"] input`);
@@ -2373,7 +2950,11 @@
         const dayId = idx + 1;
         if (getInput(dayId, "logDate")) getInput(dayId, "logDate").value = day.logDate || "";
         if (getInput(dayId, "route")) getInput(dayId, "route").value = day.route || "";
-        if (getInput(dayId, "remarks")) getInput(dayId, "remarks").value = day.remarks || "";
+        if (getInput(dayId, "remarks")) { getInput(dayId, "remarks").value = day.remarks || ""; applyRemarksSizing(getInput(dayId, "remarks")); }
+        const route133Top = document.querySelector(`[data-day-id="${dayId}"][data-key="route133Top"]`);
+        const route133Bottom = document.querySelector(`[data-day-id="${dayId}"][data-key="route133Bottom"]`);
+        if (route133Top) route133Top.value = day.route133Top || "";
+        if (route133Bottom) route133Bottom.value = day.route133Bottom || "";
         setDayAircraftMetrics(dayId, day.metrics || null);
         applyFlightMarksToDay(dayId, day.flightMarks || [], null);
         clearDutyOnly(dayId);
@@ -2425,13 +3006,15 @@
 
     function exportCsv() {
       setDebugAction('export csv');
-      const headers = ["log_date", "pilot_name", "period", "aircraft_name", "duty_start", "duty_stop", "duty", "flight_total", "route", "remarks"];
+      const headers = ["log_date", "pilot_name", "period", "aircraft_name", "duty_start", "duty_stop", "duty", "flight_total", "133_hours", "133_class", "route", "remarks"];
       const lines = [headers.join(",")];
 
       for (let dayId = 1; dayId <= DAY_COUNT; dayId++) {
         const logDateRaw = getInput(dayId, "logDate")?.value.trim() || "";
         const route = getInput(dayId, "route")?.value.trim() || "";
         const remarks = getInput(dayId, "remarks")?.value.trim() || "";
+        const route133Top = document.querySelector(`[data-day-id="${dayId}"][data-key="route133Top"]`)?.value.trim() || "";
+        const route133Bottom = document.querySelector(`[data-day-id="${dayId}"][data-key="route133Bottom"]`)?.value.trim() || "";
         const flightTotal = getReadout(dayId, "flightTotal")?.textContent || "0.0";
         const dutyTotal = getReadout(dayId, "dutyTotal")?.textContent || "0.0";
         const hasAnyData = logDateRaw || route || remarks || Number(flightTotal) > 0 || Number(dutyTotal) > 0;
@@ -2446,6 +3029,8 @@
           getReadout(dayId, "dutyStop")?.textContent || "",
           dutyTotal,
           flightTotal,
+          route133Top,
+          route133Bottom,
           route,
           remarks
         ].map(value => `"${String(value || "").replaceAll('"', '""')}"`);
@@ -2488,6 +3073,16 @@
     refreshHistoryBtn.addEventListener("click", loadHistory);
     runDebugBtn.addEventListener("click", runDiagnostics);
     clearDebugBtn.addEventListener("click", () => { debugLogEl.textContent = "debug log cleared"; setDebugError("none"); });
+    remarksPopupSaveBtn.addEventListener("click", () => closeRemarksPopup(true));
+    remarksPopupCancelBtn.addEventListener("click", () => closeRemarksPopup(false));
+    remarksPopupOverlay.addEventListener("click", (e) => {
+      if (e.target === remarksPopupOverlay) closeRemarksPopup(false);
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && remarksPopupOverlay.classList.contains("open")) {
+        closeRemarksPopup(false);
+      }
+    });
     historyMonthsBack.addEventListener("change", loadHistory);
     document.getElementById("pilotName").addEventListener("input", persistDraftSoon);
     logPeriodEl.addEventListener("input", persistDraftSoon);
@@ -2495,7 +3090,9 @@
     try {
       buildAircraftBar();
       buildTable();
+      document.querySelectorAll('.rowspan-input.remarkscol textarea').forEach(applyRemarksSizing);
       loadBrowserDraft();
+      document.querySelectorAll('.rowspan-input.remarkscol textarea').forEach(applyRemarksSizing);
       updatePeriodFromRows();
       computeWeeklySummary();
       refreshAuthState();
