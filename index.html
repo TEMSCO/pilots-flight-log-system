@@ -1318,6 +1318,104 @@
       }
     }
 
+
+    /* ===== FINAL REMARKS PRINT FIX (v32) ===== */
+    @media print {
+      .remarkscol,
+      .rowspan-input.remarkscol {
+        vertical-align: top !important;
+        padding: 2px 4px !important;
+      }
+
+      .remarkscol textarea,
+      .rowspan-input.remarkscol textarea {
+        display: block !important;
+        height: 100% !important;
+        min-height: 54px !important;
+        overflow: visible !important;
+        resize: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        text-align: left !important;
+        vertical-align: top !important;
+        line-height: 1.0 !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+      }
+    }
+
+
+    /* ===== REMARKS TOP-ALIGN FIX (v33) ===== */
+    .rowspan-input.remarkscol,
+    td.remarkscol,
+    .remarkscol {
+      vertical-align: top !important;
+    }
+
+    .rowspan-input.remarkscol textarea,
+    .remarkscol textarea {
+      display: block !important;
+      width: 100% !important;
+      height: 100% !important;
+      min-height: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      text-align: left !important;
+      vertical-align: top !important;
+      align-self: start !important;
+      line-height: 1.0 !important;
+    }
+
+    .rowspan-input.remarkscol {
+      padding-top: 1px !important;
+    }
+
+    @media print {
+      .rowspan-input.remarkscol,
+      td.remarkscol,
+      .remarkscol {
+        vertical-align: top !important;
+      }
+
+      .rowspan-input.remarkscol textarea,
+      .remarkscol textarea {
+        display: block !important;
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        text-align: left !important;
+        vertical-align: top !important;
+        line-height: 1.0 !important;
+      }
+    }
+
+
+    .remarks-popup-hint {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #475569;
+      min-height: 14px;
+    }
+
+    .remarks-popup-hint.warn {
+      color: #991b1b;
+      font-weight: bold;
+    }
+
+    .remarks-measurer {
+      position: fixed;
+      left: -9999px;
+      top: -9999px;
+      visibility: hidden;
+      pointer-events: none;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow: visible;
+      box-sizing: border-box;
+    }
+
   </style>
 </head>
 <body>
@@ -1326,7 +1424,7 @@
       <div class="sheet-title">
         <div class="company">TEMSCO HELICOPTERS INC.</div>
         <div class="form-title">Pilot's Flight & Duty Time Log</div>
-        <div class="note">v31 cleaned layout: remarks print area expanded with auto-scaling text, narrowed the 133 column, widened remarks, added 133 top/bottom entry fields, and kept the remarks popup editor.</div>
+        <div class="note">v35 cleaned layout: remarks popup now uses a softer fit check with warning near the limit, plus top-aligned auto-scaling print text.</div>
       </div>
 
       <div class="header-box">
@@ -1542,6 +1640,7 @@
       <div id="remarksPopupTitle" class="remarks-popup-title">Edit Remarks</div>
       <div id="remarksPopupSubtitle" class="remarks-popup-subtitle">Day 1 remarks</div>
       <textarea id="remarksPopupTextarea" placeholder="Enter remarks..."></textarea>
+      <div id="remarksPopupHint" class="remarks-popup-hint"></div>
       <div class="remarks-popup-actions">
         <button id="remarksPopupCancelBtn" class="secondary-btn" type="button">Close</button>
         <button id="remarksPopupSaveBtn" class="save-btn" type="button">Save Remarks</button>
@@ -1660,20 +1759,84 @@ const nInput = document.getElementById("currencyN");
     const remarksPopupTextarea = document.getElementById("remarksPopupTextarea");
     const remarksPopupSaveBtn = document.getElementById("remarksPopupSaveBtn");
     const remarksPopupCancelBtn = document.getElementById("remarksPopupCancelBtn");
+    const remarksPopupHint = document.getElementById("remarksPopupHint");
+    const remarksMeasurer = document.getElementById("remarksMeasurer");
     let activeRemarksDayId = null;
+    let lastValidRemarksText = "";
 
 
     function applyRemarksSizing(textarea) {
       if (!textarea) return;
+
       const text = (textarea.value || "").trim();
+      const length = text.length;
+
       textarea.classList.remove("remarks-tight", "remarks-medium", "remarks-normal");
-      if (text.length > 90) {
-        textarea.classList.add("remarks-tight");
-      } else if (text.length > 45) {
-        textarea.classList.add("remarks-medium");
+
+      if (length > 140) {
+        textarea.style.fontSize = "6.5px";
+        textarea.style.lineHeight = "0.95";
+      } else if (length > 90) {
+        textarea.style.fontSize = "7.5px";
+        textarea.style.lineHeight = "1.0";
+      } else if (length > 45) {
+        textarea.style.fontSize = "8.5px";
+        textarea.style.lineHeight = "1.05";
       } else {
-        textarea.classList.add("remarks-normal");
+        textarea.style.fontSize = "9.5px";
+        textarea.style.lineHeight = "1.1";
       }
+    }
+
+    function applyRemarksSizingStylesForElement(el, text) {
+      if (!el) return;
+      const length = (text || "").trim().length;
+      el.style.fontSize = "";
+      el.style.lineHeight = "";
+      if (length > 140) {
+        el.style.fontSize = "6.5px";
+        el.style.lineHeight = "0.95";
+      } else if (length > 90) {
+        el.style.fontSize = "7.5px";
+        el.style.lineHeight = "1.0";
+      } else if (length > 45) {
+        el.style.fontSize = "8.5px";
+        el.style.lineHeight = "1.05";
+      } else {
+        el.style.fontSize = "9.5px";
+        el.style.lineHeight = "1.1";
+      }
+    }
+
+    function remarksFitsVisibleBox(dayId, text) {
+      const remarksInput = getInput(dayId, "remarks");
+      if (!remarksInput || !remarksMeasurer) return true;
+
+      const rect = remarksInput.getBoundingClientRect();
+      const styles = window.getComputedStyle(remarksInput);
+
+      remarksMeasurer.style.width = rect.width + "px";
+      remarksMeasurer.style.fontFamily = styles.fontFamily;
+      remarksMeasurer.style.fontWeight = styles.fontWeight;
+      remarksMeasurer.style.fontSize = styles.fontSize;
+      remarksMeasurer.style.lineHeight = styles.lineHeight;
+      remarksMeasurer.style.padding = "0";
+      remarksMeasurer.style.border = "none";
+      remarksMeasurer.style.textAlign = "left";
+      remarksMeasurer.style.whiteSpace = "pre-wrap";
+      remarksMeasurer.style.wordBreak = "break-word";
+      remarksMeasurer.textContent = text || "";
+
+      applyRemarksSizingStylesForElement(remarksMeasurer, text || "");
+
+      const allowedHeight = rect.height * 1.15;
+      return remarksMeasurer.scrollHeight <= allowedHeight;
+    }
+
+    function updateRemarksPopupHint(message = "", isWarn = false) {
+      if (!remarksPopupHint) return;
+      remarksPopupHint.textContent = message;
+      remarksPopupHint.classList.toggle("warn", !!isWarn);
     }
 
     function openRemarksPopup(dayId) {
@@ -1682,6 +1845,8 @@ const nInput = document.getElementById("currencyN");
       activeRemarksDayId = dayId;
       remarksPopupSubtitle.textContent = `Day ${dayId} remarks`;
       remarksPopupTextarea.value = remarksInput.value || "";
+      lastValidRemarksText = remarksPopupTextarea.value || "";
+      updateRemarksPopupHint("Entry is limited to what fits in the visible remarks box.");
       remarksPopupOverlay.classList.add("open");
       remarksPopupOverlay.setAttribute("aria-hidden", "false");
       window.setTimeout(() => remarksPopupTextarea.focus(), 0);
@@ -1698,7 +1863,9 @@ const nInput = document.getElementById("currencyN");
       }
       remarksPopupOverlay.classList.remove("open");
       remarksPopupOverlay.setAttribute("aria-hidden", "true");
+      updateRemarksPopupHint("");
       activeRemarksDayId = null;
+      lastValidRemarksText = "";
     }
 
     function setStatus(message, tone = "ok") {
@@ -3075,6 +3242,17 @@ function getAircraftLabel(index) {
     clearDebugBtn.addEventListener("click", () => { debugLogEl.textContent = "debug log cleared"; setDebugError("none"); });
     remarksPopupSaveBtn.addEventListener("click", () => closeRemarksPopup(true));
     remarksPopupCancelBtn.addEventListener("click", () => closeRemarksPopup(false));
+    remarksPopupTextarea.addEventListener("input", () => {
+      if (activeRemarksDayId === null) return;
+      const proposed = remarksPopupTextarea.value;
+      if (remarksFitsVisibleBox(activeRemarksDayId, proposed)) {
+        lastValidRemarksText = proposed;
+        updateRemarksPopupHint("Fits in the visible remarks box.");
+      } else {
+        updateRemarksPopupHint("Approaching limit of visible remarks box.", true);
+      }
+    });
+
     remarksPopupOverlay.addEventListener("click", (e) => {
       if (e.target === remarksPopupOverlay) closeRemarksPopup(false);
     });
@@ -3105,8 +3283,10 @@ function getAircraftLabel(index) {
       appendDebugLog("bootstrap error: " + err.message);
     }
   </script>
+  <div id="remarksMeasurer" class="remarks-measurer"></div>
 </body>
 </html>
+
 
 
 
