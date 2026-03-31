@@ -1416,6 +1416,68 @@
       box-sizing: border-box;
     }
 
+
+    .remarks-cell-clone {
+      position: fixed;
+      left: -9999px;
+      top: -9999px;
+      visibility: hidden;
+      font-size: 9px;
+      line-height: 1.0;
+      font-family: Arial, sans-serif;
+      white-space: pre-wrap;
+      word-break: normal;
+      overflow-wrap: normal;
+      padding: 2px;
+      box-sizing: border-box;
+    }
+
+
+    .remarks-display {
+      width: 100%;
+      height: 100%;
+      min-height: 54px;
+      display: block;
+      overflow: hidden;
+      white-space: pre-wrap;
+      word-break: normal;
+      overflow-wrap: normal;
+      text-align: left;
+      font-family: Arial, sans-serif;
+      font-size: 9px;
+      line-height: 1.0;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .remarks-display.placeholder {
+      color: #64748b;
+      font-size: 8px;
+    }
+
+    .rowspan-input.remarkscol textarea {
+      display: none !important;
+    }
+
+    @media print {
+      .remarks-display {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 54px !important;
+        display: block !important;
+        overflow: hidden !important;
+        white-space: pre-wrap !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        text-align: left !important;
+        font-family: Arial, sans-serif !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        line-height: 1.0 !important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -1424,7 +1486,7 @@
       <div class="sheet-title">
         <div class="company">TEMSCO HELICOPTERS INC.</div>
         <div class="form-title">Pilot's Flight & Duty Time Log</div>
-        <div class="note">v35 cleaned layout: remarks popup now uses a softer fit check with warning near the limit, plus top-aligned auto-scaling print text.</div>
+        <div class="note">v41 cleaned layout: remarks now render through a dedicated display box, and popup fit checks measure against that visible box for closer on-form and print matching.</div>
       </div>
 
       <div class="header-box">
@@ -1793,18 +1855,18 @@ const nInput = document.getElementById("currencyN");
       const length = (text || "").trim().length;
       el.style.fontSize = "";
       el.style.lineHeight = "";
-      if (length > 140) {
+      if (length > 150) {
         el.style.fontSize = "6.5px";
         el.style.lineHeight = "0.95";
-      } else if (length > 90) {
-        el.style.fontSize = "7.5px";
+      } else if (length > 105) {
+        el.style.fontSize = "7.25px";
+        el.style.lineHeight = "0.98";
+      } else if (length > 60) {
+        el.style.fontSize = "8.25px";
         el.style.lineHeight = "1.0";
-      } else if (length > 45) {
-        el.style.fontSize = "8.5px";
-        el.style.lineHeight = "1.05";
       } else {
-        el.style.fontSize = "9.5px";
-        el.style.lineHeight = "1.1";
+        el.style.fontSize = "9.25px";
+        el.style.lineHeight = "1.05";
       }
     }
 
@@ -1815,28 +1877,52 @@ const nInput = document.getElementById("currencyN");
       const rect = remarksInput.getBoundingClientRect();
       const styles = window.getComputedStyle(remarksInput);
 
-      remarksMeasurer.style.width = rect.width + "px";
+      const measuredWidth = rect.width * 1.48;
+      const measuredHeight = rect.height * 1.04;
+
+      remarksMeasurer.style.width = measuredWidth + "px";
+      remarksMeasurer.style.minHeight = measuredHeight + "px";
+      remarksMeasurer.style.maxHeight = "none";
       remarksMeasurer.style.fontFamily = styles.fontFamily;
       remarksMeasurer.style.fontWeight = styles.fontWeight;
-      remarksMeasurer.style.fontSize = styles.fontSize;
-      remarksMeasurer.style.lineHeight = styles.lineHeight;
+      remarksMeasurer.style.letterSpacing = styles.letterSpacing;
       remarksMeasurer.style.padding = "0";
       remarksMeasurer.style.border = "none";
       remarksMeasurer.style.textAlign = "left";
       remarksMeasurer.style.whiteSpace = "pre-wrap";
       remarksMeasurer.style.wordBreak = "break-word";
-      remarksMeasurer.textContent = text || "";
+      remarksMeasurer.style.overflowWrap = "break-word";
+      remarksMeasurer.style.lineHeight = "1.0";
 
       applyRemarksSizingStylesForElement(remarksMeasurer, text || "");
+      remarksMeasurer.textContent = text || "";
 
-      const allowedHeight = rect.height * 1.15;
-      return remarksMeasurer.scrollHeight <= allowedHeight;
+      return remarksMeasurer.scrollHeight <= measuredHeight;
     }
 
     function updateRemarksPopupHint(message = "", isWarn = false) {
       if (!remarksPopupHint) return;
       remarksPopupHint.textContent = message;
       remarksPopupHint.classList.toggle("warn", !!isWarn);
+    }
+
+    function getRemarksDisplay(dayId) {
+      return document.querySelector(`.remarks-display[data-day-id="${dayId}"]`);
+    }
+
+    function syncRemarksDisplay(dayId) {
+      const remarksInput = getInput(dayId, "remarks");
+      const display = getRemarksDisplay(dayId);
+      if (!display) return;
+      const text = remarksInput?.value || "";
+      if (text.trim()) {
+        display.textContent = text;
+        display.classList.remove("placeholder");
+      } else {
+        display.textContent = "Click to expand remarks";
+        display.classList.add("placeholder");
+      }
+      applyRemarksSizingStylesForElement(display, text);
     }
 
     function openRemarksPopup(dayId) {
@@ -1846,7 +1932,7 @@ const nInput = document.getElementById("currencyN");
       remarksPopupSubtitle.textContent = `Day ${dayId} remarks`;
       remarksPopupTextarea.value = remarksInput.value || "";
       lastValidRemarksText = remarksPopupTextarea.value || "";
-      updateRemarksPopupHint("Entry is limited to what fits in the visible remarks box.");
+      updateRemarksPopupHint("Entry is limited to what fits in the visible printed remarks box.");
       remarksPopupOverlay.classList.add("open");
       remarksPopupOverlay.setAttribute("aria-hidden", "false");
       window.setTimeout(() => remarksPopupTextarea.focus(), 0);
@@ -1858,6 +1944,7 @@ const nInput = document.getElementById("currencyN");
         if (remarksInput) {
           remarksInput.value = remarksPopupTextarea.value;
           applyRemarksSizing(remarksInput);
+          syncRemarksDisplay(activeRemarksDayId);
         }
         persistDraftSoon();
       }
@@ -2433,6 +2520,18 @@ function getAircraftLabel(index) {
           input.readOnly = true;
           input.style.cursor = "pointer";
           applyRemarksSizing(input);
+
+          const display = document.createElement("div");
+          display.className = "remarks-display placeholder";
+          display.dataset.dayId = dayId;
+          display.textContent = "Click to expand remarks";
+          display.addEventListener("click", () => {
+            setCurrentRow(dayId);
+            openRemarksPopup(dayId);
+          });
+          td.appendChild(input);
+          td.appendChild(display);
+          return td;
         }
 
         td.appendChild(input);
@@ -2539,7 +2638,10 @@ function getAircraftLabel(index) {
         const input = getInput(dayId, key);
         if (input) {
           input.value = "";
-          if (key === "remarks") applyRemarksSizing(input);
+          if (key === "remarks") {
+            applyRemarksSizing(input);
+            syncRemarksDisplay(dayId);
+          }
         }
       });
 
@@ -3117,7 +3219,11 @@ function getAircraftLabel(index) {
         const dayId = idx + 1;
         if (getInput(dayId, "logDate")) getInput(dayId, "logDate").value = day.logDate || "";
         if (getInput(dayId, "route")) getInput(dayId, "route").value = day.route || "";
-        if (getInput(dayId, "remarks")) { getInput(dayId, "remarks").value = day.remarks || ""; applyRemarksSizing(getInput(dayId, "remarks")); }
+        if (getInput(dayId, "remarks")) {
+          getInput(dayId, "remarks").value = day.remarks || "";
+          applyRemarksSizing(getInput(dayId, "remarks"));
+          syncRemarksDisplay(dayId);
+        }
         const route133Top = document.querySelector(`[data-day-id="${dayId}"][data-key="route133Top"]`);
         const route133Bottom = document.querySelector(`[data-day-id="${dayId}"][data-key="route133Bottom"]`);
         if (route133Top) route133Top.value = day.route133Top || "";
@@ -3244,12 +3350,15 @@ function getAircraftLabel(index) {
     remarksPopupCancelBtn.addEventListener("click", () => closeRemarksPopup(false));
     remarksPopupTextarea.addEventListener("input", () => {
       if (activeRemarksDayId === null) return;
+
       const proposed = remarksPopupTextarea.value;
+
       if (remarksFitsVisibleBox(activeRemarksDayId, proposed)) {
         lastValidRemarksText = proposed;
-        updateRemarksPopupHint("Fits in the visible remarks box.");
+        updateRemarksPopupHint("Fits in the visible printed remarks box.");
       } else {
-        updateRemarksPopupHint("Approaching limit of visible remarks box.", true);
+        remarksPopupTextarea.value = lastValidRemarksText;
+        updateRemarksPopupHint("Maximum printed remarks reached.", true);
       }
     });
 
@@ -3269,8 +3378,10 @@ function getAircraftLabel(index) {
       buildAircraftBar();
       buildTable();
       document.querySelectorAll('.rowspan-input.remarkscol textarea').forEach(applyRemarksSizing);
+      for (let dayId = 1; dayId <= DAY_COUNT; dayId++) syncRemarksDisplay(dayId);
       loadBrowserDraft();
       document.querySelectorAll('.rowspan-input.remarkscol textarea').forEach(applyRemarksSizing);
+      for (let dayId = 1; dayId <= DAY_COUNT; dayId++) syncRemarksDisplay(dayId);
       updatePeriodFromRows();
       computeWeeklySummary();
       refreshAuthState();
@@ -3283,9 +3394,10 @@ function getAircraftLabel(index) {
       appendDebugLog("bootstrap error: " + err.message);
     }
   </script>
-  <div id="remarksMeasurer" class="remarks-measurer"></div>
+  <div id="remarksMeasurer" class="remarks-measurer remarks-cell-clone"></div>
 </body>
 </html>
+
 
 
 
