@@ -286,6 +286,36 @@
       line-height: 1.2;
     }
 
+    .period-input-wrap {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      padding: 0 8px;
+      font-size: 10px;
+      flex-wrap: nowrap;
+    }
+
+    .period-input-wrap .period-part {
+      border: none;
+      border-bottom: 1px solid var(--soft-line);
+      background: transparent;
+      padding: 2px 1px;
+      font-size: 10px;
+      height: 22px;
+      text-align: center;
+    }
+
+    .period-input-wrap .period-part.tiny { width: 24px; }
+    .period-input-wrap .period-part.year { width: 42px; }
+    .period-input-wrap .period-sep {
+      margin: 0 2px;
+      font-size: 9px;
+      font-weight: bold;
+      color: #334155;
+      text-transform: uppercase;
+    }
+
     .controls {
       display: flex;
       gap: 6px;
@@ -729,6 +759,57 @@
 
     .summary-metric.warn {
       background: var(--warn-bg);
+    }
+
+    .validation-wrap {
+      border-top: 1px solid var(--soft-line);
+      padding: 8px;
+      background: #fff;
+    }
+
+    .validation-title {
+      font-size: 10px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #475569;
+      margin-bottom: 4px;
+    }
+
+    .validation-summary {
+      min-height: 44px;
+      max-height: 120px;
+      overflow: auto;
+      white-space: pre-wrap;
+      font-size: 10px;
+      line-height: 1.35;
+      border: 1px solid var(--soft-line);
+      background: #f8fafc;
+      padding: 6px;
+    }
+
+    .validation-clean {
+      color: var(--ok);
+      font-weight: bold;
+    }
+
+    .day-validation-error {
+      box-shadow: inset 0 0 0 2px rgba(153, 27, 27, 0.95);
+      background: rgba(254, 226, 226, 0.65) !important;
+    }
+
+    .day-validation-warning {
+      box-shadow: inset 0 0 0 2px rgba(146, 64, 14, 0.9);
+      background: rgba(254, 243, 199, 0.68) !important;
+    }
+
+    .labelcol-cell.validation-error {
+      background: var(--danger-bg) !important;
+      color: var(--danger) !important;
+    }
+
+    .labelcol-cell.validation-warning {
+      background: var(--warn-bg) !important;
+      color: var(--warn) !important;
     }
 
     .saved-wrap {
@@ -1486,7 +1567,7 @@
       <div class="sheet-title">
         <div class="company">TEMSCO HELICOPTERS INC.</div>
         <div class="form-title">Pilot's Flight & Duty Time Log</div>
-        <div class="note">v42 state-backed build: same v41-1 layout and print geometry, now with centralized appState, versioned browser draft restore, and validation-aware draft persistence.</div>
+        <div class="note">v43 step 2 fix: preserved v41-1 layout, manual tab-friendly period date fields, locked aircraft names, and restored state-backed draft persistence.</div>
       </div>
 
       <div class="header-box">
@@ -1505,7 +1586,19 @@
         <div class="header-box-row">
           <div class="header-label">PERIOD</div>
           <div class="header-value">
-            <input id="logPeriod" type="text" placeholder="03/25/2026 to 03/31/2026" />
+            <div class="period-input-wrap">
+              <input id="periodStartMonth" class="period-part tiny" type="text" maxlength="2" placeholder="MM" />
+              <span>/</span>
+              <input id="periodStartDay" class="period-part tiny" type="text" maxlength="2" placeholder="DD" />
+              <span>/</span>
+              <input id="periodStartYear" class="period-part year" type="text" maxlength="4" placeholder="YYYY" />
+              <span class="period-sep">to</span>
+              <input id="periodEndMonth" class="period-part tiny" type="text" maxlength="2" placeholder="MM" />
+              <span>/</span>
+              <input id="periodEndDay" class="period-part tiny" type="text" maxlength="2" placeholder="DD" />
+              <span>/</span>
+              <input id="periodEndYear" class="period-part year" type="text" maxlength="4" placeholder="YYYY" />
+            </div>
           </div>
         </div>
       </div>
@@ -1532,6 +1625,10 @@
           <div class="summary-metric"><div class="label">Duty</div><div id="weekDuty" class="value">0.0</div></div>
           <div class="summary-metric"><div class="label">Days Used</div><div id="weekDays" class="value">0</div></div>
           <div id="restMetric" class="summary-metric"><div class="label">Rest Alerts</div><div id="restAlerts" class="value">0</div></div>
+        </div>
+        <div class="validation-wrap">
+          <div class="validation-title">Validation</div>
+          <div id="validationSummary" class="validation-summary"><span class="validation-clean">No issues.</span></div>
         </div>
       </div>
 
@@ -1764,7 +1861,7 @@
     ].forEach((id) => {
       const el = document.getElementById(id);
       if (el) {
-        el.addEventListener("input", persistDraftSoon);
+        el.addEventListener("input", (e) => updateTopLevelField(id, e.target.value));
       }
     });
 
@@ -1784,7 +1881,9 @@
       const el = document.getElementById(id);
       if (el) {
         el.addEventListener("input", () => {
-          el.value = el.value.toUpperCase();
+          if (id !== "currencyDateMonth" && id !== "currencyDateDay" && id !== "currencyDateYear" && id !== "currencyDayDuration" && id !== "currencyNightDuration" && id !== "currencyTakeoffs") {
+            el.value = el.value.toUpperCase();
+          }
         });
       }
     });
@@ -1801,13 +1900,19 @@ const nInput = document.getElementById("currencyN");
         nInput.classList.toggle("alert-exceed", !!nInput.value && !isValidNNumber(nInput.value));
       });
     }
-    const logPeriodEl = document.getElementById("logPeriod");
+    const periodStartMonthEl = document.getElementById("periodStartMonth");
+    const periodStartDayEl = document.getElementById("periodStartDay");
+    const periodStartYearEl = document.getElementById("periodStartYear");
+    const periodEndMonthEl = document.getElementById("periodEndMonth");
+    const periodEndDayEl = document.getElementById("periodEndDay");
+    const periodEndYearEl = document.getElementById("periodEndYear");
     const aircraftBar = document.getElementById("aircraftBar");
     const weekFlightEl = document.getElementById("weekFlight");
     const weekDutyEl = document.getElementById("weekDuty");
     const weekDaysEl = document.getElementById("weekDays");
     const restAlertsEl = document.getElementById("restAlerts");
     const restMetricEl = document.getElementById("restMetric");
+    const validationSummaryEl = document.getElementById("validationSummary");
     const debugSessionState = document.getElementById("debugSessionState");
     const debugUserEmail = document.getElementById("debugUserEmail");
     const debugUserId = document.getElementById("debugUserId");
@@ -1827,9 +1932,29 @@ const nInput = document.getElementById("currencyN");
     const remarksMeasurer = document.getElementById("remarksMeasurer");
     let activeRemarksDayId = null;
     let lastValidRemarksText = "";
+    let suppressPersist = false;
 
 
     const appState = createInitialAppState();
+
+    function createEmptyDayState(dayId) {
+      return {
+        id: dayId,
+        logDate: "",
+        remarks: "",
+        route133Top: "",
+        route133Bottom: "",
+        metrics: Array.from({ length: AIRCRAFT_COUNT }, () => ({ night: "", trng: "" })),
+        flightMarks: Array.from({ length: 48 }, () => Array.from({ length: 5 }, () => null)),
+        dutyBlocks: Array.from({ length: 48 }, () => 0),
+        dutyStart: "--:--",
+        dutyStop: "--:--",
+        dutyTotal: 0,
+        flightTotal: 0,
+        usedAircraft: [],
+        validation: { errors: [], warnings: [] }
+      };
+    }
 
     function createInitialAppState() {
       return {
@@ -1837,6 +1962,14 @@ const nInput = document.getElementById("currencyN");
         pilotName: "",
         certificateNumber: "",
         logPeriod: "",
+        period: {
+          periodStartMonth: "",
+          periodStartDay: "",
+          periodStartYear: "",
+          periodEndMonth: "",
+          periodEndDay: "",
+          periodEndYear: ""
+        },
         currency: {
           currencyDateMonth: "",
           currencyDateDay: "",
@@ -1853,17 +1986,7 @@ const nInput = document.getElementById("currencyN");
         },
         selectedAircraftIndex: 0,
         aircraftLabels: aircraftOptions.map((option) => option.label),
-        days: Array.from({ length: DAY_COUNT }, (_, idx) => ({
-          id: idx + 1,
-          logDate: "",
-          remarks: "",
-          route133Top: "",
-          route133Bottom: "",
-          metrics: Array.from({ length: AIRCRAFT_COUNT }, () => ({ night: "", trng: "" })),
-          flightMarks: Array.from({ length: 48 }, () => Array.from({ length: 5 }, () => null)),
-          dutyBlocks: Array.from({ length: 48 }, () => 0),
-          validation: { errors: [], warnings: [] }
-        })),
+        days: Array.from({ length: DAY_COUNT }, (_, idx) => createEmptyDayState(idx + 1)),
         meta: {
           dirty: false,
           lastSavedAt: null,
@@ -1880,17 +2003,31 @@ const nInput = document.getElementById("currencyN");
       return appState.days[dayId - 1];
     }
 
+    function hasFlightOutsideDuty(day) {
+      const flightMarks = Array.isArray(day?.flightMarks) ? day.flightMarks : [];
+      const dutyBlocks = Array.isArray(day?.dutyBlocks) ? day.dutyBlocks : [];
+      for (let blockIndex = 0; blockIndex < flightMarks.length; blockIndex += 1) {
+        const blockMarks = flightMarks[blockIndex];
+        const hasFlightInBlock = Array.isArray(blockMarks) && blockMarks.some((mark) => mark !== null && mark !== undefined);
+        const hasDutyInBlock = Number(dutyBlocks[blockIndex] || 0) > 0;
+        if (hasFlightInBlock && !hasDutyInBlock) {
+          return true;
+        }
+      }
+      return false;
+    }
+
     function validateDayState(dayId) {
       const day = getDayState(dayId);
       if (!day) return { errors: [], warnings: [] };
       const errors = [];
       const warnings = [];
-      const flightTotal = Number(getReadout(dayId, "flightTotal")?.textContent || '0');
-      const dutyTotal = Number(getReadout(dayId, "dutyTotal")?.textContent || '0');
+      const flightTotal = Number(day.flightTotal || 0);
+      const dutyTotal = Number(day.dutyTotal || 0);
       if (day.logDate && !/^\d{2}\/\d{2}$/.test(day.logDate)) {
         errors.push('Date must be MM/DD.');
       }
-      if (flightTotal > 0 && !getUsedAircraftNames(dayId).length) {
+      if (flightTotal > 0 && !(day.usedAircraft || []).length) {
         errors.push('Flight time requires aircraft selection.');
       }
       if (flightTotal > dutyTotal && dutyTotal > 0) {
@@ -1899,117 +2036,219 @@ const nInput = document.getElementById("currencyN");
       if (dutyTotal > 14) {
         errors.push('Duty exceeds 14 hours.');
       }
+      if (hasFlightOutsideDuty(day)) {
+        warnings.push('Flight entry is outside duty time.');
+      }
       if (remarksWouldOverflow(dayId, day.remarks || '')) {
         warnings.push('Remarks are at visible print limit.');
       }
-      if ((day.logDate || day.remarks || flightTotal > 0 || dutyTotal > 0) && !day.logDate) {
+      if ((day.logDate || day.remarks || flightTotal > 0 || dutyTotal > 0 || day.route133Top || day.route133Bottom) && !day.logDate) {
         warnings.push('Day has data but no date.');
       }
       day.validation = { errors, warnings };
+      applyDayValidationUI(dayId);
       return day.validation;
+    }
+
+    function getDayValidationTargets(dayId) {
+      return Array.from(document.querySelectorAll(`[data-validation-day="${dayId}"]`));
+    }
+
+    function getDayValidationLabelTargets(dayId) {
+      return Array.from(document.querySelectorAll(`.labelcol-cell[data-day-id="${dayId}"]`));
+    }
+
+    function applyDayValidationUI(dayId) {
+      const day = getDayState(dayId);
+      if (!day) return;
+      const hasErrors = (day.validation?.errors || []).length > 0;
+      const hasWarnings = !hasErrors && (day.validation?.warnings || []).length > 0;
+      const messages = []
+        .concat((day.validation?.errors || []).map((m) => `ERROR: ${m}`))
+        .concat((day.validation?.warnings || []).map((m) => `WARN: ${m}`));
+      const title = messages.join(' | ') || 'No issues';
+
+      getDayValidationTargets(dayId).forEach((el) => {
+        el.classList.remove('day-validation-error', 'day-validation-warning');
+        el.removeAttribute('title');
+        if (hasErrors) el.classList.add('day-validation-error');
+        else if (hasWarnings) el.classList.add('day-validation-warning');
+        el.title = title;
+      });
+
+      getDayValidationLabelTargets(dayId).forEach((el) => {
+        el.classList.remove('validation-error', 'validation-warning');
+        if (hasErrors) el.classList.add('validation-error');
+        else if (hasWarnings) el.classList.add('validation-warning');
+        el.title = title;
+      });
+    }
+
+    function renderValidationSummary() {
+      if (!validationSummaryEl) return;
+      const lines = [];
+      appState.days.forEach((day) => {
+        (day.validation?.errors || []).forEach((msg) => lines.push(`Day ${day.id} ERROR: ${msg}`));
+        (day.validation?.warnings || []).forEach((msg) => lines.push(`Day ${day.id} WARN: ${msg}`));
+      });
+      if (!lines.length) {
+        validationSummaryEl.innerHTML = '<span class="validation-clean">No issues.</span>';
+        return;
+      }
+      validationSummaryEl.textContent = lines.join('\n');
     }
 
     function validateAllState() {
       appState.days.forEach((day) => validateDayState(day.id));
+      renderValidationSummary();
       return appState.days.map((day) => day.validation);
     }
 
-    function syncStateFromDom() {
-      appState.pilotName = document.getElementById('pilotName').value || '';
-      appState.certificateNumber = document.getElementById('certificateNumber').value || '';
-      appState.logPeriod = document.getElementById('logPeriod').value || '';
-      [
-        'currencyDateMonth','currencyDateDay','currencyDateYear','currencyAircraft','currencyN','currencyFrom','currencyTo',
-        'currencyDayDuration','currencyNightDuration','currencyTakeoffs','currencyRemarks','pilotSignature'
-      ].forEach((id) => {
-        appState.currency[id] = document.getElementById(id)?.value || '';
-      });
-      appState.selectedAircraftIndex = selectedAircraftIndex;
-      appState.aircraftLabels = aircraftOptions.map((_, index) => getAircraftLabel(index));
+    function syncUnmanagedStateFromDom() {
       appState.days = Array.from({ length: DAY_COUNT }, (_, idx) => {
         const dayId = idx + 1;
-        const day = getDayState(dayId) || { id: dayId };
-        day.id = dayId;
-        day.logDate = getInput(dayId, 'logDate')?.value || '';
-        day.remarks = getInput(dayId, 'remarks')?.value || '';
-        day.route133Top = document.querySelector(`[data-day-id="${dayId}"][data-key="route133Top"]`)?.value || '';
-        day.route133Bottom = document.querySelector(`[data-day-id="${dayId}"][data-key="route133Bottom"]`)?.value || '';
-        day.metrics = getDayAircraftMetrics(dayId);
-        day.flightMarks = getFlightMarks(dayId);
-        day.dutyBlocks = getDutyBlocks(dayId);
+        const existingDay = getDayState(dayId) || createEmptyDayState(dayId);
+        const nextDay = {
+          ...createEmptyDayState(dayId),
+          ...existingDay,
+          id: dayId,
+          metrics: getDayAircraftMetrics(dayId),
+          flightMarks: getFlightMarks(dayId),
+          dutyBlocks: getDutyBlocks(dayId),
+          dutyStart: getReadout(dayId, "dutyStart")?.textContent || "--:--",
+          dutyStop: getReadout(dayId, "dutyStop")?.textContent || "--:--",
+          dutyTotal: Number(getReadout(dayId, "dutyTotal")?.textContent || 0),
+          flightTotal: Number(getReadout(dayId, "flightTotal")?.textContent || 0),
+          usedAircraft: getUsedAircraftNames(dayId)
+        };
+        appState.days[idx] = nextDay;
         validateDayState(dayId);
-        return day;
+        return nextDay;
       });
-      appState.meta.dirty = true;
-      appState.meta.lastSavedAt = new Date().toISOString();
+      appState.selectedAircraftIndex = selectedAircraftIndex;
+      appState.aircraftLabels = aircraftOptions.map((option) => option.label);
       return appState;
     }
 
-    function renderStateToDom() {
-      document.getElementById('pilotName').value = appState.pilotName || '';
-      document.getElementById('certificateNumber').value = appState.certificateNumber || '';
-      document.getElementById('logPeriod').value = appState.logPeriod || '';
+    function syncStateFromDom() {
+      return syncUnmanagedStateFromDom();
+    }
+
+    function renderTopLevelStateFields() {
+      const topLevelMap = {
+        pilotName: appState.pilotName || "",
+        certificateNumber: appState.certificateNumber || ""
+      };
+      Object.entries(topLevelMap).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el && el.value !== value) el.value = value;
+      });
+      Object.entries(appState.period || {}).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el && el.value !== (value || "")) {
+          el.value = value || "";
+        }
+      });
       Object.entries(appState.currency || {}).forEach(([id, value]) => {
         const el = document.getElementById(id);
-        if (el) el.value = value || '';
+        if (el && el.value !== (value || "")) {
+          el.value = value || "";
+        }
       });
+      const nField = document.getElementById("currencyN");
+      if (nField) {
+        nField.classList.toggle("alert-exceed", !!nField.value && !isValidNNumber(nField.value));
+      }
+    }
+
+    function renderStateToDom() {
+      renderTopLevelStateFields();
       (appState.aircraftLabels || []).forEach((label, index) => {
         const input = document.querySelector(`.aircraft-chip[data-aircraft-index="${index}"] input`);
-        if (input) input.value = label || aircraftOptions[index].label;
+        const nextValue = aircraftOptions[index].label;
+        if (input && input.value !== nextValue) input.value = nextValue;
       });
       if (Number.isInteger(appState.selectedAircraftIndex)) {
         selectedAircraftIndex = Math.max(0, Math.min(AIRCRAFT_COUNT - 1, appState.selectedAircraftIndex));
       }
       refreshAircraftSelection();
+      suppressPersist = true;
       (appState.days || []).forEach((day, idx) => {
         const dayId = idx + 1;
         renderDayStateFields(dayId);
         setDayAircraftMetrics(dayId, day.metrics || null);
-        applyFlightMarksToDay(dayId, day.flightMarks || [], null);
-        clearDutyOnly(dayId);
-        (day.dutyBlocks || []).forEach((value, blockIndex) => {
-          if (Number(value) > 0) {
-            const cell = document.querySelector(`.duty-block[data-day-id="${dayId}"][data-block="${blockIndex}"]`);
-            if (cell) cell.classList.add('on');
-          }
-        });
-        updateTotals(dayId);
+        renderFlightMarksFromState(dayId);
+        renderDutyBlocksFromState(dayId);
+        syncDayDerivedStateFromDom(dayId);
+        renderDayStateFields(dayId);
+        updateDayAircraftPicTotals(dayId);
       });
-      updatePeriodFromRows();
+      suppressPersist = false;
+      syncLogPeriodFromState();
       computeWeeklySummary();
-      syncStateFromDom();
+      renderValidationSummary();
       appState.meta.dirty = false;
     }
 
-    function updateTopLevelField(fieldName, value) {
-      if (fieldName in appState.currency) {
-        appState.currency[fieldName] = value;
-      } else if (fieldName in appState) {
-        appState[fieldName] = value;
+    function normalizeTopLevelValue(fieldName, value) {
+      if (fieldName.startsWith("periodStart") || fieldName.startsWith("periodEnd")) {
+        const maxLen = fieldName.endsWith("Year") ? 4 : 2;
+        return digitsOnly(value, maxLen);
       }
-      appState.meta.dirty = true;
-      persistDraftSoon();
+      if (fieldName === "currencyN") {
+        return String(value || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+      }
+      return value;
     }
 
-    function updateDayField(dayId, fieldName, value) {
+    function updateTopLevelField(fieldName, value, options = {}) {
+      const normalized = normalizeTopLevelValue(fieldName, value);
+      if (fieldName in (appState.period || {})) {
+        appState.period[fieldName] = normalized;
+        syncLogPeriodFromState();
+      } else if (fieldName in appState.currency) {
+        appState.currency[fieldName] = normalized;
+      } else if (fieldName in appState) {
+        appState[fieldName] = normalized;
+      }
+      appState.meta.dirty = true;
+      if (!options.skipRender) {
+        renderTopLevelStateFields();
+      }
+      if (!options.skipPersist) {
+        persistDraftSoon();
+      }
+    }
+
+    function updateDayField(dayId, fieldName, value, options = {}) {
       const day = getDayState(dayId);
       if (!day) return;
       day[fieldName] = value;
       validateDayState(dayId);
       appState.meta.dirty = true;
-      persistDraftSoon();
+      if (!options.skipRender) {
+        renderDayStateFields(dayId);
+      }
+      if (!options.skipPersist) {
+        persistDraftSoon();
+      }
     }
 
-    function setAircraftLabelState(index, value) {
-      appState.aircraftLabels[index] = value;
-      appState.meta.dirty = true;
-      persistDraftSoon();
+    function setAircraftLabelState(index, value, options = {}) {
+      appState.aircraftLabels[index] = aircraftOptions[index].label;
+      updateSelectedAircraftDisplay();
     }
 
-    function setSelectedAircraftState(index) {
+    function setSelectedAircraftState(index, options = {}) {
       appState.selectedAircraftIndex = index;
+      selectedAircraftIndex = index;
       appState.meta.dirty = true;
-      persistDraftSoon();
+      if (!options.skipRender) {
+        refreshAircraftSelection();
+      }
+      if (!options.skipPersist) {
+        persistDraftSoon();
+      }
     }
 
     function remarksWouldOverflow(dayId, text) {
@@ -2107,6 +2346,10 @@ const nInput = document.getElementById("currencyN");
       const dateInput = getInput(dayId, "logDate");
       const route133Top = document.querySelector(`[data-day-id="${dayId}"][data-key="route133Top"]`);
       const route133Bottom = document.querySelector(`[data-day-id="${dayId}"][data-key="route133Bottom"]`);
+      const dutyStartReadout = getReadout(dayId, "dutyStart");
+      const dutyStopReadout = getReadout(dayId, "dutyStop");
+      const dutyTotalReadout = getReadout(dayId, "dutyTotal");
+      const flightTotalReadout = getReadout(dayId, "flightTotal");
 
       if (dateInput && dateInput.value !== (day.logDate || "")) {
         dateInput.value = day.logDate || "";
@@ -2128,6 +2371,17 @@ const nInput = document.getElementById("currencyN");
         route133Bottom.value = day.route133Bottom || "";
       }
 
+      if (dutyStartReadout) dutyStartReadout.textContent = day.dutyStart || "--:--";
+      if (dutyStopReadout) dutyStopReadout.textContent = day.dutyStop || "--:--";
+      if (dutyTotalReadout) {
+        dutyTotalReadout.textContent = Number(day.dutyTotal || 0).toFixed(1);
+        dutyTotalReadout.classList.toggle("alert-exceed", Number(day.dutyTotal || 0) > 14);
+      }
+      if (flightTotalReadout) {
+        flightTotalReadout.textContent = Number(day.flightTotal || 0).toFixed(1);
+        flightTotalReadout.classList.toggle("alert-exceed", Number(day.flightTotal || 0) > 8);
+      }
+
       syncRemarksDisplay(dayId);
     }
 
@@ -2136,11 +2390,9 @@ const nInput = document.getElementById("currencyN");
       if (!day) return;
       day[key] = value;
 
-      if (key === "logDate") {
-        updatePeriodFromRows();
-      }
 
       validateDayState(dayId);
+      renderValidationSummary();
       appState.meta.dirty = true;
 
       if (!options.skipRender) {
@@ -2280,8 +2532,7 @@ const nInput = document.getElementById("currencyN");
     }
 
 function getAircraftLabel(index) {
-      const input = document.querySelector(`.aircraft-chip[data-aircraft-index="${index}"] input`);
-      return input?.value.trim() || aircraftOptions[index].label;
+      return appState.aircraftLabels?.[index] || aircraftOptions[index].label;
     }
 
     function getAircraftColor(index) {
@@ -2351,32 +2602,85 @@ function getAircraftLabel(index) {
       return dateValue;
     }
 
-    function getPeriodYear() {
-      const text = (logPeriodEl.value || "").trim();
-      const yearMatch = text.match(/\b(20\d{2}|19\d{2})\b/);
-      return yearMatch ? yearMatch[1] : String(new Date().getFullYear());
+    function digitsOnly(value, maxLen) {
+      return String(value || "").replace(/[^\d]/g, "").slice(0, maxLen);
+    }
+
+    function buildLogPeriodString() {
+      const p = appState.period || {};
+      const start = [p.periodStartMonth, p.periodStartDay, p.periodStartYear].every(Boolean)
+        ? `${p.periodStartMonth}/${p.periodStartDay}/${p.periodStartYear}`
+        : "";
+      const end = [p.periodEndMonth, p.periodEndDay, p.periodEndYear].every(Boolean)
+        ? `${p.periodEndMonth}/${p.periodEndDay}/${p.periodEndYear}`
+        : "";
+      if (start && end) return `${start} to ${end}`;
+      if (start) return start;
+      if (end) return end;
+      return "";
+    }
+
+    function syncLogPeriodFromState() {
+      appState.logPeriod = buildLogPeriodString();
+      return appState.logPeriod;
+    }
+
+    function setPeriodFromString(periodText, options = {}) {
+      const text = String(periodText || "").trim();
+      const matches = text.match(/(\d{2})\/(\d{2})\/(\d{4})/g) || [];
+      const first = matches[0] || "";
+      const second = matches[1] || "";
+      const splitDate = (s) => {
+        const m = String(s).match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+        return m ? { month: m[1], day: m[2], year: m[3] } : { month: "", day: "", year: "" };
+      };
+      const a = splitDate(first);
+      const b = splitDate(second);
+      appState.period = {
+        periodStartMonth: a.month,
+        periodStartDay: a.day,
+        periodStartYear: a.year,
+        periodEndMonth: b.month,
+        periodEndDay: b.day,
+        periodEndYear: b.year
+      };
+      syncLogPeriodFromState();
+      if (!options.skipRender) renderTopLevelStateFields();
+      if (!options.skipPersist) persistDraftSoon();
+    }
+
+    function getPeriodYear(mmdd) {
+      const cleaned = String(mmdd || "").trim();
+      const p = appState.period || {};
+      if (/^\d{2}\/\d{2}$/.test(cleaned)) {
+        const month = cleaned.slice(0, 2);
+        if (p.periodStartMonth && p.periodEndMonth && p.periodStartYear && p.periodEndYear) {
+          const mm = Number(month);
+          const startM = Number(p.periodStartMonth);
+          const endM = Number(p.periodEndMonth);
+          if (!Number.isNaN(mm) && !Number.isNaN(startM) && !Number.isNaN(endM)) {
+            if (startM <= endM) return mm >= startM && mm <= endM ? p.periodStartYear : p.periodStartYear;
+            return mm >= startM ? p.periodStartYear : p.periodEndYear;
+          }
+        }
+      }
+      return p.periodStartYear || p.periodEndYear || String(new Date().getFullYear());
     }
 
     function buildStoredDate(mmdd, periodValue) {
       const cleaned = (mmdd || "").trim();
       if (!/^\d{2}\/\d{2}$/.test(cleaned)) return cleaned;
-      const yearMatch = (periodValue || "").match(/\b(20\d{2}|19\d{2})\b/);
-      if (yearMatch) {
+      const year = getPeriodYear(cleaned);
+      if (year) {
         const [mm, dd] = cleaned.split("/");
-        return `${yearMatch[1]}-${mm}-${dd}`;
+        return `${year}-${mm}-${dd}`;
       }
       return cleaned;
     }
 
     function updatePeriodFromRows() {
-      const firstDate = getInput(1, "logDate")?.value.trim() || "";
-      const lastDate = getInput(DAY_COUNT, "logDate")?.value.trim() || "";
-      if (/^\d{2}\/\d{2}$/.test(firstDate) && /^\d{2}\/\d{2}$/.test(lastDate)) {
-        const year = getPeriodYear();
-        logPeriodEl.value = `${firstDate}/${year} to ${lastDate}/${year}`;
-      } else if (!firstDate && !lastDate && !/\bto\b/i.test(logPeriodEl.value)) {
-        logPeriodEl.value = "";
-      }
+      syncLogPeriodFromState();
+      return appState.logPeriod;
     }
 
     function autoFormatMMDDInput(input) {
@@ -2395,22 +2699,16 @@ function getAircraftLabel(index) {
 
         const input = document.createElement("input");
         input.type = "text";
-        input.value = option.label;
+        input.value = aircraftOptions[index].label;
         input.addEventListener("focus", () => {
-          selectedAircraftIndex = index;
-          refreshAircraftSelection();
           setSelectedAircraftState(index);
           setMode("flight");
         });
-        input.addEventListener("input", () => {
-          updateSelectedAircraftDisplay();
-          setAircraftLabelState(index, input.value);
-        });
+        input.readOnly = true;
+        input.tabIndex = -1;
 
         chip.addEventListener("click", (e) => {
           if (e.target !== input) {
-            selectedAircraftIndex = index;
-            refreshAircraftSelection();
             setSelectedAircraftState(index);
             setMode("flight");
           }
@@ -2439,6 +2737,79 @@ function getAircraftLabel(index) {
       });
     }
 
+    function renderFlightMarksFromState(dayId) {
+      const day = getDayState(dayId);
+      if (!day) return;
+      document.querySelectorAll(`.tenth[data-day-id="${dayId}"]`).forEach((el) => {
+        el.classList.remove("on");
+        el.style.background = "";
+        delete el.dataset.aircraftIndex;
+      });
+      (day.flightMarks || []).forEach((blockMarks, blockIndex) => {
+        if (!Array.isArray(blockMarks)) return;
+        blockMarks.forEach((aircraftIndex, tenthIndex) => {
+          if (aircraftIndex === null || aircraftIndex === undefined) return;
+          const tenth = document.querySelector(`.tenth[data-day-id="${dayId}"][data-block="${blockIndex}"][data-tenth="${tenthIndex}"]`);
+          if (tenth) {
+            const idx = Number(aircraftIndex) || 0;
+            tenth.classList.add("on");
+            tenth.dataset.aircraftIndex = String(idx);
+            tenth.style.background = getAircraftColor(idx);
+          }
+        });
+      });
+    }
+
+    function renderDutyBlocksFromState(dayId) {
+      const day = getDayState(dayId);
+      if (!day) return;
+      document.querySelectorAll(`.duty-block[data-day-id="${dayId}"]`).forEach((el) => {
+        el.classList.remove("on", "pending");
+      });
+      (day.dutyBlocks || []).forEach((value, blockIndex) => {
+        if (Number(value) > 0) {
+          const cell = document.querySelector(`.duty-block[data-day-id="${dayId}"][data-block="${blockIndex}"]`);
+          if (cell) cell.classList.add("on");
+        }
+      });
+      const state = getRowState(dayId);
+      if (state) state.dutyStartBlock = null;
+    }
+
+    function syncDayDerivedStateFromDom(dayId) {
+      const day = getDayState(dayId);
+      if (!day) return;
+      let flight = 0;
+      let duty = 0;
+      document.querySelectorAll(`.tenth.on[data-day-id="${dayId}"]`).forEach(() => flight += 0.1);
+      document.querySelectorAll(`.duty-block.on[data-day-id="${dayId}"]`).forEach(() => duty += 0.5);
+      const activeBlocks = [];
+      document.querySelectorAll(`.duty-block.on[data-day-id="${dayId}"]`).forEach((cell) => {
+        activeBlocks.push(Number(cell.dataset.block));
+      });
+      let startText = "--:--";
+      let stopText = "--:--";
+      if (activeBlocks.length) {
+        activeBlocks.sort((a, b) => a - b);
+        startText = formatHalfHourBlock(activeBlocks[0]);
+        stopText = formatHalfHourBlock(activeBlocks[activeBlocks.length - 1] + 1);
+      }
+      day.flightMarks = getFlightMarks(dayId);
+      day.dutyBlocks = getDutyBlocks(dayId);
+      day.usedAircraft = getUsedAircraftNames(dayId);
+      day.dutyStart = startText;
+      day.dutyStop = stopText;
+      day.dutyTotal = Number(duty.toFixed(1));
+      day.flightTotal = Number(flight.toFixed(1));
+      validateDayState(dayId);
+    }
+
+    function dayHasUsedContent(dayId) {
+      const day = getDayState(dayId);
+      if (!day) return false;
+      return Number(day.flightTotal || 0) > 0 || Number(day.dutyTotal || 0) > 0 || !!String(day.remarks || "").trim() || !!String(day.route133Top || "").trim() || !!String(day.route133Bottom || "").trim();
+    }
+
     function computeWeeklySummary() {
       let flight = 0;
       let duty = 0;
@@ -2446,15 +2817,15 @@ function getAircraftLabel(index) {
       let restAlerts = 0;
       let previousDutyStop = null;
 
-      for (let dayId = 1; dayId <= DAY_COUNT; dayId++) {
-        const dayFlight = Number(getReadout(dayId, "flightTotal")?.textContent || 0);
-        const dayDuty = Number(getReadout(dayId, "dutyTotal")?.textContent || 0);
-        const dutyStart = getReadout(dayId, "dutyStart")?.textContent || "--:--";
-        const dutyStop = getReadout(dayId, "dutyStop")?.textContent || "--:--";
+      appState.days.forEach((day) => {
+        const dayFlight = Number(day.flightTotal || 0);
+        const dayDuty = Number(day.dutyTotal || 0);
+        const dutyStart = day.dutyStart || "--:--";
+        const dutyStop = day.dutyStop || "--:--";
 
         flight += dayFlight;
         duty += dayDuty;
-        if (dayFlight > 0 || dayDuty > 0 || (getInput(dayId, "logDate")?.value || "").trim()) days += 1;
+        if (dayHasUsedContent(day.id)) days += 1;
 
         const currentStart = timeToMinutes(dutyStart);
         if (previousDutyStop !== null && currentStart !== null) {
@@ -2465,7 +2836,7 @@ function getAircraftLabel(index) {
 
         const currentStop = timeToMinutes(dutyStop);
         previousDutyStop = currentStop;
-      }
+      });
 
       weekFlightEl.textContent = flight.toFixed(1);
       weekDutyEl.textContent = duty.toFixed(1);
@@ -2475,39 +2846,12 @@ function getAircraftLabel(index) {
     }
 
     function updateTotals(dayId) {
-      let flight = 0;
-      let duty = 0;
-
-      document.querySelectorAll(`.tenth.on[data-day-id="${dayId}"]`).forEach(() => flight += 0.1);
-      document.querySelectorAll(`.duty-block.on[data-day-id="${dayId}"]`).forEach(() => duty += 0.5);
-
-      const activeBlocks = [];
-      document.querySelectorAll(`.duty-block.on[data-day-id="${dayId}"]`).forEach((cell) => {
-        activeBlocks.push(Number(cell.dataset.block));
-      });
-
-      let startText = "--:--";
-      let stopText = "--:--";
-      if (activeBlocks.length) {
-        activeBlocks.sort((a, b) => a - b);
-        startText = formatHalfHourBlock(activeBlocks[0]);
-        stopText = formatHalfHourBlock(activeBlocks[activeBlocks.length - 1] + 1);
-      }
-
-      const dutyReadout = getReadout(dayId, "dutyTotal");
-      const flightReadout = getReadout(dayId, "flightTotal");
-
-      getReadout(dayId, "dutyStart").textContent = startText;
-      getReadout(dayId, "dutyStop").textContent = stopText;
-      dutyReadout.textContent = duty.toFixed(1);
-      flightReadout.textContent = flight.toFixed(1);
-
-      dutyReadout.classList.toggle("alert-exceed", duty > 14);
-      flightReadout.classList.toggle("alert-exceed", flight > 8);
-
+      syncDayDerivedStateFromDom(dayId);
+      renderDayStateFields(dayId);
       updateDayAircraftPicTotals(dayId);
       computeWeeklySummary();
-      persistDraftSoon();
+      renderValidationSummary();
+      if (!suppressPersist) persistDraftSoon();
     }
 
     function clearDutyOnly(dayId) {
@@ -2531,13 +2875,29 @@ function getAircraftLabel(index) {
       updateTotals(dayId);
     }
 
+    function findNextDutyFilledRow(startDayId) {
+      for (let offset = 1; offset <= DAY_COUNT; offset++) {
+        const dayId = ((startDayId - 1 + offset) % DAY_COUNT) + 1;
+        const hasDuty = Array.from(document.querySelectorAll(`.duty-block.on[data-day-id="${dayId}"]`)).length > 0;
+        if (hasDuty) return dayId;
+      }
+      return null;
+    }
+
     function clearSelectedModeForCurrentRow() {
       if (mode === "flight") {
         clearSelectedAircraftOnly(currentRowId);
         setStatus(`Day ${currentRowId}: cleared ${getAircraftLabel(selectedAircraftIndex)} only.`);
       } else {
-        clearDutyOnly(currentRowId);
-        setStatus(`Day ${currentRowId}: duty row cleared.`);
+        const clearedDayId = currentRowId;
+        clearDutyOnly(clearedDayId);
+        const nextDutyRow = findNextDutyFilledRow(clearedDayId);
+        if (nextDutyRow !== null) {
+          setCurrentRow(nextDutyRow);
+          setStatus(`Day ${clearedDayId}: duty row cleared. Ready on day ${nextDutyRow}.`);
+        } else {
+          setStatus(`Day ${clearedDayId}: duty row cleared.`);
+        }
       }
     }
 
@@ -2550,6 +2910,7 @@ function getAircraftLabel(index) {
         clearDutyOnly(dayId);
         state.dutyStartBlock = block;
         cell.classList.add("pending");
+        persistDraftNow();
         setStatus(`Day ${dayId}: duty start set. Click stop time.`, "warn");
         return;
       }
@@ -2568,6 +2929,7 @@ function getAircraftLabel(index) {
 
       state.dutyStartBlock = null;
       updateTotals(dayId);
+      persistDraftNow();
       setStatus(`Day ${dayId}: duty range filled.`);
     }
 
@@ -2603,7 +2965,14 @@ function getAircraftLabel(index) {
 
           const input = box.querySelector("input");
           if (metric !== "pic") {
-            input.addEventListener("input", persistDraftSoon);
+            input.addEventListener("input", () => {
+              const day = getDayState(dayId);
+              if (day) {
+                day.metrics[aircraftIndex][metric] = input.value;
+                appState.meta.dirty = true;
+              }
+              persistDraftSoon();
+            });
             input.addEventListener("focus", () => setCurrentRow(dayId));
           }
 
@@ -2696,6 +3065,7 @@ function getAircraftLabel(index) {
       td.className = "routecol route-entry-cell";
       td.dataset.dayId = dayId;
       td.dataset.key = "route133";
+      td.dataset.validationDay = dayId;
 
       td.innerHTML = `
         <div class="route-entry-cell-inner">
@@ -2720,6 +3090,9 @@ function getAircraftLabel(index) {
       const trMetrics = document.createElement("tr");
       const trFlight = document.createElement("tr");
       const trDuty = document.createElement("tr");
+      trMetrics.dataset.dayId = dayId;
+      trFlight.dataset.dayId = dayId;
+      trDuty.dataset.dayId = dayId;
 
       const makeRowspanInput = (key, className = "", isTextarea = false) => {
         const td = document.createElement("td");
@@ -2727,6 +3100,7 @@ function getAircraftLabel(index) {
         td.className = `rowspan-input ${className}`.trim();
         td.dataset.dayId = dayId;
         td.dataset.key = key;
+        td.dataset.validationDay = dayId;
 
         const input = isTextarea ? document.createElement("textarea") : document.createElement("input");
         if (!isTextarea) input.type = "text";
@@ -2783,6 +3157,7 @@ function getAircraftLabel(index) {
         td.className = "readout";
         td.dataset.dayId = dayId;
         td.dataset.key = key;
+        td.dataset.validationDay = dayId;
         td.textContent = initial;
         return td;
       };
@@ -2802,6 +3177,7 @@ function getAircraftLabel(index) {
       const metricsBand = document.createElement("td");
       metricsBand.colSpan = 48;
       metricsBand.className = "metrics-band-cell";
+      metricsBand.dataset.validationDay = dayId;
       metricsBand.appendChild(buildDayAircraftMetrics(dayId));
       trMetrics.appendChild(metricsBand);
 
@@ -2819,6 +3195,7 @@ function getAircraftLabel(index) {
       const fltTimeline = document.createElement("td");
       fltTimeline.colSpan = 48;
       fltTimeline.className = "timeline-cell";
+      fltTimeline.dataset.validationDay = dayId;
       fltTimeline.appendChild(buildFlightGrid(dayId));
       trFlight.appendChild(fltTimeline);
 
@@ -2832,6 +3209,7 @@ function getAircraftLabel(index) {
       const dutyTimeline = document.createElement("td");
       dutyTimeline.colSpan = 48;
       dutyTimeline.className = "timeline-cell";
+      dutyTimeline.dataset.validationDay = dayId;
       dutyTimeline.appendChild(buildDutyGrid(dayId));
       trDuty.appendChild(dutyTimeline);
 
@@ -2856,33 +3234,48 @@ function getAircraftLabel(index) {
     }
 
     function setDayAircraftMetrics(dayId, data) {
+      const day = getDayState(dayId);
       aircraftOptions.forEach((_, idx) => {
+        const nextNight = data?.[idx]?.night || "";
+        const nextTrng = data?.[idx]?.trng || "";
         const night = getDayMetricInput(dayId, idx, "night");
         const trng = getDayMetricInput(dayId, idx, "trng");
-        if (night) night.value = data?.[idx]?.night || "";
-        if (trng) trng.value = data?.[idx]?.trng || "";
+        if (night) night.value = nextNight;
+        if (trng) trng.value = nextTrng;
+        if (day) {
+          day.metrics[idx] = { night: nextNight, trng: nextTrng };
+        }
       });
-      persistDraftSoon();
+      if (!suppressPersist) persistDraftSoon();
     }
 
     function clearEntireDay(dayId) {
+      const day = getDayState(dayId);
+      suppressPersist = true;
       document.querySelectorAll(`.tenth[data-day-id="${dayId}"]`).forEach((el) => {
         el.classList.remove("on");
         el.style.background = "";
         delete el.dataset.aircraftIndex;
       });
-      clearDutyOnly(dayId);
-
-      ["logDate", "remarks", "route133Top", "route133Bottom"].forEach((key) => {
-        updateField(dayId, key, "", { skipPersist: true });
+      document.querySelectorAll(`.duty-block[data-day-id="${dayId}"]`).forEach((el) => {
+        el.classList.remove("on", "pending");
       });
+      const rowState = getRowState(dayId);
+      if (rowState) rowState.dutyStartBlock = null;
+      if (day) {
+        Object.assign(day, createEmptyDayState(dayId));
+      }
+      renderDayStateFields(dayId);
       const legacyRouteInput = getInput(dayId, "route");
       if (legacyRouteInput) legacyRouteInput.value = "";
-
       setDayAircraftMetrics(dayId, null);
-      updateTotals(dayId);
-      updatePeriodFromRows();
-      persistDraftSoon();
+      syncDayDerivedStateFromDom(dayId);
+      renderDayStateFields(dayId);
+      updateDayAircraftPicTotals(dayId);
+      suppressPersist = false;
+      syncLogPeriodFromState();
+      computeWeeklySummary();
+      persistDraftNow();
     }
 
     function applyFlightMarksToDay(dayId, flightMarks, fallbackBlocks) {
@@ -2928,32 +3321,39 @@ function getAircraftLabel(index) {
     }
 
     function loadDayFromData(dayId, entry) {
+      const day = getDayState(dayId);
+      if (!day) return;
+      suppressPersist = true;
       clearEntireDay(dayId);
-
-      const routeInput = getInput(dayId, "route");
-
-      updateField(dayId, "logDate", formatDateForRow(entry.log_date) || "", { skipPersist: true });
-      updateField(dayId, "remarks", entry.remarks || "", { skipPersist: true });
-      if (routeInput) routeInput.value = entry.route || "";
-
-      applyFlightMarksToDay(dayId, entry.flight_marks, entry.flight_blocks);
-      setDayAircraftMetrics(dayId, entry.day_aircraft_metrics || null);
-
-      if (Array.isArray(entry.duty_blocks)) {
-        entry.duty_blocks.forEach((value, blockIndex) => {
-          if (Number(value) > 0) {
-            const cell = document.querySelector(`.duty-block[data-day-id="${dayId}"][data-block="${blockIndex}"]`);
-            if (cell) cell.classList.add("on");
-          }
+      day.logDate = formatDateForRow(entry.log_date) || "";
+      day.remarks = entry.remarks || "";
+      day.route133Top = entry.route133Top || entry.route_133_top || "";
+      day.route133Bottom = entry.route133Bottom || entry.route_133_bottom || "";
+      day.metrics = Array.isArray(entry.day_aircraft_metrics) ? deepClone(entry.day_aircraft_metrics) : createEmptyDayState(dayId).metrics;
+      if (Array.isArray(entry.flight_marks) && entry.flight_marks.length) {
+        day.flightMarks = deepClone(entry.flight_marks);
+      } else if (Array.isArray(entry.flight_blocks)) {
+        day.flightMarks = Array.from({ length: 48 }, (_, blockIndex) => {
+          const marks = Array.from({ length: 5 }, () => null);
+          const tenthsToFill = Math.round((Number(entry.flight_blocks[blockIndex]) || 0) * 10);
+          for (let i = 0; i < tenthsToFill && i < 5; i += 1) marks[i] = 0;
+          return marks;
         });
       }
-
-      const state = getRowState(dayId);
-      if (state) state.dutyStartBlock = null;
-
-      updateTotals(dayId);
-      updatePeriodFromRows();
-      persistDraftSoon();
+      day.dutyBlocks = Array.isArray(entry.duty_blocks) ? deepClone(entry.duty_blocks) : createEmptyDayState(dayId).dutyBlocks;
+      renderDayStateFields(dayId);
+      const routeInput = getInput(dayId, "route");
+      if (routeInput) routeInput.value = entry.route || "";
+      setDayAircraftMetrics(dayId, day.metrics);
+      renderFlightMarksFromState(dayId);
+      renderDutyBlocksFromState(dayId);
+      syncDayDerivedStateFromDom(dayId);
+      renderDayStateFields(dayId);
+      updateDayAircraftPicTotals(dayId);
+      suppressPersist = false;
+      syncLogPeriodFromState();
+      computeWeeklySummary();
+      persistDraftNow();
     }
 
     async function getCurrentUser() {
@@ -3043,20 +3443,26 @@ function getAircraftLabel(index) {
       return Array.from(used);
     }
 
+    function getUsedAircraftNamesFromState(dayId) {
+      const day = getDayState(dayId);
+      return Array.isArray(day?.usedAircraft) ? day.usedAircraft : [];
+    }
+
     function collectPayloads(userId) {
-      const pilotName = document.getElementById("pilotName").value.trim();
-      const logPeriod = document.getElementById("logPeriod").value.trim();
+      const pilotName = appState.pilotName.trim();
+      const logPeriod = buildLogPeriodString();
       const payloads = [];
       const seenDates = new Set();
 
       for (let dayId = 1; dayId <= DAY_COUNT; dayId++) {
-        const logDateRaw = getInput(dayId, "logDate")?.value.trim() || "";
+        const day = getDayState(dayId);
+        const logDateRaw = String(day?.logDate || "").trim();
         const route = getInput(dayId, "route")?.value.trim() || "";
-        const remarks = getInput(dayId, "remarks")?.value.trim() || "";
-        const route133Top = document.querySelector(`[data-day-id="${dayId}"][data-key="route133Top"]`)?.value.trim() || "";
-        const route133Bottom = document.querySelector(`[data-day-id="${dayId}"][data-key="route133Bottom"]`)?.value.trim() || "";
-        const flightTotal = Number(getReadout(dayId, "flightTotal").textContent || "0");
-        const dutyTotal = Number(getReadout(dayId, "dutyTotal").textContent || "0");
+        const remarks = String(day?.remarks || "").trim();
+        const route133Top = String(day?.route133Top || "").trim();
+        const route133Bottom = String(day?.route133Bottom || "").trim();
+        const flightTotal = Number(day?.flightTotal || 0);
+        const dutyTotal = Number(day?.dutyTotal || 0);
 
         const hasAnyData = logDateRaw || route || remarks || route133Top || route133Bottom || flightTotal > 0 || dutyTotal > 0;
         if (!hasAnyData) continue;
@@ -3077,7 +3483,7 @@ function getAircraftLabel(index) {
         }
         seenDates.add(storedDate);
 
-        const usedAircraft = getUsedAircraftNames(dayId);
+        const usedAircraft = getUsedAircraftNamesFromState(dayId);
         if (flightTotal > 0 && usedAircraft.length === 0) {
           throw new Error(`Day ${dayId}: select an aircraft and paint flight time.`);
         }
@@ -3097,6 +3503,8 @@ function getAircraftLabel(index) {
           period: logPeriod || null,
           route: route || null,
           remarks: remarks || null,
+          route_133_top: route133Top || null,
+          route_133_bottom: route133Bottom || null,
           user_id: userId
         });
       }
@@ -3106,7 +3514,7 @@ function getAircraftLabel(index) {
 
     function stripOptionalFields(payloads) {
       return payloads.map(p => {
-        const { day_aircraft_metrics, flight_marks, route, remarks, ...rest } = p;
+        const { day_aircraft_metrics, flight_marks, route, remarks, route_133_top, route_133_bottom, ...rest } = p;
         return rest;
       });
     }
@@ -3246,8 +3654,9 @@ function getAircraftLabel(index) {
           loadBtn.textContent = 'Load to Day';
           loadBtn.onclick = () => {
             loadDayFromData(currentRowId, entry);
-            document.getElementById('pilotName').value = entry.pilot_name || '';
-            document.getElementById('logPeriod').value = entry.period || '';
+            updateTopLevelField("pilotName", entry.pilot_name || "", { skipPersist: true });
+            setPeriodFromString(entry.period || "", { skipPersist: true });
+            renderTopLevelStateFields();
             computeWeeklySummary();
             setStatus(`Loaded ${formatDateForRow(entry.log_date)} into day ${currentRowId}.`);
           };
@@ -3272,7 +3681,7 @@ function getAircraftLabel(index) {
       const startDate = getHistoryStartDate(historyMonthsBack.value);
       let query = await sb
         .from('logs')
-        .select('id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, route, remarks, flight_blocks, flight_marks, duty_blocks, day_aircraft_metrics')
+        .select('id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, route, remarks, route_133_top, route_133_bottom, flight_blocks, flight_marks, duty_blocks, day_aircraft_metrics')
         .eq('user_id', user.id)
         .gte('log_date', startDate)
         .order('log_date', { ascending: false });
@@ -3305,7 +3714,7 @@ function getAircraftLabel(index) {
 
       let query = await sb
         .from("logs")
-        .select("id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, route, remarks, flight_blocks, flight_marks, duty_blocks, day_aircraft_metrics")
+        .select("id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, route, remarks, route_133_top, route_133_bottom, flight_blocks, flight_marks, duty_blocks, day_aircraft_metrics")
         .eq("user_id", user.id)
         .order("log_date", { ascending: false });
 
@@ -3353,8 +3762,8 @@ function getAircraftLabel(index) {
         loadBtn.textContent = "Load to Day";
         loadBtn.onclick = () => {
           loadDayFromData(currentRowId, entry);
-          document.getElementById("pilotName").value = entry.pilot_name || "";
-          document.getElementById("logPeriod").value = entry.period || "";
+          updateTopLevelField("pilotName", entry.pilot_name || "", { skipPersist: true });
+          setPeriodFromString(entry.period || "", { skipPersist: true });
           computeWeeklySummary();
           setStatus(`Loaded saved entry into day ${currentRowId}.`);
         };
@@ -3385,43 +3794,11 @@ function getAircraftLabel(index) {
     }
 
     function collectDraftState() {
-      syncStateFromDom();
+      syncUnmanagedStateFromDom();
       return {
         version: APP_VERSION,
         savedAt: new Date().toISOString(),
-        data: deepClone(appState),
-        legacy: {
-        pilotName: document.getElementById("pilotName").value,
-        certificateNumber: document.getElementById("certificateNumber").value,
-        logPeriod: document.getElementById("logPeriod").value,
-        currencyDateMonth: document.getElementById("currencyDateMonth").value,
-        currencyDateDay: document.getElementById("currencyDateDay").value,
-        currencyDateYear: document.getElementById("currencyDateYear").value,
-        currencyAircraft: document.getElementById("currencyAircraft").value,
-        currencyN: document.getElementById("currencyN").value,
-        currencyFrom: document.getElementById("currencyFrom").value,
-        currencyTo: document.getElementById("currencyTo").value,
-        currencyDayDuration: document.getElementById("currencyDayDuration").value,
-        currencyNightDuration: document.getElementById("currencyNightDuration").value,
-        currencyTakeoffs: document.getElementById("currencyTakeoffs").value,
-        currencyRemarks: document.getElementById("currencyRemarks").value,
-        pilotSignature: document.getElementById("pilotSignature").value,
-        selectedAircraftIndex,
-        aircraftLabels: aircraftOptions.map((_, index) => getAircraftLabel(index)),
-        days: Array.from({ length: DAY_COUNT }, (_, idx) => {
-          const dayId = idx + 1;
-          return {
-            logDate: (getDayState(dayId)?.logDate || ""),
-            route: getInput(dayId, "route")?.value || "",
-            remarks: (getDayState(dayId)?.remarks || ""),
-            route133Top: (getDayState(dayId)?.route133Top || ""),
-            route133Bottom: (getDayState(dayId)?.route133Bottom || ""),
-            flightMarks: getFlightMarks(dayId),
-            dutyBlocks: getDutyBlocks(dayId),
-            metrics: getDayAircraftMetrics(dayId)
-          };
-        })
-        }
+        data: deepClone(appState)
       };
     }
 
@@ -3430,37 +3807,48 @@ function getAircraftLabel(index) {
       const stateData = draft.data && Number(draft.version) >= 42 ? draft.data : null;
       if (stateData) {
         Object.assign(appState, createInitialAppState(), deepClone(stateData));
+        appState.days = Array.from({ length: DAY_COUNT }, (_, idx) => ({ ...createEmptyDayState(idx + 1), ...(appState.days?.[idx] || {}) }));
         renderStateToDom();
         appState.meta.dirty = false;
         appState.meta.lastSavedAt = draft.savedAt || stateData.meta?.lastSavedAt || null;
         return;
       }
-      document.getElementById("pilotName").value = draft.pilotName || "";
-      document.getElementById("certificateNumber").value = draft.certificateNumber || "";
-      document.getElementById("logPeriod").value = draft.logPeriod || "";
-      document.getElementById("currencyDateMonth").value = draft.currencyDateMonth || "";
-      document.getElementById("currencyDateDay").value = draft.currencyDateDay || "";
-      document.getElementById("currencyDateYear").value = draft.currencyDateYear || "";
-      document.getElementById("currencyAircraft").value = draft.currencyAircraft || "";
-      document.getElementById("currencyN").value = draft.currencyN || "";
-      document.getElementById("currencyFrom").value = draft.currencyFrom || "";
-      document.getElementById("currencyTo").value = draft.currencyTo || "";
-      document.getElementById("currencyDayDuration").value = draft.currencyDayDuration || "";
-      document.getElementById("currencyNightDuration").value = draft.currencyNightDuration || "";
-      document.getElementById("currencyTakeoffs").value = draft.currencyTakeoffs || "";
-      document.getElementById("currencyRemarks").value = draft.currencyRemarks || "";
-      document.getElementById("pilotSignature").value = draft.pilotSignature || "";
+      appState.pilotName = draft.pilotName || "";
+      appState.certificateNumber = draft.certificateNumber || "";
+      appState.logPeriod = draft.logPeriod || "";
+      appState.period.periodStartMonth = draft.periodStartMonth || "";
+      appState.period.periodStartDay = draft.periodStartDay || "";
+      appState.period.periodStartYear = draft.periodStartYear || "";
+      appState.period.periodEndMonth = draft.periodEndMonth || "";
+      appState.period.periodEndDay = draft.periodEndDay || "";
+      appState.period.periodEndYear = draft.periodEndYear || "";
+      if (!(appState.period.periodStartMonth || appState.period.periodStartDay || appState.period.periodStartYear || appState.period.periodEndMonth || appState.period.periodEndDay || appState.period.periodEndYear) && draft.logPeriod) {
+        setPeriodFromString(draft.logPeriod, { skipPersist: true });
+      } else {
+        syncLogPeriodFromState();
+      }
+      appState.currency.currencyDateMonth = draft.currencyDateMonth || "";
+      appState.currency.currencyDateDay = draft.currencyDateDay || "";
+      appState.currency.currencyDateYear = draft.currencyDateYear || "";
+      appState.currency.currencyAircraft = draft.currencyAircraft || "";
+      appState.currency.currencyN = draft.currencyN || "";
+      appState.currency.currencyFrom = draft.currencyFrom || "";
+      appState.currency.currencyTo = draft.currencyTo || "";
+      appState.currency.currencyDayDuration = draft.currencyDayDuration || "";
+      appState.currency.currencyNightDuration = draft.currencyNightDuration || "";
+      appState.currency.currencyTakeoffs = draft.currencyTakeoffs || "";
+      appState.currency.currencyRemarks = draft.currencyRemarks || "";
+      appState.currency.pilotSignature = draft.pilotSignature || "";
 
-      (draft.aircraftLabels || []).forEach((label, index) => {
-        const input = document.querySelector(`.aircraft-chip[data-aircraft-index="${index}"] input`);
-        if (input && label) input.value = label;
-      });
 
       if (Number.isInteger(draft.selectedAircraftIndex)) {
-        selectedAircraftIndex = Math.max(0, Math.min(AIRCRAFT_COUNT - 1, draft.selectedAircraftIndex));
+        appState.selectedAircraftIndex = Math.max(0, Math.min(AIRCRAFT_COUNT - 1, draft.selectedAircraftIndex));
+        selectedAircraftIndex = appState.selectedAircraftIndex;
       }
+      renderTopLevelStateFields();
       refreshAircraftSelection();
 
+      suppressPersist = true;
       (draft.days || []).forEach((day, idx) => {
         const dayId = idx + 1;
         const stateDay = getDayState(dayId);
@@ -3469,38 +3857,49 @@ function getAircraftLabel(index) {
           stateDay.remarks = day.remarks || "";
           stateDay.route133Top = day.route133Top || "";
           stateDay.route133Bottom = day.route133Bottom || "";
+          stateDay.metrics = Array.isArray(day.metrics) ? deepClone(day.metrics) : createEmptyDayState(dayId).metrics;
+          stateDay.flightMarks = Array.isArray(day.flightMarks) ? deepClone(day.flightMarks) : createEmptyDayState(dayId).flightMarks;
+          stateDay.dutyBlocks = Array.isArray(day.dutyBlocks) ? deepClone(day.dutyBlocks) : createEmptyDayState(dayId).dutyBlocks;
+          stateDay.dutyStart = day.dutyStart || "--:--";
+          stateDay.dutyStop = day.dutyStop || "--:--";
+          stateDay.dutyTotal = Number(day.dutyTotal || 0);
+          stateDay.flightTotal = Number(day.flightTotal || 0);
+          stateDay.usedAircraft = Array.isArray(day.usedAircraft) ? day.usedAircraft : [];
         }
         if (getInput(dayId, "route")) getInput(dayId, "route").value = day.route || "";
         renderDayStateFields(dayId);
-        setDayAircraftMetrics(dayId, day.metrics || null);
-        applyFlightMarksToDay(dayId, day.flightMarks || [], null);
-        clearDutyOnly(dayId);
-        (day.dutyBlocks || []).forEach((value, blockIndex) => {
-          if (Number(value) > 0) {
-            const cell = document.querySelector(`.duty-block[data-day-id="${dayId}"][data-block="${blockIndex}"]`);
-            if (cell) cell.classList.add("on");
-          }
-        });
-        updateTotals(dayId);
+        setDayAircraftMetrics(dayId, stateDay?.metrics || null);
+        renderFlightMarksFromState(dayId);
+        renderDutyBlocksFromState(dayId);
+        syncDayDerivedStateFromDom(dayId);
+        renderDayStateFields(dayId);
+        updateDayAircraftPicTotals(dayId);
       });
+      suppressPersist = false;
 
-      updatePeriodFromRows();
+      syncLogPeriodFromState();
       computeWeeklySummary();
     }
 
     let persistTimer = null;
+    function persistDraftNow() {
+      if (suppressPersist) return;
+      try {
+        const payload = collectDraftState();
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(payload));
+        appState.meta.dirty = false;
+        appState.meta.lastSavedAt = payload.savedAt;
+        updateDebugDraftState();
+      } catch (err) {
+        console.warn("Draft save failed", err);
+      }
+    }
+
     function persistDraftSoon() {
+      if (suppressPersist) return;
       window.clearTimeout(persistTimer);
       persistTimer = window.setTimeout(() => {
-        try {
-          const payload = collectDraftState();
-          localStorage.setItem(DRAFT_KEY, JSON.stringify(payload));
-          appState.meta.dirty = false;
-          appState.meta.lastSavedAt = payload.savedAt;
-          updateDebugDraftState();
-        } catch (err) {
-          console.warn("Draft save failed", err);
-        }
+        persistDraftNow();
       }, 120);
     }
 
@@ -3542,9 +3941,9 @@ function getAircraftLabel(index) {
         if (!hasAnyData) continue;
 
         const row = [
-          buildStoredDate(logDateRaw, logPeriodEl.value),
-          document.getElementById("pilotName").value.trim(),
-          logPeriodEl.value.trim(),
+          buildStoredDate(logDateRaw, buildLogPeriodString()),
+          appState.pilotName.trim(),
+          buildLogPeriodString(),
           getUsedAircraftNames(dayId).join("; "),
           getReadout(dayId, "dutyStart")?.textContent || "",
           getReadout(dayId, "dutyStop")?.textContent || "",
@@ -3572,7 +3971,12 @@ function getAircraftLabel(index) {
     }
 
     document.addEventListener("mouseup", () => {
-      isDrawing = false;
+      if (isDrawing) {
+        isDrawing = false;
+        persistDraftNow();
+      } else {
+        isDrawing = false;
+      }
     });
 
     sb.auth.onAuthStateChange(async () => {
@@ -3581,6 +3985,20 @@ function getAircraftLabel(index) {
       await loadSavedEntries();
       await loadHistory();
       await runDiagnostics();
+    });
+
+    window.addEventListener("beforeunload", () => {
+      persistDraftNow();
+    });
+
+    window.addEventListener("pagehide", () => {
+      persistDraftNow();
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") {
+        persistDraftNow();
+      }
     });
 
     dutyBtn.addEventListener("click", () => setMode("duty"));
@@ -3619,8 +4037,6 @@ function getAircraftLabel(index) {
       }
     });
     historyMonthsBack.addEventListener("change", loadHistory);
-    document.getElementById("pilotName").addEventListener("input", persistDraftSoon);
-    logPeriodEl.addEventListener("input", persistDraftSoon);
 
     try {
       buildAircraftBar();
@@ -3628,10 +4044,10 @@ function getAircraftLabel(index) {
       document.querySelectorAll('.rowspan-input.remarkscol textarea').forEach(applyRemarksSizing);
       for (let dayId = 1; dayId <= DAY_COUNT; dayId++) syncRemarksDisplay(dayId);
       loadBrowserDraft();
-      syncStateFromDom();
+      syncUnmanagedStateFromDom();
       document.querySelectorAll('.rowspan-input.remarkscol textarea').forEach(applyRemarksSizing);
       for (let dayId = 1; dayId <= DAY_COUNT; dayId++) syncRemarksDisplay(dayId);
-      updatePeriodFromRows();
+      syncLogPeriodFromState();
       computeWeeklySummary();
       refreshAuthState();
       loadSavedEntries();
@@ -3646,6 +4062,7 @@ function getAircraftLabel(index) {
   <div id="remarksMeasurer" class="remarks-measurer remarks-cell-clone"></div>
 </body>
 </html>
+
 
 
 
