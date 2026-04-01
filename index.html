@@ -1,3400 +1,1567 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TEMSCO Pilot Flight & Duty Time Log</title>
+  <title>Pilot Flight & Duty Log - V42</title>
   <style>
     :root {
-      --paper: #ffffff;
-      --ink: #111827;
-      --line: #111827;
-      --soft-line: #94a3b8;
-      --header: #e5e7eb;
-      --subtle: #f8fafc;
-      --duty: #facc15;
-      --ok: #065f46;
-      --ok-bg: #d1fae5;
-      --warn: #92400e;
-      --warn-bg: #fef3c7;
-      --info-bg: #e0e7ff;
-      --danger: #991b1b;
-      --danger-bg: #fee2e2;
+      --page-width: 8.5in;
+      --page-height: 11in;
+      --border: #222;
+      --grid: #666;
+      --soft: #f4f4f4;
+      --warn: #b26a00;
+      --error: #9b1c1c;
+      --ok: #1f6f3d;
+      --text: #111;
+      --screen-bg: #dfe5ea;
+      --panel-bg: #ffffff;
+      --shadow: 0 8px 24px rgba(0,0,0,0.12);
+      --font: Arial, Helvetica, sans-serif;
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      padding: 8px;
-      font-family: Arial, sans-serif;
-      background: #dbe4ee;
-      color: var(--ink);
+      font-family: var(--font);
+      color: var(--text);
+      background: var(--screen-bg);
     }
 
-    .sheet {
-      max-width: 1380px;
-      margin: 0 auto;
-      background: var(--paper);
-      border: 1.5px solid var(--line);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-      padding: 8px;
+    .app-shell {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 16px;
     }
 
-    .sheet-header {
+    .side-panel {
+      width: 320px;
+      background: var(--panel-bg);
+      border: 1px solid #c8d0d8;
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+      position: sticky;
+      top: 16px;
+      max-height: calc(100vh - 32px);
+      overflow: auto;
+    }
+
+    .side-panel h2,
+    .side-panel h3 {
+      margin: 0 0 10px;
+    }
+
+    .toolbar {
       display: grid;
-      grid-template-columns: 1fr 320px;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .toolbar-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 8px;
-      align-items: start;
-      margin-bottom: 6px;
     }
 
-    .sheet-title {
-      text-align: center;
-      padding-top: 2px;
-    }
-
-    .sheet-title .company {
+    .toolbar label,
+    .modal label {
+      display: block;
       font-size: 12px;
       font-weight: bold;
-      letter-spacing: 0.3px;
+      margin-bottom: 4px;
     }
 
-    .sheet-title .form-title {
-      font-size: 20px;
-      font-weight: bold;
-      margin-top: 2px;
-      text-transform: uppercase;
+    .toolbar input,
+    .toolbar select,
+    .toolbar button,
+    .toolbar textarea,
+    .modal input,
+    .modal select,
+    .modal button,
+    .modal textarea {
+      width: 100%;
+      font: inherit;
     }
 
-    .sheet-title .note {
-      font-size: 10px;
-      margin-top: 3px;
+    .toolbar input,
+    .toolbar select,
+    .toolbar textarea,
+    .modal input,
+    .modal select,
+    .modal textarea {
+      border: 1px solid #999;
+      border-radius: 4px;
+      padding: 6px 8px;
+      background: #fff;
     }
 
-    .top-panels {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+    .toolbar button,
+    .modal button,
+    .day-actions button,
+    .remarks-btn {
+      border: 1px solid #666;
+      background: #fff;
+      border-radius: 4px;
+      padding: 7px 10px;
+      cursor: pointer;
+    }
+
+    .toolbar button:hover,
+    .modal button:hover,
+    .day-actions button:hover,
+    .remarks-btn:hover {
+      background: #f1f1f1;
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       gap: 8px;
-      margin-bottom: 8px;
+      padding: 8px 10px;
+      border: 1px solid #ccd3d9;
+      border-radius: 6px;
+      background: #fafbfc;
+      font-size: 12px;
     }
 
-    .panel,
-    .header-box,
+    .status-pill {
+      font-weight: bold;
+    }
+
+    .status-ok { color: var(--ok); }
+    .status-warn { color: var(--warn); }
+    .status-error { color: var(--error); }
+
     .summary-box {
-      border: 1px solid var(--line);
-      background: white;
-    }
-
-    .panel-title,
-    .saved-title,
-    .summary-title {
-      background: var(--header);
-      border-bottom: 1px solid var(--line);
-      padding: 5px 7px;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 0.2px;
-      font-size: 11px;
-    }
-
-    .panel-body {
-      padding: 8px;
-    }
-
-    .inline-grid {
-      display: grid;
-      grid-template-columns: 1fr auto auto;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .auth-help,
-    .tiny-note {
-      font-size: 10px;
-      line-height: 1.3;
-      color: #475569;
-      margin-top: 6px;
-    }
-
-    .auth-state {
-      margin-top: 6px;
-      font-size: 11px;
-      font-weight: bold;
-      min-height: 16px;
-    }
-
-    .debug-panel {
-      border: 1px solid var(--line);
-      background: white;
-    }
-
-    .debug-grid {
-      display: grid;
-      grid-template-columns: 110px 1fr;
-      gap: 4px 8px;
-      font-size: 10px;
-      line-height: 1.35;
-    }
-
-    .debug-grid .k {
-      font-weight: bold;
-      color: #334155;
-    }
-
-    .debug-grid .v {
-      word-break: break-word;
-      font-family: Consolas, Monaco, monospace;
-      color: #0f172a;
-    }
-
-    .debug-actions {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-
-    .debug-log {
-      margin-top: 8px;
-      border: 1px solid var(--soft-line);
-      background: #f8fafc;
-      padding: 6px;
-      min-height: 72px;
-      max-height: 160px;
-      overflow: auto;
-      font-size: 10px;
-      line-height: 1.35;
+      border: 1px solid #ccd3d9;
+      border-radius: 6px;
+      padding: 10px;
+      background: #fff;
       white-space: pre-wrap;
-      font-family: Consolas, Monaco, monospace;
+      font-size: 12px;
+      line-height: 1.35;
+      min-height: 100px;
     }
 
-
-    .header-box-row {
-      display: grid;
-      grid-template-columns: 92px 1fr;
-      border-bottom: 1px solid var(--line);
-      min-height: 28px;
+    .report-box {
+      border: 1px solid #ccd3d9;
+      border-radius: 6px;
+      padding: 10px;
+      background: #fff;
+      font-size: 12px;
+      line-height: 1.45;
     }
 
-    .header-box-row:last-child { border-bottom: none; }
-
-    .header-label {
-      background: var(--header);
-      border-right: 1px solid var(--line);
+    .sheet-wrap {
+      flex: 1;
       display: flex;
-      align-items: center;
       justify-content: center;
-      font-size: 11px;
-      font-weight: bold;
-      padding: 2px 4px;
     }
 
-    .header-value {
-      display: flex;
-      align-items: center;
-      padding: 0;
-      background: white;
+    .page {
+      width: var(--page-width);
+      min-width: var(--page-width);
+      max-width: var(--page-width);
+      min-height: var(--page-height);
+      background: #fff;
+      box-shadow: var(--shadow);
+      padding: 0.25in;
+      color: #000;
     }
 
-    .header-value input,
-    .aircraft-chip input,
-    .log-table input,
-    .log-table textarea,
-    .panel input {
-      width: 100%;
-      height: 100%;
-      border: none;
-      background: transparent;
-      font-family: Arial, sans-serif;
+    .page-header {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr 1.2fr;
+      gap: 10px;
+      margin-bottom: 8px;
+      align-items: end;
     }
 
-    .header-value input,
-    .panel input {
-      padding: 7px 8px;
-      font-size: 11px;
-      border: 1px solid var(--soft-line);
-      background: white;
-      min-height: 30px;
-    }
-
-    .header-value input {
-      border: none;
-      min-height: auto;
-    }
-
-    .header-value input:focus,
-    .aircraft-chip input:focus,
-    .log-table input:focus,
-    .log-table textarea:focus,
-    .panel input:focus {
-      outline: 1.5px solid #60a5fa;
-      outline-offset: -1px;
-    }
-
-    .header-box {
-      overflow: hidden;
-    }
-
-    .header-box-row {
-      min-height: 30px;
-    }
-
-    .header-value-stack {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 2px;
-      padding: 4px 8px 3px;
-    }
-
-    .header-value-stack > #pilotName {
-      width: 100%;
-      font-size: 11px;
+    .title-block h1 {
+      margin: 0;
+      font-size: 18px;
       line-height: 1.2;
-      padding: 0;
     }
 
-    .cert-row {
-      display: flex;
-      align-items: baseline;
-      gap: 5px;
-      width: 100%;
+    .title-block .sub {
+      font-size: 11px;
+      color: #333;
+      margin-top: 2px;
     }
 
-    .cert-label {
-      font-size: 8px;
-      font-weight: bold;
-      letter-spacing: 0.2px;
-      line-height: 1;
-      flex: 0 0 auto;
-    }
-
-    #certificateNumber {
-      flex: 1 1 auto;
-      min-width: 0;
+    .page-header .field label {
+      display: block;
       font-size: 10px;
-      line-height: 1.2;
-      padding: 0;
-      text-align: left;
-    }
-
-    .header-value > input#logPeriod {
-      padding: 6px 8px 5px;
-      font-size: 11px;
-      line-height: 1.2;
-    }
-
-    .controls {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin: 6px 0 8px;
-    }
-
-    button {
-      border: 1px solid var(--line);
-      background: white;
-      color: var(--ink);
-      padding: 5px 9px;
       font-weight: bold;
-      cursor: pointer;
-      font-size: 11px;
+      margin-bottom: 2px;
+      text-transform: uppercase;
     }
 
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .duty-btn { background: #fef3c7; }
-    .clear-btn { background: #fee2e2; }
-    .save-btn { background: #d1fae5; }
-    .load-btn { background: #e0e7ff; }
-    .delete-btn { background: #fee2e2; }
-    .auth-btn { background: #e0f2fe; }
-    .secondary-btn { background: #f8fafc; }
-
-    .active { outline: 1.5px solid var(--line); }
-
-    .mode-line {
-      text-align: center;
-      font-size: 11px;
-      font-weight: bold;
-      margin-bottom: 6px;
-      letter-spacing: 0.3px;
-    }
-
-    .aircraft-layout {
-      display: grid;
-      grid-template-columns: 204px 1fr 188px;
-      gap: 0;
-      margin-bottom: 6px;
-      align-items: start;
-    }
-
-    .aircraft-left-spacer,
-    .aircraft-right-spacer {
-      min-height: 1px;
-    }
-
-    .aircraft-bar {
-      display: grid;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
-      gap: 3px;
+    .page-header .field input,
+    .page-header .field select {
       width: 100%;
-      align-items: stretch;
+      border: 1px solid var(--border);
+      padding: 4px 5px;
+      font-size: 12px;
+      border-radius: 0;
+      background: #fff;
     }
 
-    .aircraft-chip {
-      border: 1.5px solid var(--line);
-      min-height: 26px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 2px;
-      cursor: pointer;
-    }
-
-    .aircraft-chip.selected {
-      outline: 2px solid var(--line);
-      outline-offset: 1px;
-    }
-
-    .aircraft-chip input {
-      text-align: center;
-      font-size: 8px;
-      font-weight: bold;
-      padding: 3px 2px;
-    }
-
-    .table-wrap {
-      overflow-x: auto;
-      border: 1.5px solid var(--line);
-      background: white;
-    }
-
-    .log-table {
+    table.log-grid {
       width: 100%;
-      min-width: 1260px;
       border-collapse: collapse;
       table-layout: fixed;
-      font-size: 8px;
+      font-size: 11px;
     }
 
-    .log-table th,
-    .log-table td {
-      border: 1px solid var(--line);
-      padding: 0;
+    table.log-grid th,
+    table.log-grid td {
+      border: 1px solid var(--border);
+      padding: 3px;
+      vertical-align: top;
+    }
+
+    table.log-grid th {
+      background: var(--soft);
       text-align: center;
-      vertical-align: middle;
-      min-height: 18px;
+      font-size: 10px;
+      line-height: 1.15;
     }
 
-    .log-table th {
-      background: var(--header);
-      font-weight: bold;
-      height: 18px;
-      font-size: 8px;
-    }
-
-    .subhead {
-      background: var(--subtle);
-      font-weight: bold;
-      height: 16px;
-      font-size: 7px;
-    }
-
-    .daycell { width: 44px; }
-    .smallcol { width: 40px; }
-    .labelcol { width: 40px; background: var(--subtle); font-weight: bold; }
-    .routecol { width: 36px; }
-    .flttotalcol { width: 44px; }
-    .remarkscol { width: 112px; }
-
-    .log-table .daycell,
-    .log-table .smallcol,
-    .log-table .labelcol,
-    .log-table .routecol,
-    .log-table .flttotalcol,
-    .log-table .remarkscol {
-      min-width: unset;
-      max-width: unset;
-    }
-
-
-    #tableBody tr {
-      height: 18px;
-    }
-
-
-    .timeline-cell,
-    .metrics-band-cell {
-      padding: 0;
-    }
-
-    .labelcol-cell {
-      background: var(--subtle);
-      font-weight: bold;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .flight-block {
-      position: relative;
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      min-width: 0;
-      height: 18px;
-      border-right: 1px solid #94a3b8;
-      background: white;
-    }
-
-    .flight-block:last-child {
-      border-right: none;
-    }
-
-    .metrics-band-cell .day-aircraft-band,
-    .timeline-cell .flight-grid,
-    .timeline-cell .duty-grid {
+    .day-cell input,
+    .day-cell select,
+    .day-cell textarea,
+    .day-cell button {
       width: 100%;
+      font: inherit;
     }
 
-    
-    .route-entry-cell {
-      padding: 0;
-      background: white;
+    .day-cell input,
+    .day-cell select,
+    .day-cell textarea {
+      border: 1px solid #888;
+      padding: 3px 4px;
+      min-height: 24px;
+      background: #fff;
     }
 
-    .route-entry-cell-inner {
-      display: grid;
-      grid-template-rows: 1fr 1fr;
-      height: 100%;
-      min-height: 54px;
-    }
-
-    .route-entry-half {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1px;
-    }
-
-    .route-entry-half + .route-entry-half {
-      border-top: 1px solid var(--line);
-    }
-
-    .route-entry-half input {
-      width: 100%;
-      height: 100%;
-      border: none;
-      background: transparent;
-      text-align: center;
-      font-size: 8px;
-      font-weight: bold;
-      padding: 1px;
-      text-transform: uppercase;
-    }
-
-.route-slash-cell {
-      position: relative;
-      min-width: 36px;
-      background:
-        linear-gradient(to bottom right,
-          transparent 48.5%,
-          var(--line) 49%,
-          var(--line) 51%,
-          transparent 51.5%);
-    }
-
-    .flight-grid,
-    .duty-grid {
-      display: grid;
-      grid-template-columns: repeat(48, 1fr);
-      height: 18px;
-      width: 100%;
-      position: relative;
+    .day-cell textarea {
+      resize: none;
+      height: 76px;
+      line-height: 1.2;
       overflow: hidden;
     }
 
-    .flight-hour-label,
-    .duty-hour-label {
-      position: absolute;
-      inset: 0;
+    .mini {
+      font-size: 10px;
+    }
+
+    .day-block {
+      display: grid;
+      gap: 4px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 4px;
+    }
+
+    .day-meta {
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      justify-content: center;
-      font-size: 7px;
-      font-weight: bold;
-      line-height: 1;
-      color: #475569;
-      pointer-events: none;
-      user-select: none;
+      gap: 6px;
     }
 
-    .tenth {
-      position: relative;
-      z-index: 1;
-      border-right: 1px solid #d1d5db;
-      cursor: pointer;
-      min-height: 18px;
-      background: white;
+    .day-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
     }
 
-    .tenth:last-child { border-right: none; }
-
-    .duty-block {
-      position: relative;
-      border-right: 1px solid #94a3b8;
-      min-height: 18px;
-      background: white;
-      cursor: pointer;
-      display: block;
-      width: 100%;
-      height: 18px;
+    .remarks-btn {
+      font-size: 10px;
+      padding: 4px 6px;
     }
 
-    .duty-block.on { background: var(--duty); }
-    .duty-block.pending {
-      outline: 1.5px solid #000;
+    .remarks-counter {
+      font-size: 10px;
+      text-align: right;
+      color: #555;
+    }
+
+    .field-error {
+      outline: 2px solid var(--error);
       outline-offset: -1px;
     }
 
-    .day-aircraft-band {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 2px;
-      padding: 2px 1px;
-      background: white;
+    .field-warning {
+      outline: 2px solid var(--warn);
+      outline-offset: -1px;
     }
 
-    .day-aircraft-group {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1px;
-    }
-
-    
-    .day-aircraft-box.no-label {
-      grid-template-rows: 1fr;
-    }
-    .day-aircraft-box.no-label .lbl {
-      display: none;
-    }
-
-    .day-aircraft-box {
-      border: 1px solid var(--line);
-      min-height: 28px;
-      display: grid;
-      grid-template-rows: 11px 1fr;
-      background: white;
-    }
-
-    .day-aircraft-box .lbl {
-      background: var(--subtle);
-      border-bottom: 1px solid var(--line);
-      font-size: 6px;
+    .day-flag {
+      font-size: 10px;
       font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .day-aircraft-box .val {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1px;
-    }
-
-    
-    
-    .day-aircraft-box[data-metric="pic"] input {
-      font-size: clamp(12px, 1.2vw, 16px);
-      font-weight: bold;
-    }
-
-    .day-aircraft-box.no-label[data-metric="pic"] input {
-      font-size: clamp(14px, 1.5vw, 18px);
-    }
-
-    .flttotalcol,
-    .readout[data-key="flightTotal"],
-    .readout[data-key="dutyTotal"] {
-      font-size: 12px;
-      font-weight: bold;
-    }
-
-    .alert-exceed {
-      color: #b91c1c !important;
-      font-weight: 700 !important;
-    }
-
-    .day-aircraft-box.compact {
-      grid-template-rows: 1fr;
-      min-height: 24px;
-    }
-
-    .day-aircraft-box.compact .lbl {
-      display: none;
-    }
-
-    .metrics-header-cell {
-      padding: 0 !important;
-      background: white;
-    }
-
-    .header-band {
-      padding: 0;
-      min-height: 24px;
-    }
-
-    .header-label-box {
-      min-height: 24px;
-      background: white;
-      font-size: 8px;
-      font-weight: bold;
-      color: #334155;
-    }
-
-    .header-label-box .val {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-    }
-
-    .day-aircraft-box[data-metric="pic"] input {
-      font-size: clamp(12px, 1.2vw, 16px);
-      font-weight: bold;
-    }
-
-    .day-aircraft-box.compact[data-metric="pic"] input {
-      font-size: clamp(14px, 1.5vw, 18px);
-    }
-
-    .day-aircraft-box.no-label input {
-      font-size: 11px;
-    }
-
-    .day-aircraft-box input {
+      text-transform: uppercase;
       text-align: center;
-      font-size: 8px;
-      padding: 1px;
-      width: 100%;
-      border: none;
-      background: transparent;
+      padding: 2px 4px;
+      border-radius: 3px;
+      min-width: 42px;
     }
 
-    .status {
-      margin-top: 6px;
-      min-height: 16px;
-      text-align: center;
-      font-size: 11px;
-      font-weight: bold;
+    .flag-ok {
+      background: #e9f5ed;
+      color: var(--ok);
+      border: 1px solid #b6d6c0;
     }
 
-    .status.ok { color: var(--ok); }
-    .status.warn { color: var(--warn); }
-    .status.error { color: var(--danger); }
+    .flag-warn {
+      background: #fff6e8;
+      color: var(--warn);
+      border: 1px solid #e4c892;
+    }
 
-    .summary-grid {
+    .flag-error {
+      background: #fdecec;
+      color: var(--error);
+      border: 1px solid #e0aaaa;
+    }
+
+    .totals-row {
+      margin-top: 8px;
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
-      padding: 8px;
-    }
-
-    .summary-metric {
-      border: 1px solid var(--soft-line);
-      background: var(--subtle);
-      padding: 7px;
-      min-height: 52px;
-    }
-
-    .summary-metric .label {
-      font-size: 10px;
-      font-weight: bold;
-      text-transform: uppercase;
-      color: #475569;
-      margin-bottom: 4px;
-    }
-
-    .summary-metric .value {
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    .summary-metric.warn {
-      background: var(--warn-bg);
-    }
-
-    .saved-wrap {
-      margin-top: 10px;
-      border: 1.5px solid var(--line);
-      background: white;
-    }
-
-    .saved-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
       gap: 8px;
-      align-items: center;
-      padding: 7px;
-      border-bottom: 1px solid var(--soft-line);
-    }
-
-    .saved-row:last-child { border-bottom: none; }
-    .saved-meta { font-size: 10px; line-height: 1.25; }
-    .saved-actions { display: flex; gap: 4px; flex-wrap: wrap; }
-
-
-
-    .history-wrap {
-      margin-top: 10px;
-      border: 1.5px solid var(--line);
-      background: white;
-    }
-
-    .history-toolbar {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      padding: 7px;
-      border-bottom: 1px solid var(--soft-line);
-      background: #f8fafc;
-    }
-
-    .history-controls {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .history-select {
-      min-height: 30px;
-      border: 1px solid var(--soft-line);
-      padding: 5px 8px;
       font-size: 11px;
-      background: white;
     }
 
-    .history-summary-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(120px, 1fr));
-      gap: 8px;
-      padding: 8px;
-      border-bottom: 1px solid var(--soft-line);
+    .totals-box {
+      border: 1px solid var(--border);
+      padding: 6px;
+      min-height: 42px;
     }
 
-    .history-card {
-      border: 1px solid var(--soft-line);
-      background: var(--subtle);
-      padding: 8px;
-    }
-
-    .history-card .label {
-      font-size: 10px;
-      text-transform: uppercase;
-      color: #475569;
-      margin-bottom: 4px;
-      font-weight: bold;
-    }
-
-    .history-card .value {
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    .history-month-group {
-      border-bottom: 1px solid var(--soft-line);
-      padding: 8px;
-    }
-
-    .history-month-group:last-child {
-      border-bottom: none;
-    }
-
-    .history-month-header {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-      margin-bottom: 6px;
-      font-size: 11px;
-      font-weight: bold;
-    }
-
-    .history-month-stats {
-      color: #334155;
-    }
-
-    .history-entry {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 8px;
-      align-items: center;
-      padding: 7px;
-      border: 1px solid var(--soft-line);
-      margin-top: 6px;
-      background: white;
-    }
-
-    .history-entry-meta {
-      font-size: 10px;
-      line-height: 1.35;
-    }
-
-    .history-entry-actions {
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-    }
-
-    @page {
-      size: letter landscape;
-      margin: 0.25in;
-    }
-
-
-    .currency-section {
-      border: 1.5px solid var(--line);
-      border-top: none;
-      background: white;
-      padding: 4px 6px 6px;
-      font-size: 10px;
-    }
-
-    .currency-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
+    .totals-box strong {
+      display: block;
       margin-bottom: 3px;
-      flex-wrap: wrap;
-    }
-
-    .currency-row:last-child {
-      margin-bottom: 0;
-    }
-
-    .currency-row .label {
-      font-weight: bold;
-      min-width: 118px;
-    }
-
-    .currency-row input {
-      border: none;
-      border-bottom: 1px solid var(--line);
-      background: transparent;
       font-size: 10px;
-      padding: 1px 2px;
-      font-family: Arial, sans-serif;
-      min-width: 0;
-    }
-
-    .currency-row input:focus {
-      outline: 1px solid #60a5fa;
-      outline-offset: 0;
-    }
-
-    .currency-row .tiny {
-      width: 38px;
-    }
-
-    .currency-row .small {
-      width: 58px;
-    }
-
-    .currency-row .n-wide {
-      width: 100px;
-      letter-spacing: 1px;
-      font-weight: bold;
       text-transform: uppercase;
     }
 
-    .currency-row .medium {
-      width: 100px;
-    }
-
-    .currency-row .remarks-wide {
-      width: 210px;
-    }
-
-    .currency-row .spacer {
-      flex: 1;
-      min-width: 12px;
-    }
-
-    .signature-input {
-      width: 240px;
-    }
-
-    @media print {
-      html, body {
-        width: 11in;
-        height: 8.5in;
-      }
-
-      body {
-        background: white;
-        padding: 0;
-        margin: 0;
-      }
-
-      .sheet {
-        width: 100%;
-        max-width: 100%;
-        border: none;
-        box-shadow: none;
-        padding: 0;
-      }
-
-      .controls, .status, .saved-wrap, .history-wrap, .top-panels, .summary-box {
-        display: none;
-      }
-
-      .mode-line {
-        margin: 3px 0 4px;
-        font-size: 8px;
-      }
-
-      .aircraft-layout {
-        grid-template-columns: 204px 1fr 188px !important;
-        margin-bottom: 4px;
-      }
-
-      .aircraft-bar {
-        grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
-        gap: 3px !important;
-      }
-
-      .aircraft-chip {
-        min-height: 20px;
-        height: 20px;
-      }
-
-      .aircraft-layout {
-        grid-template-columns: 204px 1fr 188px;
-      }
-
-      .aircraft-left-spacer,
-      .aircraft-right-spacer {
-        display: block;
-      }
-
-      .aircraft-bar {
-        grid-template-columns: repeat(6, minmax(0, 1fr));
-        gap: 2px;
-        width: 100%;
-      }
-
-      .aircraft-chip {
-        min-height: 18px;
-        width: 100%;
-      }
-
-      .aircraft-chip input {
-        font-size: 7px;
-        padding: 2px 1px;
-        line-height: 1;
-        white-space: nowrap;
-      }
-
-      .readout[data-key="flightTotal"],
-      .readout[data-key="dutyTotal"] {
-        font-size: 11px !important;
-        font-weight: bold;
-      }
-
-      .table-wrap {
-        overflow: visible;
-        border-width: 1px;
-      }
-
-      .log-table {
-        width: 100%;
-        min-width: 0;
-        font-size: 6px;
-      }
-
-      .log-table th {
-        height: 14px;
-        font-size: 6px;
-      }
-
-      .subhead {
-        height: 12px;
-        font-size: 6px;
-      }
-
-      .hour-scale-cell {
-        font-size: 6px;
-      }
-
-      .daycell { width: 34px; }
-      .smallcol { width: 34px; }
-      .labelcol { width: 30px; }
-      .routecol { width: 30px; }
-      .flttotalcol { width: 34px; }
-      .remarkscol { width: 92px; }
-
-      .rowspan-input input,
-      .rowspan-input textarea,
-      .readout {
-        font-size: 6px;
-      }
-
-      .rowspan-input textarea {
-        line-height: 1.0;
-        padding: 1px 2px;
-      }
-
-      .flight-grid,
-      .duty-grid,
-      .flight-block,
-      .tenth,
-      .duty-block {
-        height: 14px;
-        min-height: 14px;
-      }
-
-      .day-aircraft-band {
-        padding: 1px;
-      }
-
-      .day-aircraft-box {
-        min-height: 22px;
-        grid-template-rows: 8px 1fr;
-      }
-
-      .day-aircraft-box .lbl {
-        font-size: 5px;
-      }
-
-      .day-aircraft-box input {
-        font-size: 6px;
-        padding: 0;
-      }
-    }
-
-    @media (max-width: 1100px) {
-      .top-panels {
-        grid-template-columns: 1fr;
-      }
-
-      .aircraft-layout {
-        grid-template-columns: 1fr;
-      }
-      .aircraft-left-spacer,
-      .aircraft-right-spacer {
-        display: none;
-      }
-      .top-panels,
-      .summary-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 900px) {
-      .sheet-header {
-        grid-template-columns: 1fr;
-      }
-      .sheet-title .form-title {
-        font-size: 16px;
-      }
-      .aircraft-bar {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .inline-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* ===== FINAL PRINT LOCK FIX ===== */
-    @media print {
-      .aircraft-layout {
-        display: grid !important;
-        grid-template-columns: 204px 1fr 188px !important;
-        width: 100% !important;
-        gap: 0 !important;
-        align-items: start !important;
-      }
-
-      .aircraft-bar {
-        display: grid !important;
-        grid-template-columns: repeat(6, 1fr) !important;
-        width: 100% !important;
-        gap: 2px !important;
-      }
-
-      .aircraft-chip {
-        width: 100% !important;
-        height: 18px !important;
-        min-height: 18px !important;
-      }
-
-      .table-wrap {
-        width: 100% !important;
-      }
-
-      .log-table {
-        width: 100% !important;
-        table-layout: fixed !important;
-      }
-
-      .readout[data-key="flightTotal"] {
-        font-size: 14px !important;
-        font-weight: bold !important;
-      }
-
-      .readout[data-key="dutyTotal"] {
-        font-size: 10px !important;
-        font-weight: bold !important;
-      }
-    }
-
-    /* Remarks popup */
-    .remarks-popup-overlay {
+    .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.45);
+      background: rgba(0,0,0,0.35);
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 1000;
-      padding: 20px;
+      padding: 16px;
+      z-index: 999;
     }
 
-    .remarks-popup-overlay.open {
+    .modal-backdrop.open {
       display: flex;
     }
 
-    .remarks-popup {
-      width: min(720px, 92vw);
-      background: white;
-      border: 1.5px solid var(--line);
-      box-shadow: 0 10px 28px rgba(0,0,0,0.2);
-      padding: 12px;
+    .modal {
+      background: #fff;
+      width: min(760px, 100%);
+      border-radius: 10px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.22);
+      padding: 16px;
     }
 
-    .remarks-popup-title {
-      font-size: 14px;
-      font-weight: bold;
-      margin-bottom: 8px;
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
     }
 
-    .remarks-popup-subtitle {
-      font-size: 11px;
-      color: #475569;
-      margin-bottom: 8px;
+    .modal-header h3 {
+      margin: 0;
     }
 
-    .remarks-popup textarea {
-      width: 100%;
+    .modal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .modal textarea {
       min-height: 220px;
       resize: vertical;
-      border: 1px solid var(--soft-line);
-      padding: 8px;
-      font-family: Arial, sans-serif;
-      font-size: 13px;
-      line-height: 1.35;
     }
 
-    .remarks-popup-actions {
+    .remarks-preview {
+      border: 1px solid #bbb;
+      padding: 8px;
+      min-height: 220px;
+      white-space: pre-wrap;
+      line-height: 1.2;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .modal-actions {
       display: flex;
       justify-content: flex-end;
       gap: 8px;
-      margin-top: 10px;
+      margin-top: 14px;
     }
 
+    .hidden { display: none !important; }
+
     @media print {
-      .remarks-popup-overlay {
+      body {
+        background: #fff;
+      }
+      .app-shell {
+        display: block;
+        padding: 0;
+      }
+      .side-panel,
+      .modal-backdrop {
         display: none !important;
       }
-    }
-
-    @media print {
-      .aircraft-layout {
-        display: grid !important;
-        grid-template-columns: 204px 1fr 188px !important;
-        width: 100% !important;
-        gap: 0 !important;
-        align-items: start !important;
+      .sheet-wrap {
+        display: block;
       }
-
-      .aircraft-left-spacer,
-      .aircraft-right-spacer {
-        display: block !important;
-        min-height: 1px !important;
+      .page {
+        box-shadow: none;
+        margin: 0;
+        padding: 0.25in;
       }
-
-      .aircraft-right-spacer {
-        width: 188px !important;
-      }
-
-      .aircraft-bar {
-        display: grid !important;
-        grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
-        width: 100% !important;
-        gap: 2px !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        transform: none !important;
-        justify-self: stretch !important;
-      }
-
-      .aircraft-chip {
-        width: 100% !important;
-        min-height: 18px !important;
-        height: 18px !important;
-      }
-
-      .aircraft-chip input {
-        font-size: 7px !important;
-        padding: 2px 1px !important;
-        line-height: 1 !important;
-        white-space: nowrap !important;
-      }
-
-      .readout[data-key="flightTotal"] {
-        font-size: 14px !important;
-        font-weight: bold !important;
-      }
-
-      .readout[data-key="dutyTotal"] {
-        font-size: 10px !important;
-        font-weight: bold !important;
-      }
-
-      .route-entry-half input {
-        font-size: 7px !important;
+      @page {
+        size: Letter portrait;
+        margin: 0;
       }
     }
-
-
-    .remarks-tight {
-      font-size: 7px !important;
-      line-height: 1.0 !important;
-    }
-
-    .remarks-medium {
-      font-size: 8px !important;
-      line-height: 1.05 !important;
-    }
-
-    .remarks-normal {
-      font-size: 9px !important;
-      line-height: 1.1 !important;
-    }
-
-    /* ===== FIX REMARKS PRINT EXPANSION ===== */
-    @media print {
-      .remarkscol,
-      .rowspan-input.remarkscol {
-        vertical-align: top !important;
-        padding: 2px 3px !important;
-      }
-
-      .remarkscol textarea,
-      .rowspan-input.remarkscol textarea {
-        height: 100% !important;
-        min-height: 48px !important;
-        max-height: none !important;
-        display: block !important;
-        overflow: visible !important;
-        line-height: 1.1 !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        resize: none !important;
-        white-space: normal !important;
-        word-break: break-word !important;
-        vertical-align: top !important;
-      }
-    }
-
-
-    /* ===== FINAL REMARKS PRINT FIX (v32) ===== */
-    @media print {
-      .remarkscol,
-      .rowspan-input.remarkscol {
-        vertical-align: top !important;
-        padding: 2px 4px !important;
-      }
-
-      .remarkscol textarea,
-      .rowspan-input.remarkscol textarea {
-        display: block !important;
-        height: 100% !important;
-        min-height: 54px !important;
-        overflow: visible !important;
-        resize: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        text-align: left !important;
-        vertical-align: top !important;
-        line-height: 1.0 !important;
-        white-space: pre-wrap !important;
-        word-break: break-word !important;
-      }
-    }
-
-
-    /* ===== REMARKS TOP-ALIGN FIX (v33) ===== */
-    .rowspan-input.remarkscol,
-    td.remarkscol,
-    .remarkscol {
-      vertical-align: top !important;
-    }
-
-    .rowspan-input.remarkscol textarea,
-    .remarkscol textarea {
-      display: block !important;
-      width: 100% !important;
-      height: 100% !important;
-      min-height: 100% !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      text-align: left !important;
-      vertical-align: top !important;
-      align-self: start !important;
-      line-height: 1.0 !important;
-    }
-
-    .rowspan-input.remarkscol {
-      padding-top: 1px !important;
-    }
-
-    @media print {
-      .rowspan-input.remarkscol,
-      td.remarkscol,
-      .remarkscol {
-        vertical-align: top !important;
-      }
-
-      .rowspan-input.remarkscol textarea,
-      .remarkscol textarea {
-        display: block !important;
-        width: 100% !important;
-        height: 100% !important;
-        min-height: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        text-align: left !important;
-        vertical-align: top !important;
-        line-height: 1.0 !important;
-      }
-    }
-
-
-    .remarks-popup-hint {
-      margin-top: 6px;
-      font-size: 11px;
-      color: #475569;
-      min-height: 14px;
-    }
-
-    .remarks-popup-hint.warn {
-      color: #991b1b;
-      font-weight: bold;
-    }
-
-    .remarks-measurer {
-      position: fixed;
-      left: -9999px;
-      top: -9999px;
-      visibility: hidden;
-      pointer-events: none;
-      white-space: pre-wrap;
-      word-break: break-word;
-      overflow: visible;
-      box-sizing: border-box;
-    }
-
-
-    .remarks-cell-clone {
-      position: fixed;
-      left: -9999px;
-      top: -9999px;
-      visibility: hidden;
-      font-size: 9px;
-      line-height: 1.0;
-      font-family: Arial, sans-serif;
-      white-space: pre-wrap;
-      word-break: normal;
-      overflow-wrap: normal;
-      padding: 2px;
-      box-sizing: border-box;
-    }
-
-
-    .remarks-display {
-      width: 100%;
-      height: 100%;
-      min-height: 54px;
-      display: block;
-      overflow: hidden;
-      white-space: pre-wrap;
-      word-break: normal;
-      overflow-wrap: normal;
-      text-align: left;
-      font-family: Arial, sans-serif;
-      font-size: 9px;
-      line-height: 1.0;
-      padding: 0;
-      margin: 0;
-      cursor: pointer;
-    }
-
-    .remarks-display.placeholder {
-      color: #64748b;
-      font-size: 8px;
-    }
-
-    .rowspan-input.remarkscol textarea {
-      display: none !important;
-    }
-
-    @media print {
-      .remarks-display {
-        width: 100% !important;
-        height: 100% !important;
-        min-height: 54px !important;
-        display: block !important;
-        overflow: hidden !important;
-        white-space: pre-wrap !important;
-        word-break: normal !important;
-        overflow-wrap: normal !important;
-        text-align: left !important;
-        font-family: Arial, sans-serif !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        line-height: 1.0 !important;
-      }
-    }
-
   </style>
 </head>
 <body>
-  <div class="sheet">
-    <div class="sheet-header">
-      <div class="sheet-title">
-        <div class="company">TEMSCO HELICOPTERS INC.</div>
-        <div class="form-title">Pilot's Flight & Duty Time Log</div>
-        <div class="note">v41 cleaned layout: remarks now render through a dedicated display box, and popup fit checks measure against that visible box for closer on-form and print matching.</div>
-      </div>
+  <div class="app-shell">
+    <aside class="side-panel">
+      <h2>V42 Control Panel</h2>
+      <div class="toolbar">
+        <div class="status-row">
+          <span>Save Status</span>
+          <span id="saveStatus" class="status-pill">Ready</span>
+        </div>
 
-      <div class="header-box">
-        <div class="header-box-row">
-          <div class="header-label">PILOT NAME</div>
-          <div class="header-value">
-            <div class="header-value-stack">
-              <input id="pilotName" type="text" placeholder="Pilot name" />
-              <div class="cert-row">
-                <span class="cert-label">CERT #</span>
-                <input id="certificateNumber" type="text" placeholder="Number" />
-              </div>
-            </div>
+        <div class="toolbar-row">
+          <div>
+            <label for="weekStartControl">Week Start</label>
+            <input id="weekStartControl" data-bind="weekStart" type="date" />
+          </div>
+          <div>
+            <label for="aircraftControl">Default Aircraft</label>
+            <select id="aircraftControl" data-bind="selectedAircraft">
+              <option value="">Select</option>
+              <option value="R44">R44</option>
+              <option value="R66">R66</option>
+              <option value="B206">B206</option>
+              <option value="B407">B407</option>
+              <option value="AS350">AS350</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
         </div>
-        <div class="header-box-row">
-          <div class="header-label">PERIOD</div>
-          <div class="header-value">
-            <input id="logPeriod" type="text" placeholder="03/25/2026 to 03/31/2026" />
+
+        <div class="toolbar-row">
+          <button id="saveNowBtn" type="button">Save Now</button>
+          <button id="restoreBtn" type="button">Restore Saved</button>
+        </div>
+        <div class="toolbar-row">
+          <button id="exportJsonBtn" type="button">Export JSON</button>
+          <button id="importJsonBtn" type="button">Import JSON</button>
+        </div>
+        <input id="importJsonInput" class="hidden" type="file" accept="application/json" />
+        <div class="toolbar-row">
+          <button id="exportCsvBtn" type="button">Export CSV</button>
+          <button id="printBtn" type="button">Print</button>
+        </div>
+
+        <div>
+          <h3>Validation</h3>
+          <div id="validationSummary" class="summary-box">No validation issues.</div>
+        </div>
+
+        <div>
+          <h3>Weekly Report</h3>
+          <div id="reportBox" class="report-box"></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="sheet-wrap">
+      <section class="page" id="printPage">
+        <div class="page-header">
+          <div class="title-block">
+            <h1>Pilot Flight &amp; Duty Log</h1>
+            <div class="sub">V42 · state-driven weekly sheet with validation, autosave, restore, export, and reporting</div>
+          </div>
+          <div class="field">
+            <label for="weekStartPage">Week Starting</label>
+            <input id="weekStartPage" data-bind="weekStart" type="date" />
+          </div>
+          <div class="field">
+            <label for="aircraftPage">Default Aircraft</label>
+            <select id="aircraftPage" data-bind="selectedAircraft">
+              <option value="">Select</option>
+              <option value="R44">R44</option>
+              <option value="R66">R66</option>
+              <option value="B206">B206</option>
+              <option value="B407">B407</option>
+              <option value="AS350">AS350</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
         </div>
-      </div>
-    </div>
 
-    <div class="top-panels">
-      <div class="panel">
-        <div class="panel-title">Supabase Sign-In</div>
-        <div class="panel-body">
-          <div class="inline-grid">
-            <input id="authEmail" type="email" placeholder="pilot@temscoair.com" />
-            <button id="emailLoginBtn" class="auth-btn" type="button">Send Magic Link</button>
-            <button id="signOutBtn" class="secondary-btn" type="button">Sign Out</button>
-          </div>
-          <div id="authState" class="auth-state">Checking session...</div>
-          <div class="auth-help">Your original save flow required an existing session but had no login UI. This adds a simple email magic-link flow.</div>
+        <table class="log-grid">
+          <colgroup>
+            <col style="width: 4.3%;" />
+            <col style="width: 11%;" />
+            <col style="width: 11%;" />
+            <col style="width: 11%;" />
+            <col style="width: 11%;" />
+            <col style="width: 11%;" />
+            <col style="width: 11%;" />
+            <col style="width: 29.7%;" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Date</th>
+              <th>Aircraft</th>
+              <th>Duty</th>
+              <th>Flight</th>
+              <th>Times</th>
+              <th>Status</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody id="weekRows"></tbody>
+        </table>
+
+        <div class="totals-row">
+          <div class="totals-box"><strong>Total Flight</strong><span id="totalFlightHours">0.0</span></div>
+          <div class="totals-box"><strong>Total Duty</strong><span id="totalDutyHours">0.0</span></div>
+          <div class="totals-box"><strong>Days With Flights</strong><span id="daysWithFlights">0</span></div>
+          <div class="totals-box"><strong>Aircraft Breakdown</strong><span id="aircraftBreakdown">—</span></div>
         </div>
-      </div>
-
-      <div class="summary-box">
-        <div class="summary-title">Weekly Summary</div>
-        <div class="summary-grid">
-          <div class="summary-metric"><div class="label">Flight</div><div id="weekFlight" class="value">0.0</div></div>
-          <div class="summary-metric"><div class="label">Duty</div><div id="weekDuty" class="value">0.0</div></div>
-          <div class="summary-metric"><div class="label">Days Used</div><div id="weekDays" class="value">0</div></div>
-          <div id="restMetric" class="summary-metric"><div class="label">Rest Alerts</div><div id="restAlerts" class="value">0</div></div>
-        </div>
-      </div>
-
-
-      <div class="debug-panel">
-        <div class="panel-title">Admin / Debug</div>
-        <div class="panel-body">
-          <div class="debug-grid">
-            <div class="k">Session</div><div id="debugSessionState" class="v">checking...</div>
-            <div class="k">User Email</div><div id="debugUserEmail" class="v">-</div>
-            <div class="k">User ID</div><div id="debugUserId" class="v">-</div>
-            <div class="k">Last Action</div><div id="debugLastAction" class="v">app boot</div>
-            <div class="k">Last Error</div><div id="debugLastError" class="v">none</div>
-            <div class="k">DB Probe</div><div id="debugDbProbe" class="v">not run</div>
-            <div class="k">Draft</div><div id="debugDraftState" class="v">unknown</div>
-          </div>
-          <div class="debug-actions">
-            <button id="runDebugBtn" class="secondary-btn" type="button">Run Diagnostics</button>
-            <button id="clearDebugBtn" class="secondary-btn" type="button">Clear Debug Log</button>
-          </div>
-          <div id="debugLog" class="debug-log">debug panel ready</div>
-          <div class="tiny-note">This panel is read-only except for diagnostics. It helps surface auth, RLS, UUID/type, and save/load errors directly in the browser.</div>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="controls">
-      <button id="dutyBtn" class="duty-btn" type="button">Duty Mode</button>
-      <button id="clearSelectedBtn" class="clear-btn" type="button">Clear Selected Aircraft</button>
-      <button id="saveAllBtn" class="save-btn" type="button">Save 7 Days</button>
-      <button id="loadSavedBtn" class="load-btn" type="button">Load Saved Rows</button>
-      <button id="exportCsvBtn" class="secondary-btn" type="button">Export CSV</button>
-      <button id="clearDraftBtn" class="delete-btn" type="button">Clear Browser Draft</button>
-    </div>
-
-    <div class="mode-line">
-      MODE: <span id="modeDisplay">FLIGHT</span> |
-      CURRENT DAY: <span id="currentRowDisplay">1</span> |
-      SELECTED AIRCRAFT: <span id="selectedAircraftDisplay">MD500</span>
-    </div>
-
-    <div class="aircraft-layout">
-      <div class="aircraft-left-spacer"></div>
-      <div id="aircraftBar" class="aircraft-bar"></div>
-      <div class="aircraft-right-spacer"></div>
-    </div>
-
-    <div class="table-wrap">
-      <table class="log-table">
-        <thead>
-          <tr>
-            <th class="daycell">DATE</th>
-            <th class="smallcol">START</th>
-            <th class="smallcol">STOP</th>
-            <th class="smallcol">DUTY</th>
-            <th class="labelcol">ROW</th>
-            <th colspan="48">TIME</th>
-            <th class="routecol">(133)</th>
-            <th class="flttotalcol">FLT</th>
-            <th class="remarkscol">REMARKS</th>
-          </tr>
-          <tr>
-            <th class="subhead">MM/DD</th>
-            <th class="subhead">Start</th>
-            <th class="subhead">Stop</th>
-            <th class="subhead">Duty</th>
-            <th class="subhead">Type</th>
-            <th class="subhead" colspan="48"></th>
-            <th class="subhead">(class)</th>
-            <th class="subhead">Total</th>
-            <th class="subhead">Notes</th>
-          </tr>
-          <tr>
-            <th class="subhead"></th>
-            <th class="subhead"></th>
-            <th class="subhead"></th>
-            <th class="subhead"></th>
-            <th class="subhead"></th>
-            <th class="metrics-header-cell" colspan="48">
-              <div class="day-aircraft-band header-band">
-                <div class="day-aircraft-group"><div class="day-aircraft-box compact header-label-box"><div class="val">PIC</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">NIGHT</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">TRNG</div></div></div>
-                <div class="day-aircraft-group"><div class="day-aircraft-box compact header-label-box"><div class="val">PIC</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">NIGHT</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">TRNG</div></div></div>
-                <div class="day-aircraft-group"><div class="day-aircraft-box compact header-label-box"><div class="val">PIC</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">NIGHT</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">TRNG</div></div></div>
-                <div class="day-aircraft-group"><div class="day-aircraft-box compact header-label-box"><div class="val">PIC</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">NIGHT</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">TRNG</div></div></div>
-                <div class="day-aircraft-group"><div class="day-aircraft-box compact header-label-box"><div class="val">PIC</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">NIGHT</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">TRNG</div></div></div>
-                <div class="day-aircraft-group"><div class="day-aircraft-box compact header-label-box"><div class="val">PIC</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">NIGHT</div></div><div class="day-aircraft-box compact header-label-box"><div class="val">TRNG</div></div></div>
-              </div>
-            </th>
-            <th class="subhead"></th>
-            <th class="subhead"></th>
-            <th class="subhead"></th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
-
-    <div class="currency-section">
-      <div class="currency-row">
-        <span class="label">Currency Statement</span>
-        <span>Date</span>
-        <input id="currencyDateMonth" class="tiny" type="text" maxlength="2" placeholder="MM" />
-        <span>/</span>
-        <input id="currencyDateDay" class="tiny" type="text" maxlength="2" placeholder="DD" />
-        <span>/</span>
-        <input id="currencyDateYear" class="small" type="text" maxlength="4" placeholder="YYYY" />
-        <span>A/C</span>
-        <input id="currencyAircraft" class="small" type="text" />
-        <span>N</span>
-        <input id="currencyN" class="n-wide" type="text" maxlength="7" placeholder="N123AB" />
-        <span>Depart from</span>
-        <input id="currencyFrom" class="medium" type="text" />
-        <span>to</span>
-        <input id="currencyTo" class="medium" type="text" />
-      </div>
-
-      <div class="currency-row">
-        <span class="label">Duration of Flight</span>
-        <span>Day</span>
-        <input id="currencyDayDuration" class="small" type="text" />
-        <span>Night</span>
-        <input id="currencyNightDuration" class="small" type="text" />
-        <span>No. T/O &amp; Ldgs</span>
-        <input id="currencyTakeoffs" class="small" type="text" />
-        <span>Remarks</span>
-        <input id="currencyRemarks" class="remarks-wide" type="text" />
-      </div>
-
-      <div class="currency-row">
-        <span>I have complied with F.A.R. 135.267 (on back)</span>
-        <span class="spacer"></span>
-        <span>PILOT'S SIGNATURE</span>
-        <input id="pilotSignature" class="signature-input" type="text" />
-      </div>
-    </div>
-
-    <div id="status" class="status"></div>
-
-    <div class="saved-wrap">
-      <div class="saved-title">Saved Entries</div>
-      <div id="savedList"></div>
-    </div>
-
-    <div class="history-wrap">
-      <div class="saved-title">History</div>
-      <div class="history-toolbar">
-        <div class="history-controls">
-          <label for="historyMonthsBack" style="font-size:11px;font-weight:bold;">Show</label>
-          <select id="historyMonthsBack" class="history-select">
-            <option value="1">Last 1 month</option>
-            <option value="3" selected>Last 3 months</option>
-            <option value="6">Last 6 months</option>
-            <option value="12">Last 12 months</option>
-          </select>
-          <button id="refreshHistoryBtn" class="secondary-btn" type="button">Refresh History</button>
-        </div>
-        <div class="tiny-note">Monthly totals are calculated from saved rows in Supabase for the signed-in pilot.</div>
-      </div>
-      <div id="historySummary" class="history-summary-grid"></div>
-      <div id="historyList"></div>
-    </div>
+      </section>
+    </main>
   </div>
 
-
-  <div id="remarksPopupOverlay" class="remarks-popup-overlay" aria-hidden="true">
-    <div class="remarks-popup" role="dialog" aria-modal="true" aria-labelledby="remarksPopupTitle">
-      <div id="remarksPopupTitle" class="remarks-popup-title">Edit Remarks</div>
-      <div id="remarksPopupSubtitle" class="remarks-popup-subtitle">Day 1 remarks</div>
-      <textarea id="remarksPopupTextarea" placeholder="Enter remarks..."></textarea>
-      <div id="remarksPopupHint" class="remarks-popup-hint"></div>
-      <div class="remarks-popup-actions">
-        <button id="remarksPopupCancelBtn" class="secondary-btn" type="button">Close</button>
-        <button id="remarksPopupSaveBtn" class="save-btn" type="button">Save Remarks</button>
+  <div class="modal-backdrop" id="remarksModalBackdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="remarksModalTitle">
+      <div class="modal-header">
+        <h3 id="remarksModalTitle">Edit Remarks</h3>
+        <button id="closeRemarksBtn" type="button">Close</button>
+      </div>
+      <div class="modal-grid">
+        <div>
+          <label for="remarksModalTextarea">Remarks Entry</label>
+          <textarea id="remarksModalTextarea"></textarea>
+          <div class="remarks-counter" id="remarksModalCounter">0 / 180</div>
+        </div>
+        <div>
+          <label>Printed Space Preview</label>
+          <div class="remarks-preview" id="remarksPreview"></div>
+          <div class="mini" id="remarksPreviewStatus">Fits in printed space.</div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="applyRemarksBtn" type="button">Apply</button>
       </div>
     </div>
   </div>
 
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script>
-    const sb = window.supabase.createClient(
-      "https://xjisftmfjsjomgsjzkod.supabase.co",
-      "sb_publishable_5XyiR6l-76O6RFbR1ba2oQ_4p9Gm5oS"
-    );
+    (function () {
+      'use strict';
 
-    const DAY_COUNT = 7;
-    const AIRCRAFT_COUNT = 6;
-    const tableBody = document.getElementById("tableBody");
-    const DRAFT_KEY = "temsco_pilot_log_draft_v2";
+      const APP_VERSION = 42;
+      const DAYS_IN_WEEK = 7;
+      const STORAGE_KEY = 'pilotDutyLog_v42_current';
+      const BACKUP_KEY = 'pilotDutyLog_v42_backup';
+      const AUTOSAVE_DELAY_MS = 700;
+      const REMARKS_PRINT_LIMIT = 180;
 
-    const aircraftOptions = [
-      { id: "md500", label: "MD500", color: "#22c55e" },
-      { id: "as350", label: "AS350", color: "#3b82f6" },
-      { id: "ec130", label: "EC130", color: "#64748b" },
-      { id: "bell212", label: "BELL212", color: "#f59e0b" },
-      { id: "bell214", label: "BELL214", color: "#8b5cf6" },
-      { id: "bell205", label: "BELL205", color: "#ef4444" }
-    ];
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-    let mode = "flight";
-    let isDrawing = false;
-    let currentRowId = 1;
-    let selectedAircraftIndex = 0;
-    let rows = Array.from({ length: DAY_COUNT }, (_, i) => ({ id: i + 1, dutyStartBlock: null }));
-
-    const dutyBtn = document.getElementById("dutyBtn");
-    const clearSelectedBtn = document.getElementById("clearSelectedBtn");
-    const saveAllBtn = document.getElementById("saveAllBtn");
-    const loadSavedBtn = document.getElementById("loadSavedBtn");
-    const exportCsvBtn = document.getElementById("exportCsvBtn");
-    const clearDraftBtn = document.getElementById("clearDraftBtn");
-    const emailLoginBtn = document.getElementById("emailLoginBtn");
-    const signOutBtn = document.getElementById("signOutBtn");
-    const authEmail = document.getElementById("authEmail");
-    const authState = document.getElementById("authState");
-    const modeDisplay = document.getElementById("modeDisplay");
-    const currentRowDisplay = document.getElementById("currentRowDisplay");
-    const selectedAircraftDisplay = document.getElementById("selectedAircraftDisplay");
-    const statusEl = document.getElementById("status");
-    const savedList = document.getElementById("savedList");
-    const historyList = document.getElementById("historyList");
-    const historySummary = document.getElementById("historySummary");
-    const historyMonthsBack = document.getElementById("historyMonthsBack");
-    const refreshHistoryBtn = document.getElementById("refreshHistoryBtn");
-    [
-      "currencyDateMonth", "currencyDateDay", "currencyDateYear", "currencyAircraft",
-      "currencyN", "currencyFrom", "currencyTo", "currencyDayDuration",
-      "currencyNightDuration", "currencyTakeoffs", "currencyRemarks", "pilotSignature"
-    ].forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener("input", persistDraftSoon);
-      }
-    });
-
-    function isValidNNumber(val) {
-      return /^N[0-9]{1,5}[A-Z]{0,2}$/.test(val);
-    }
-
-    
-    const currencyFields = [
-      "currencyDateMonth","currencyDateDay","currencyDateYear",
-      "currencyAircraft","currencyN","currencyFrom","currencyTo",
-      "currencyDayDuration","currencyNightDuration","currencyTakeoffs",
-      "currencyRemarks","pilotSignature"
-    ];
-
-    currencyFields.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener("input", () => {
-          el.value = el.value.toUpperCase();
-        });
-      }
-    });
-
-const nInput = document.getElementById("currencyN");
-    if (nInput) {
-      nInput.addEventListener("input", () => {
-        nInput.value = nInput.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
-        persistDraftSoon();
-      });
-
-      nInput.addEventListener("blur", () => {
-        nInput.classList.toggle("alert-exceed", !!nInput.value && !isValidNNumber(nInput.value));
-      });
-    }
-    const logPeriodEl = document.getElementById("logPeriod");
-    const aircraftBar = document.getElementById("aircraftBar");
-    const weekFlightEl = document.getElementById("weekFlight");
-    const weekDutyEl = document.getElementById("weekDuty");
-    const weekDaysEl = document.getElementById("weekDays");
-    const restAlertsEl = document.getElementById("restAlerts");
-    const restMetricEl = document.getElementById("restMetric");
-    const debugSessionState = document.getElementById("debugSessionState");
-    const debugUserEmail = document.getElementById("debugUserEmail");
-    const debugUserId = document.getElementById("debugUserId");
-    const debugLastAction = document.getElementById("debugLastAction");
-    const debugLastError = document.getElementById("debugLastError");
-    const debugDbProbe = document.getElementById("debugDbProbe");
-    const debugDraftState = document.getElementById("debugDraftState");
-    const debugLogEl = document.getElementById("debugLog");
-    const runDebugBtn = document.getElementById("runDebugBtn");
-    const clearDebugBtn = document.getElementById("clearDebugBtn");
-    const remarksPopupOverlay = document.getElementById("remarksPopupOverlay");
-    const remarksPopupSubtitle = document.getElementById("remarksPopupSubtitle");
-    const remarksPopupTextarea = document.getElementById("remarksPopupTextarea");
-    const remarksPopupSaveBtn = document.getElementById("remarksPopupSaveBtn");
-    const remarksPopupCancelBtn = document.getElementById("remarksPopupCancelBtn");
-    const remarksPopupHint = document.getElementById("remarksPopupHint");
-    const remarksMeasurer = document.getElementById("remarksMeasurer");
-    let activeRemarksDayId = null;
-    let lastValidRemarksText = "";
-
-
-    function applyRemarksSizing(textarea) {
-      if (!textarea) return;
-
-      const text = (textarea.value || "").trim();
-      const length = text.length;
-
-      textarea.classList.remove("remarks-tight", "remarks-medium", "remarks-normal");
-
-      if (length > 140) {
-        textarea.style.fontSize = "6.5px";
-        textarea.style.lineHeight = "0.95";
-      } else if (length > 90) {
-        textarea.style.fontSize = "7.5px";
-        textarea.style.lineHeight = "1.0";
-      } else if (length > 45) {
-        textarea.style.fontSize = "8.5px";
-        textarea.style.lineHeight = "1.05";
-      } else {
-        textarea.style.fontSize = "9.5px";
-        textarea.style.lineHeight = "1.1";
-      }
-    }
-
-    function applyRemarksSizingStylesForElement(el, text) {
-      if (!el) return;
-      const length = (text || "").trim().length;
-      el.style.fontSize = "";
-      el.style.lineHeight = "";
-      if (length > 150) {
-        el.style.fontSize = "6.5px";
-        el.style.lineHeight = "0.95";
-      } else if (length > 105) {
-        el.style.fontSize = "7.25px";
-        el.style.lineHeight = "0.98";
-      } else if (length > 60) {
-        el.style.fontSize = "8.25px";
-        el.style.lineHeight = "1.0";
-      } else {
-        el.style.fontSize = "9.25px";
-        el.style.lineHeight = "1.05";
-      }
-    }
-
-    function remarksFitsVisibleBox(dayId, text) {
-      const remarksInput = getInput(dayId, "remarks");
-      if (!remarksInput || !remarksMeasurer) return true;
-
-      const rect = remarksInput.getBoundingClientRect();
-      const styles = window.getComputedStyle(remarksInput);
-
-      const measuredWidth = rect.width * 1.48;
-      const measuredHeight = rect.height * 1.04;
-
-      remarksMeasurer.style.width = measuredWidth + "px";
-      remarksMeasurer.style.minHeight = measuredHeight + "px";
-      remarksMeasurer.style.maxHeight = "none";
-      remarksMeasurer.style.fontFamily = styles.fontFamily;
-      remarksMeasurer.style.fontWeight = styles.fontWeight;
-      remarksMeasurer.style.letterSpacing = styles.letterSpacing;
-      remarksMeasurer.style.padding = "0";
-      remarksMeasurer.style.border = "none";
-      remarksMeasurer.style.textAlign = "left";
-      remarksMeasurer.style.whiteSpace = "pre-wrap";
-      remarksMeasurer.style.wordBreak = "break-word";
-      remarksMeasurer.style.overflowWrap = "break-word";
-      remarksMeasurer.style.lineHeight = "1.0";
-
-      applyRemarksSizingStylesForElement(remarksMeasurer, text || "");
-      remarksMeasurer.textContent = text || "";
-
-      return remarksMeasurer.scrollHeight <= measuredHeight;
-    }
-
-    function updateRemarksPopupHint(message = "", isWarn = false) {
-      if (!remarksPopupHint) return;
-      remarksPopupHint.textContent = message;
-      remarksPopupHint.classList.toggle("warn", !!isWarn);
-    }
-
-    function getRemarksDisplay(dayId) {
-      return document.querySelector(`.remarks-display[data-day-id="${dayId}"]`);
-    }
-
-    function syncRemarksDisplay(dayId) {
-      const remarksInput = getInput(dayId, "remarks");
-      const display = getRemarksDisplay(dayId);
-      if (!display) return;
-      const text = remarksInput?.value || "";
-      if (text.trim()) {
-        display.textContent = text;
-        display.classList.remove("placeholder");
-      } else {
-        display.textContent = "Click to expand remarks";
-        display.classList.add("placeholder");
-      }
-      applyRemarksSizingStylesForElement(display, text);
-    }
-
-    function openRemarksPopup(dayId) {
-      const remarksInput = getInput(dayId, "remarks");
-      if (!remarksInput) return;
-      activeRemarksDayId = dayId;
-      remarksPopupSubtitle.textContent = `Day ${dayId} remarks`;
-      remarksPopupTextarea.value = remarksInput.value || "";
-      lastValidRemarksText = remarksPopupTextarea.value || "";
-      updateRemarksPopupHint("Entry is limited to what fits in the visible printed remarks box.");
-      remarksPopupOverlay.classList.add("open");
-      remarksPopupOverlay.setAttribute("aria-hidden", "false");
-      window.setTimeout(() => remarksPopupTextarea.focus(), 0);
-    }
-
-    function closeRemarksPopup(saveChanges = false) {
-      if (saveChanges && activeRemarksDayId !== null) {
-        const remarksInput = getInput(activeRemarksDayId, "remarks");
-        if (remarksInput) {
-          remarksInput.value = remarksPopupTextarea.value;
-          applyRemarksSizing(remarksInput);
-          syncRemarksDisplay(activeRemarksDayId);
+      const appState = {
+        version: APP_VERSION,
+        weekStart: '',
+        selectedAircraft: '',
+        days: createEmptyWeek(),
+        meta: {
+          dirty: false,
+          lastSavedAt: null,
+          saveStatus: 'Ready'
         }
-        persistDraftSoon();
-      }
-      remarksPopupOverlay.classList.remove("open");
-      remarksPopupOverlay.setAttribute("aria-hidden", "true");
-      updateRemarksPopupHint("");
-      activeRemarksDayId = null;
-      lastValidRemarksText = "";
-    }
-
-    function setStatus(message, tone = "ok") {
-      statusEl.textContent = message;
-      statusEl.className = `status ${tone}`;
-    }
-
-    function nowStamp() {
-      return new Date().toLocaleString();
-    }
-
-    function appendDebugLog(message) {
-      if (!debugLogEl) return;
-      debugLogEl.textContent = `[${nowStamp()}] ${message}
-` + debugLogEl.textContent;
-    }
-
-    function setDebugAction(message) {
-      debugLastAction.textContent = message;
-      appendDebugLog(`ACTION: ${message}`);
-    }
-
-    function setDebugError(message) {
-      const safeMessage = message || 'none';
-      debugLastError.textContent = safeMessage;
-      if (safeMessage !== 'none') appendDebugLog(`ERROR: ${safeMessage}`);
-    }
-
-    function updateDebugDraftState() {
-      try {
-        const raw = localStorage.getItem(DRAFT_KEY);
-        if (!raw) {
-          debugDraftState.textContent = 'no browser draft';
-          return;
-        }
-        const draft = JSON.parse(raw);
-        const usedDays = Array.isArray(draft.days) ? draft.days.filter(day => day && (day.logDate || day.remarks || (day.flightMarks || []).flat().some(v => v !== null) || (day.dutyBlocks || []).some(v => Number(v) > 0))).length : 0;
-        debugDraftState.textContent = `draft present (${usedDays} day(s))`;
-      } catch (err) {
-        debugDraftState.textContent = `draft unreadable: ${err.message}`;
-      }
-    }
-
-    async function runDiagnostics() {
-      setDebugAction('run diagnostics');
-      setDebugError('none');
-      debugDbProbe.textContent = 'running...';
-      try {
-        const user = await getCurrentUser();
-        debugSessionState.textContent = user ? 'signed in' : 'signed out';
-        debugUserEmail.textContent = user?.email || '-';
-        debugUserId.textContent = user?.id || '-';
-
-        if (!user) {
-          debugDbProbe.textContent = 'skipped: no session';
-          appendDebugLog('DIAG: no user session, DB probe skipped');
-          updateDebugDraftState();
-          return;
-        }
-
-        const probe = await sb
-          .from('logs')
-          .select('id, user_id, log_date', { count: 'exact' })
-          .eq('user_id', user.id)
-          .order('log_date', { ascending: false })
-          .limit(3);
-
-        if (probe.error) {
-          debugDbProbe.textContent = probe.error.message;
-          setDebugError(probe.error.message);
-          appendDebugLog('DIAG HINT: if policy compares auth.uid() uuid to user_id text, cast or convert user_id to uuid');
-          return;
-        }
-
-        const rowCount = typeof probe.count === 'number' ? probe.count : (probe.data || []).length;
-        const newest = probe.data?.[0]?.log_date || 'none';
-        debugDbProbe.textContent = `ok | rows=${rowCount} | newest=${newest}`;
-        appendDebugLog(`DIAG: DB probe succeeded with ${rowCount} row(s); newest log_date=${newest}`);
-        updateDebugDraftState();
-      } catch (err) {
-        debugDbProbe.textContent = err.message;
-        setDebugError(err.message);
-      }
-    }
-
-        function resizePilotNameField() {
-      // intentionally retained as a no-op for compatibility with earlier drafts
-    }
-
-function getAircraftLabel(index) {
-      const input = document.querySelector(`.aircraft-chip[data-aircraft-index="${index}"] input`);
-      return input?.value.trim() || aircraftOptions[index].label;
-    }
-
-    function getAircraftColor(index) {
-      return aircraftOptions[index]?.color || "#22c55e";
-    }
-
-    function getDayMetricInput(dayId, aircraftIndex, metric) {
-      return document.querySelector(`.day-aircraft-box[data-day-id="${dayId}"][data-aircraft-index="${aircraftIndex}"][data-metric="${metric}"] input`);
-    }
-
-    function getInput(dayId, key) {
-      return document.querySelector(`[data-day-id="${dayId}"][data-key="${key}"] input, [data-day-id="${dayId}"][data-key="${key}"] textarea`);
-    }
-
-    function getReadout(dayId, key) {
-      return document.querySelector(`.readout[data-day-id="${dayId}"][data-key="${key}"]`);
-    }
-
-    function updateSelectedAircraftDisplay() {
-      selectedAircraftDisplay.textContent = getAircraftLabel(selectedAircraftIndex);
-    }
-
-    function refreshAircraftSelection() {
-      document.querySelectorAll(".aircraft-chip").forEach((chip, index) => {
-        chip.classList.toggle("selected", index === selectedAircraftIndex);
-      });
-      updateSelectedAircraftDisplay();
-      persistDraftSoon();
-    }
-
-    function setMode(newMode) {
-      mode = newMode;
-      modeDisplay.textContent = newMode.toUpperCase();
-      dutyBtn.classList.toggle("active", newMode === "duty");
-      clearSelectedBtn.textContent = newMode === "flight" ? "Clear Selected Aircraft" : "Clear Duty Row";
-    }
-
-    function setCurrentRow(dayId) {
-      currentRowId = dayId;
-      currentRowDisplay.textContent = dayId;
-      document.querySelectorAll(".labelcol-cell").forEach(el => el.style.outline = "");
-      document.querySelectorAll(`.labelcol-cell[data-day-id="${dayId}"]`).forEach(el => {
-        el.style.outline = "1.5px solid #2563eb";
-        el.style.outlineOffset = "-1px";
-      });
-    }
-
-    function formatHalfHourBlock(blockIndex) {
-      const hours = Math.floor(blockIndex / 2);
-      const minutes = blockIndex % 2 === 0 ? "00" : "30";
-      return `${String(hours).padStart(2, "0")}:${minutes}`;
-    }
-
-    function timeToMinutes(text) {
-      if (!text || text === "--:--") return null;
-      const [h, m] = text.split(":").map(Number);
-      if (Number.isNaN(h) || Number.isNaN(m)) return null;
-      return h * 60 + m;
-    }
-
-    function formatDateForRow(dateValue) {
-      if (!dateValue) return "";
-      if (/^\d{2}\/\d{2}$/.test(dateValue)) return dateValue;
-      const parts = dateValue.split("-");
-      if (parts.length === 3) return `${parts[1]}/${parts[2]}`;
-      return dateValue;
-    }
-
-    function getPeriodYear() {
-      const text = (logPeriodEl.value || "").trim();
-      const yearMatch = text.match(/\b(20\d{2}|19\d{2})\b/);
-      return yearMatch ? yearMatch[1] : String(new Date().getFullYear());
-    }
-
-    function buildStoredDate(mmdd, periodValue) {
-      const cleaned = (mmdd || "").trim();
-      if (!/^\d{2}\/\d{2}$/.test(cleaned)) return cleaned;
-      const yearMatch = (periodValue || "").match(/\b(20\d{2}|19\d{2})\b/);
-      if (yearMatch) {
-        const [mm, dd] = cleaned.split("/");
-        return `${yearMatch[1]}-${mm}-${dd}`;
-      }
-      return cleaned;
-    }
-
-    function updatePeriodFromRows() {
-      const firstDate = getInput(1, "logDate")?.value.trim() || "";
-      const lastDate = getInput(DAY_COUNT, "logDate")?.value.trim() || "";
-      if (/^\d{2}\/\d{2}$/.test(firstDate) && /^\d{2}\/\d{2}$/.test(lastDate)) {
-        const year = getPeriodYear();
-        logPeriodEl.value = `${firstDate}/${year} to ${lastDate}/${year}`;
-      } else if (!firstDate && !lastDate && !/\bto\b/i.test(logPeriodEl.value)) {
-        logPeriodEl.value = "";
-      }
-    }
-
-    function autoFormatMMDDInput(input) {
-      let value = input.value.replace(/[^\d]/g, "").slice(0, 4);
-      if (value.length >= 3) value = value.slice(0, 2) + "/" + value.slice(2);
-      input.value = value;
-    }
-
-    function buildAircraftBar() {
-      aircraftBar.innerHTML = "";
-      aircraftOptions.forEach((option, index) => {
-        const chip = document.createElement("div");
-        chip.className = "aircraft-chip";
-        chip.dataset.aircraftIndex = index;
-        chip.style.background = option.color;
-
-        const input = document.createElement("input");
-        input.type = "text";
-        input.value = option.label;
-        input.addEventListener("focus", () => {
-          selectedAircraftIndex = index;
-          refreshAircraftSelection();
-          setMode("flight");
-        });
-        input.addEventListener("input", () => {
-          updateSelectedAircraftDisplay();
-          persistDraftSoon();
-        });
-
-        chip.addEventListener("click", (e) => {
-          if (e.target !== input) {
-            selectedAircraftIndex = index;
-            refreshAircraftSelection();
-            setMode("flight");
-          }
-        });
-
-        chip.appendChild(input);
-        aircraftBar.appendChild(chip);
-      });
-
-      refreshAircraftSelection();
-    }
-
-    function getRowState(dayId) {
-      return rows.find(r => r.id === dayId);
-    }
-
-    function updateDayAircraftPicTotals(dayId) {
-      const totals = Array(AIRCRAFT_COUNT).fill(0);
-      document.querySelectorAll(`.tenth.on[data-day-id="${dayId}"]`).forEach((el) => {
-        const idx = Number(el.dataset.aircraftIndex ?? 0);
-        if (idx >= 0 && idx < AIRCRAFT_COUNT) totals[idx] += 0.1;
-      });
-      totals.forEach((t, idx) => {
-        const input = getDayMetricInput(dayId, idx, "pic");
-        if (input) input.value = t.toFixed(1);
-      });
-    }
-
-    function computeWeeklySummary() {
-      let flight = 0;
-      let duty = 0;
-      let days = 0;
-      let restAlerts = 0;
-      let previousDutyStop = null;
-
-      for (let dayId = 1; dayId <= DAY_COUNT; dayId++) {
-        const dayFlight = Number(getReadout(dayId, "flightTotal")?.textContent || 0);
-        const dayDuty = Number(getReadout(dayId, "dutyTotal")?.textContent || 0);
-        const dutyStart = getReadout(dayId, "dutyStart")?.textContent || "--:--";
-        const dutyStop = getReadout(dayId, "dutyStop")?.textContent || "--:--";
-
-        flight += dayFlight;
-        duty += dayDuty;
-        if (dayFlight > 0 || dayDuty > 0 || (getInput(dayId, "logDate")?.value || "").trim()) days += 1;
-
-        const currentStart = timeToMinutes(dutyStart);
-        if (previousDutyStop !== null && currentStart !== null) {
-          let gap = currentStart - previousDutyStop;
-          if (gap < 0) gap += 24 * 60;
-          if (gap < 600) restAlerts += 1;
-        }
-
-        const currentStop = timeToMinutes(dutyStop);
-        previousDutyStop = currentStop;
-      }
-
-      weekFlightEl.textContent = flight.toFixed(1);
-      weekDutyEl.textContent = duty.toFixed(1);
-      weekDaysEl.textContent = String(days);
-      restAlertsEl.textContent = String(restAlerts);
-      restMetricEl.classList.toggle("warn", restAlerts > 0);
-    }
-
-    function updateTotals(dayId) {
-      let flight = 0;
-      let duty = 0;
-
-      document.querySelectorAll(`.tenth.on[data-day-id="${dayId}"]`).forEach(() => flight += 0.1);
-      document.querySelectorAll(`.duty-block.on[data-day-id="${dayId}"]`).forEach(() => duty += 0.5);
-
-      const activeBlocks = [];
-      document.querySelectorAll(`.duty-block.on[data-day-id="${dayId}"]`).forEach((cell) => {
-        activeBlocks.push(Number(cell.dataset.block));
-      });
-
-      let startText = "--:--";
-      let stopText = "--:--";
-      if (activeBlocks.length) {
-        activeBlocks.sort((a, b) => a - b);
-        startText = formatHalfHourBlock(activeBlocks[0]);
-        stopText = formatHalfHourBlock(activeBlocks[activeBlocks.length - 1] + 1);
-      }
-
-      const dutyReadout = getReadout(dayId, "dutyTotal");
-      const flightReadout = getReadout(dayId, "flightTotal");
-
-      getReadout(dayId, "dutyStart").textContent = startText;
-      getReadout(dayId, "dutyStop").textContent = stopText;
-      dutyReadout.textContent = duty.toFixed(1);
-      flightReadout.textContent = flight.toFixed(1);
-
-      dutyReadout.classList.toggle("alert-exceed", duty > 14);
-      flightReadout.classList.toggle("alert-exceed", flight > 8);
-
-      updateDayAircraftPicTotals(dayId);
-      computeWeeklySummary();
-      persistDraftSoon();
-    }
-
-    function clearDutyOnly(dayId) {
-      document.querySelectorAll(`.duty-block[data-day-id="${dayId}"]`).forEach((el) => {
-        el.classList.remove("on", "pending");
-      });
-      const state = getRowState(dayId);
-      if (state) state.dutyStartBlock = null;
-      updateTotals(dayId);
-    }
-
-    function clearSelectedAircraftOnly(dayId) {
-      document.querySelectorAll(`.tenth.on[data-day-id="${dayId}"]`).forEach((el) => {
-        const idx = Number(el.dataset.aircraftIndex ?? -1);
-        if (idx === selectedAircraftIndex) {
-          el.classList.remove("on");
-          el.style.background = "";
-          delete el.dataset.aircraftIndex;
-        }
-      });
-      updateTotals(dayId);
-    }
-
-    function clearSelectedModeForCurrentRow() {
-      if (mode === "flight") {
-        clearSelectedAircraftOnly(currentRowId);
-        setStatus(`Day ${currentRowId}: cleared ${getAircraftLabel(selectedAircraftIndex)} only.`);
-      } else {
-        clearDutyOnly(currentRowId);
-        setStatus(`Day ${currentRowId}: duty row cleared.`);
-      }
-    }
-
-    function handleDutyClick(cell) {
-      const dayId = Number(cell.dataset.dayId);
-      const state = getRowState(dayId);
-      const block = Number(cell.dataset.block);
-
-      if (state.dutyStartBlock === null) {
-        clearDutyOnly(dayId);
-        state.dutyStartBlock = block;
-        cell.classList.add("pending");
-        setStatus(`Day ${dayId}: duty start set. Click stop time.`, "warn");
-        return;
-      }
-
-      const start = Math.min(state.dutyStartBlock, block);
-      const end = Math.max(state.dutyStartBlock, block);
-
-      document.querySelectorAll(`.duty-block[data-day-id="${dayId}"]`).forEach((el) => {
-        el.classList.remove("on", "pending");
-      });
-
-      for (let i = start; i <= end; i++) {
-        const c = document.querySelector(`.duty-block[data-day-id="${dayId}"][data-block="${i}"]`);
-        if (c) c.classList.add("on");
-      }
-
-      state.dutyStartBlock = null;
-      updateTotals(dayId);
-      setStatus(`Day ${dayId}: duty range filled.`);
-    }
-
-    function paintFlight(tenth) {
-      const dayId = Number(tenth.dataset.dayId);
-      tenth.classList.add("on");
-      tenth.dataset.aircraftIndex = String(selectedAircraftIndex);
-      tenth.style.background = getAircraftColor(selectedAircraftIndex);
-      updateTotals(dayId);
-    }
-
-    function buildDayAircraftMetrics(dayId) {
-      const band = document.createElement("div");
-      band.className = "day-aircraft-band";
-
-      aircraftOptions.forEach((_, aircraftIndex) => {
-        const group = document.createElement("div");
-        group.className = "day-aircraft-group";
-
-        ["pic", "night", "trng"].forEach((metric) => {
-          const box = document.createElement("div");
-          box.className = "day-aircraft-box compact";
-          box.dataset.dayId = dayId;
-          box.dataset.aircraftIndex = aircraftIndex;
-          box.dataset.metric = metric;
-
-          const inputAttrs = metric === "pic" ? 'readonly value="0.0"' : 'value=""';
-
-          box.innerHTML = `
-            <div class="lbl"></div>
-            <div class="val"><input type="text" ${inputAttrs}></div>
-          `;
-
-          const input = box.querySelector("input");
-          if (metric !== "pic") {
-            input.addEventListener("input", persistDraftSoon);
-            input.addEventListener("focus", () => setCurrentRow(dayId));
-          }
-
-          group.appendChild(box);
-        });
-
-        band.appendChild(group);
-      });
-
-      return band;
-    }
-
-    function buildFlightGrid(dayId) {
-      const grid = document.createElement("div");
-      grid.className = "flight-grid";
-
-      for (let block = 0; block < 48; block++) {
-        const blockEl = document.createElement("div");
-        blockEl.className = "flight-block";
-
-        const hourLabel = document.createElement("div");
-        hourLabel.className = "flight-hour-label";
-        hourLabel.textContent = block % 2 === 0 ? String(block / 2) : "";
-        blockEl.appendChild(hourLabel);
-
-        for (let tenth = 0; tenth < 5; tenth++) {
-          const cell = document.createElement("div");
-          cell.className = "tenth";
-          cell.dataset.dayId = dayId;
-          cell.dataset.block = block;
-          cell.dataset.tenth = tenth;
-
-          cell.addEventListener("mousedown", (e) => {
-            e.preventDefault();
-            if (mode !== "flight") return;
-            setCurrentRow(dayId);
-            isDrawing = true;
-            paintFlight(cell);
-          });
-
-          cell.addEventListener("mouseenter", () => {
-            if (isDrawing && mode === "flight" && currentRowId === dayId) paintFlight(cell);
-          });
-
-          cell.addEventListener("click", () => {
-            if (mode !== "flight") return;
-            setCurrentRow(dayId);
-            paintFlight(cell);
-          });
-
-          blockEl.appendChild(cell);
-        }
-
-        grid.appendChild(blockEl);
-      }
-
-      return grid;
-    }
-
-    function buildDutyGrid(dayId) {
-      const grid = document.createElement("div");
-      grid.className = "duty-grid";
-
-      for (let block = 0; block < 48; block++) {
-        const cell = document.createElement("div");
-        cell.className = "duty-block";
-        cell.dataset.dayId = dayId;
-        cell.dataset.block = block;
-
-        const label = document.createElement("div");
-        label.className = "duty-hour-label";
-        label.textContent = block % 2 === 0 ? String(block / 2) : "";
-        cell.appendChild(label);
-
-        cell.addEventListener("click", () => {
-          if (mode !== "duty") return;
-          setCurrentRow(dayId);
-          handleDutyClick(cell);
-        });
-
-        grid.appendChild(cell);
-      }
-
-      return grid;
-    }
-
-    function buildRouteEntryCell(dayId) {
-      const td = document.createElement("td");
-      td.rowSpan = 3;
-      td.className = "routecol route-entry-cell";
-      td.dataset.dayId = dayId;
-      td.dataset.key = "route133";
-
-      td.innerHTML = `
-        <div class="route-entry-cell-inner">
-          <div class="route-entry-half"><input type="text" data-day-id="${dayId}" data-key="route133Top"></div>
-          <div class="route-entry-half"><input type="text" data-day-id="${dayId}" data-key="route133Bottom"></div>
-        </div>
-      `;
-
-      td.querySelectorAll("input").forEach((input) => {
-        input.addEventListener("focus", () => setCurrentRow(dayId));
-        input.addEventListener("input", () => {
-          input.value = input.value.toUpperCase();
-          persistDraftSoon();
-        });
-      });
-
-      return td;
-    }
-
-
-    function addDayRows(dayId) {
-      const trMetrics = document.createElement("tr");
-      const trFlight = document.createElement("tr");
-      const trDuty = document.createElement("tr");
-
-      const makeRowspanInput = (key, className = "", isTextarea = false) => {
-        const td = document.createElement("td");
-        td.rowSpan = 3;
-        td.className = `rowspan-input ${className}`.trim();
-        td.dataset.dayId = dayId;
-        td.dataset.key = key;
-
-        const input = isTextarea ? document.createElement("textarea") : document.createElement("input");
-        if (!isTextarea) input.type = "text";
-        input.dataset.dayId = dayId;
-        input.dataset.key = key;
-        input.addEventListener("focus", () => {
-          setCurrentRow(dayId);
-          if (key === "remarks") {
-            window.setTimeout(() => openRemarksPopup(dayId), 0);
-          }
-        });
-        input.addEventListener("dblclick", () => {
-          if (key === "remarks") openRemarksPopup(dayId);
-        });
-        input.addEventListener("input", () => {
-          if (key === "logDate") {
-            autoFormatMMDDInput(input);
-            updatePeriodFromRows();
-          }
-          persistDraftSoon();
-          computeWeeklySummary();
-        });
-
-        if (key === "logDate") {
-          input.maxLength = 5;
-          input.placeholder = "MM/DD";
-        }
-
-        if (key === "remarks") {
-          input.placeholder = "Click to expand remarks";
-          input.readOnly = true;
-          input.style.cursor = "pointer";
-          applyRemarksSizing(input);
-
-          const display = document.createElement("div");
-          display.className = "remarks-display placeholder";
-          display.dataset.dayId = dayId;
-          display.textContent = "Click to expand remarks";
-          display.addEventListener("click", () => {
-            setCurrentRow(dayId);
-            openRemarksPopup(dayId);
-          });
-          td.appendChild(input);
-          td.appendChild(display);
-          return td;
-        }
-
-        td.appendChild(input);
-        return td;
       };
 
-      const makeRowspanReadout = (key, initial) => {
-        const td = document.createElement("td");
-        td.rowSpan = 3;
-        td.className = "readout";
-        td.dataset.dayId = dayId;
-        td.dataset.key = key;
-        td.textContent = initial;
-        return td;
+      const dom = {
+        saveStatus: document.getElementById('saveStatus'),
+        validationSummary: document.getElementById('validationSummary'),
+        reportBox: document.getElementById('reportBox'),
+        weekRows: document.getElementById('weekRows'),
+        totalFlightHours: document.getElementById('totalFlightHours'),
+        totalDutyHours: document.getElementById('totalDutyHours'),
+        daysWithFlights: document.getElementById('daysWithFlights'),
+        aircraftBreakdown: document.getElementById('aircraftBreakdown'),
+        printBtn: document.getElementById('printBtn'),
+        saveNowBtn: document.getElementById('saveNowBtn'),
+        restoreBtn: document.getElementById('restoreBtn'),
+        exportJsonBtn: document.getElementById('exportJsonBtn'),
+        importJsonBtn: document.getElementById('importJsonBtn'),
+        importJsonInput: document.getElementById('importJsonInput'),
+        exportCsvBtn: document.getElementById('exportCsvBtn'),
+        remarksModalBackdrop: document.getElementById('remarksModalBackdrop'),
+        closeRemarksBtn: document.getElementById('closeRemarksBtn'),
+        applyRemarksBtn: document.getElementById('applyRemarksBtn'),
+        remarksModalTextarea: document.getElementById('remarksModalTextarea'),
+        remarksPreview: document.getElementById('remarksPreview'),
+        remarksModalCounter: document.getElementById('remarksModalCounter'),
+        remarksPreviewStatus: document.getElementById('remarksPreviewStatus')
       };
 
-      trMetrics.appendChild(makeRowspanInput("logDate", "daycell"));
-      trMetrics.appendChild(makeRowspanReadout("dutyStart", "--:--"));
-      trMetrics.appendChild(makeRowspanReadout("dutyStop", "--:--"));
-      trMetrics.appendChild(makeRowspanReadout("dutyTotal", "0.0"));
+      let autosaveTimer = null;
+      let suppressInputHandlers = false;
+      let activeRemarksDayIndex = null;
 
-      const metricsLabel = document.createElement("td");
-      metricsLabel.className = "labelcol-cell labelcol";
-      metricsLabel.dataset.dayId = dayId;
-      metricsLabel.textContent = "A/C";
-      metricsLabel.addEventListener("click", () => setCurrentRow(dayId));
-      trMetrics.appendChild(metricsLabel);
+      function createEmptyWeek() {
+        return Array.from({ length: DAYS_IN_WEEK }, (_, i) => createEmptyDay(i));
+      }
 
-      const metricsBand = document.createElement("td");
-      metricsBand.colSpan = 48;
-      metricsBand.className = "metrics-band-cell";
-      metricsBand.appendChild(buildDayAircraftMetrics(dayId));
-      trMetrics.appendChild(metricsBand);
-
-      trMetrics.appendChild(buildRouteEntryCell(dayId));
-      trMetrics.appendChild(makeRowspanReadout("flightTotal", "0.0"));
-      trMetrics.appendChild(makeRowspanInput("remarks", "remarkscol", true));
-
-      const fltLabel = document.createElement("td");
-      fltLabel.className = "labelcol-cell labelcol";
-      fltLabel.dataset.dayId = dayId;
-      fltLabel.textContent = "FLT";
-      fltLabel.addEventListener("click", () => setCurrentRow(dayId));
-      trFlight.appendChild(fltLabel);
-
-      const fltTimeline = document.createElement("td");
-      fltTimeline.colSpan = 48;
-      fltTimeline.className = "timeline-cell";
-      fltTimeline.appendChild(buildFlightGrid(dayId));
-      trFlight.appendChild(fltTimeline);
-
-      const dutyLabel = document.createElement("td");
-      dutyLabel.className = "labelcol-cell labelcol";
-      dutyLabel.dataset.dayId = dayId;
-      dutyLabel.textContent = "DUTY";
-      dutyLabel.addEventListener("click", () => setCurrentRow(dayId));
-      trDuty.appendChild(dutyLabel);
-
-      const dutyTimeline = document.createElement("td");
-      dutyTimeline.colSpan = 48;
-      dutyTimeline.className = "timeline-cell";
-      dutyTimeline.appendChild(buildDutyGrid(dayId));
-      trDuty.appendChild(dutyTimeline);
-
-      tableBody.appendChild(trMetrics);
-      tableBody.appendChild(trFlight);
-      tableBody.appendChild(trDuty);
-    }
-
-    function buildTable() {
-      tableBody.replaceChildren();
-      for (let day = 1; day <= DAY_COUNT; day++) addDayRows(day);
-      setCurrentRow(1);
-      setMode("flight");
-      computeWeeklySummary();
-    }
-
-    function getDayAircraftMetrics(dayId) {
-      return aircraftOptions.map((_, idx) => ({
-        night: getDayMetricInput(dayId, idx, "night")?.value.trim() || "",
-        trng: getDayMetricInput(dayId, idx, "trng")?.value.trim() || ""
-      }));
-    }
-
-    function setDayAircraftMetrics(dayId, data) {
-      aircraftOptions.forEach((_, idx) => {
-        const night = getDayMetricInput(dayId, idx, "night");
-        const trng = getDayMetricInput(dayId, idx, "trng");
-        if (night) night.value = data?.[idx]?.night || "";
-        if (trng) trng.value = data?.[idx]?.trng || "";
-      });
-      persistDraftSoon();
-    }
-
-    function clearEntireDay(dayId) {
-      document.querySelectorAll(`.tenth[data-day-id="${dayId}"]`).forEach((el) => {
-        el.classList.remove("on");
-        el.style.background = "";
-        delete el.dataset.aircraftIndex;
-      });
-      clearDutyOnly(dayId);
-
-      ["logDate", "route", "remarks", "route133Top", "route133Bottom"].forEach((key) => {
-        const input = getInput(dayId, key);
-        if (input) {
-          input.value = "";
-          if (key === "remarks") {
-            applyRemarksSizing(input);
-            syncRemarksDisplay(dayId);
+      function createEmptyDay(index) {
+        return {
+          dayIndex: index,
+          date: '',
+          aircraft: '',
+          dutyStart: '',
+          dutyEnd: '',
+          flightStart: '',
+          flightEnd: '',
+          flightTime: '',
+          remarks: '',
+          validation: {
+            errors: [],
+            warnings: []
           }
-        }
-      });
-
-      setDayAircraftMetrics(dayId, null);
-      updateTotals(dayId);
-      updatePeriodFromRows();
-      persistDraftSoon();
-    }
-
-    function applyFlightMarksToDay(dayId, flightMarks, fallbackBlocks) {
-      document.querySelectorAll(`.tenth[data-day-id="${dayId}"]`).forEach((el) => {
-        el.classList.remove("on");
-        el.style.background = "";
-        delete el.dataset.aircraftIndex;
-      });
-
-      if (Array.isArray(flightMarks) && flightMarks.length) {
-        flightMarks.forEach((blockMarks, blockIndex) => {
-          if (!Array.isArray(blockMarks)) return;
-          blockMarks.forEach((aircraftIndex, tenthIndex) => {
-            if (aircraftIndex === null || aircraftIndex === undefined) return;
-            const tenth = document.querySelector(`.tenth[data-day-id="${dayId}"][data-block="${blockIndex}"][data-tenth="${tenthIndex}"]`);
-            if (tenth) {
-              const idx = Number(aircraftIndex) || 0;
-              tenth.classList.add("on");
-              tenth.dataset.aircraftIndex = String(idx);
-              tenth.style.background = getAircraftColor(idx);
-            }
-          });
-        });
-        updateTotals(dayId);
-        return;
-      }
-
-      if (Array.isArray(fallbackBlocks)) {
-        fallbackBlocks.forEach((value, blockIndex) => {
-          const tenthsToFill = Math.round((Number(value) || 0) * 10);
-          for (let i = 0; i < tenthsToFill; i++) {
-            const tenth = document.querySelector(`.tenth[data-day-id="${dayId}"][data-block="${blockIndex}"][data-tenth="${i}"]`);
-            if (tenth) {
-              tenth.classList.add("on");
-              tenth.dataset.aircraftIndex = "0";
-              tenth.style.background = getAircraftColor(0);
-            }
-          }
-        });
-      }
-
-      updateTotals(dayId);
-    }
-
-    function loadDayFromData(dayId, entry) {
-      clearEntireDay(dayId);
-
-      const dateInput = getInput(dayId, "logDate");
-      const routeInput = getInput(dayId, "route");
-      const remarksInput = getInput(dayId, "remarks");
-
-      if (dateInput) dateInput.value = formatDateForRow(entry.log_date) || "";
-      if (routeInput) routeInput.value = entry.route || "";
-      if (remarksInput) { remarksInput.value = entry.remarks || ""; applyRemarksSizing(remarksInput); }
-
-      applyFlightMarksToDay(dayId, entry.flight_marks, entry.flight_blocks);
-      setDayAircraftMetrics(dayId, entry.day_aircraft_metrics || null);
-
-      if (Array.isArray(entry.duty_blocks)) {
-        entry.duty_blocks.forEach((value, blockIndex) => {
-          if (Number(value) > 0) {
-            const cell = document.querySelector(`.duty-block[data-day-id="${dayId}"][data-block="${blockIndex}"]`);
-            if (cell) cell.classList.add("on");
-          }
-        });
-      }
-
-      const state = getRowState(dayId);
-      if (state) state.dutyStartBlock = null;
-
-      updateTotals(dayId);
-      updatePeriodFromRows();
-      persistDraftSoon();
-    }
-
-    async function getCurrentUser() {
-      const { data, error } = await sb.auth.getSession();
-      if (error) return null;
-      return data.session?.user ?? null;
-    }
-
-    async function refreshAuthState() {
-      const user = await getCurrentUser();
-      if (user?.email) {
-        authState.textContent = `Signed in as ${user.email}`;
-        authState.style.color = "var(--ok)";
-      } else {
-        authState.textContent = "Not signed in.";
-        authState.style.color = "var(--danger)";
-      }
-    }
-
-    async function sendMagicLink() {
-      setDebugAction('send magic link');
-      const email = authEmail.value.trim();
-      if (!email) {
-        setStatus("Enter an email address first.", "warn");
-        return;
-      }
-      const redirectTo = window.location.href.split("#")[0];
-      const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo } });
-      if (error) {
-        setDebugError(error.message);
-        setStatus(error.message, "error");
-        return;
-      }
-      setStatus(`Magic link sent to ${email}.`, "ok");
-    }
-
-    async function signOut() {
-      setDebugAction('sign out');
-      const { error } = await sb.auth.signOut();
-      if (error) {
-        setDebugError(error.message);
-        setStatus(error.message, "error");
-        return;
-      }
-      await refreshAuthState();
-      setStatus("Signed out.", "ok");
-    }
-
-    function getFlightBlocks(dayId) {
-      const blocks = [];
-      for (let i = 0; i < 48; i++) {
-        let count = 0;
-        document.querySelectorAll(`.tenth[data-day-id="${dayId}"][data-block="${i}"].on`).forEach(() => count += 1);
-        blocks.push(Number((count * 0.1).toFixed(1)));
-      }
-      return blocks;
-    }
-
-    function getFlightMarks(dayId) {
-      const marks = [];
-      for (let i = 0; i < 48; i++) {
-        const blockMarks = [];
-        for (let j = 0; j < 5; j++) {
-          const tenth = document.querySelector(`.tenth[data-day-id="${dayId}"][data-block="${i}"][data-tenth="${j}"]`);
-          blockMarks.push(tenth?.classList.contains("on") ? Number(tenth.dataset.aircraftIndex ?? 0) : null);
-        }
-        marks.push(blockMarks);
-      }
-      return marks;
-    }
-
-    function getDutyBlocks(dayId) {
-      const blocks = [];
-      for (let i = 0; i < 48; i++) {
-        const cell = document.querySelector(`.duty-block[data-day-id="${dayId}"][data-block="${i}"]`);
-        blocks.push(cell && cell.classList.contains("on") ? 0.5 : 0);
-      }
-      return blocks;
-    }
-
-    function getUsedAircraftNames(dayId) {
-      const used = new Set();
-      document.querySelectorAll(`.tenth.on[data-day-id="${dayId}"]`).forEach((el) => {
-        const idx = Number(el.dataset.aircraftIndex ?? 0);
-        used.add(getAircraftLabel(idx));
-      });
-      return Array.from(used);
-    }
-
-    function collectPayloads(userId) {
-      const pilotName = document.getElementById("pilotName").value.trim();
-      const logPeriod = document.getElementById("logPeriod").value.trim();
-      const payloads = [];
-      const seenDates = new Set();
-
-      for (let dayId = 1; dayId <= DAY_COUNT; dayId++) {
-        const logDateRaw = getInput(dayId, "logDate")?.value.trim() || "";
-        const route = getInput(dayId, "route")?.value.trim() || "";
-        const remarks = getInput(dayId, "remarks")?.value.trim() || "";
-        const route133Top = document.querySelector(`[data-day-id="${dayId}"][data-key="route133Top"]`)?.value.trim() || "";
-        const route133Bottom = document.querySelector(`[data-day-id="${dayId}"][data-key="route133Bottom"]`)?.value.trim() || "";
-        const flightTotal = Number(getReadout(dayId, "flightTotal").textContent || "0");
-        const dutyTotal = Number(getReadout(dayId, "dutyTotal").textContent || "0");
-
-        const hasAnyData = logDateRaw || route || remarks || route133Top || route133Bottom || flightTotal > 0 || dutyTotal > 0;
-        if (!hasAnyData) continue;
-
-        if (!/^\d{2}\/\d{2}$/.test(logDateRaw)) {
-          throw new Error(`Day ${dayId}: enter date as MM/DD.`);
-        }
-        if (flightTotal > dutyTotal) {
-          throw new Error(`Day ${dayId}: flight cannot exceed duty.`);
-        }
-        if (dutyTotal > 14) {
-          throw new Error(`Day ${dayId}: duty exceeds 14 hours.`);
-        }
-
-        const storedDate = buildStoredDate(logDateRaw, logPeriod);
-        if (seenDates.has(storedDate)) {
-          throw new Error(`Duplicate date entered: ${logDateRaw}.`);
-        }
-        seenDates.add(storedDate);
-
-        const usedAircraft = getUsedAircraftNames(dayId);
-        if (flightTotal > 0 && usedAircraft.length === 0) {
-          throw new Error(`Day ${dayId}: select an aircraft and paint flight time.`);
-        }
-
-        payloads.push({
-          log_date: storedDate,
-          aircraft_name: usedAircraft.join(", ") || null,
-          flight_blocks: getFlightBlocks(dayId),
-          flight_marks: getFlightMarks(dayId),
-          duty_blocks: getDutyBlocks(dayId),
-          day_aircraft_metrics: getDayAircraftMetrics(dayId),
-          flt1: flightTotal,
-          duty: dutyTotal,
-          duty_start: getReadout(dayId, "dutyStart").textContent === "--:--" ? null : getReadout(dayId, "dutyStart").textContent,
-          duty_stop: getReadout(dayId, "dutyStop").textContent === "--:--" ? null : getReadout(dayId, "dutyStop").textContent,
-          pilot_name: pilotName || null,
-          period: logPeriod || null,
-          route: route || null,
-          remarks: remarks || null,
-          user_id: userId
-        });
-      }
-
-      return payloads;
-    }
-
-    function stripOptionalFields(payloads) {
-      return payloads.map(p => {
-        const { day_aircraft_metrics, flight_marks, route, remarks, ...rest } = p;
-        return rest;
-      });
-    }
-
-    async function saveAllRows() {
-      setDebugAction('save 7 days');
-      const user = await getCurrentUser();
-      if (!user) {
-        setStatus("Not logged in. Please use the magic-link sign-in first.", "warn");
-        return;
-      }
-
-      let payloads;
-      try {
-        payloads = collectPayloads(user.id);
-      } catch (err) {
-        setDebugError(err.message);
-        setStatus(err.message, "error");
-        return;
-      }
-
-      if (payloads.length === 0) {
-        setStatus("No filled days to save.", "warn");
-        return;
-      }
-
-      let result = await sb.from("logs").upsert(payloads, { onConflict: "user_id,log_date" });
-
-      if (result.error && /column .* does not exist|schema cache/i.test(result.error.message)) {
-        result = await sb.from("logs").upsert(stripOptionalFields(payloads), { onConflict: "user_id,log_date" });
-        if (!result.error) {
-          setStatus("Saved core data, but optional DB columns are missing for metrics/marks/notes.", "warn");
-          await loadSavedEntries();
-          await loadHistory();
-          return;
-        }
-      }
-
-      if (result.error) {
-        setDebugError(result.error.message);
-        setStatus(result.error.message, "error");
-        return;
-      }
-
-      setDebugError("none");
-      setStatus(`Saved ${payloads.length} day(s).`);
-      await loadSavedEntries();
-      await loadHistory();
-      await runDiagnostics();
-    }
-
-
-    function formatDisplayMonth(ym) {
-      const [y, m] = ym.split("-").map(Number);
-      return new Date(y, (m || 1) - 1, 1).toLocaleString(undefined, { month: "long", year: "numeric" });
-    }
-
-    function formatHistoryDate(dateValue) {
-      if (!dateValue) return "-";
-      const d = new Date(`${dateValue}T00:00:00`);
-      if (Number.isNaN(d.getTime())) return formatDateForRow(dateValue);
-      return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
-    }
-
-    function getHistoryStartDate(monthsBack) {
-      const d = new Date();
-      d.setHours(0, 0, 0, 0);
-      d.setDate(1);
-      d.setMonth(d.getMonth() - (Number(monthsBack || 3) - 1));
-      return d.toISOString().slice(0, 10);
-    }
-
-    function renderHistorySummary(entries) {
-      const totals = entries.reduce((acc, entry) => {
-        acc.flight += Number(entry.flt1 || 0);
-        acc.duty += Number(entry.duty || 0);
-        acc.days += 1;
-        if (entry.log_date) acc.months.add(String(entry.log_date).slice(0, 7));
-        return acc;
-      }, { flight: 0, duty: 0, days: 0, months: new Set() });
-
-      historySummary.innerHTML = `
-        <div class="history-card"><div class="label">Saved Days</div><div class="value">${totals.days}</div></div>
-        <div class="history-card"><div class="label">Flight Hours</div><div class="value">${totals.flight.toFixed(1)}</div></div>
-        <div class="history-card"><div class="label">Duty Hours</div><div class="value">${totals.duty.toFixed(1)}</div></div>
-        <div class="history-card"><div class="label">Months Covered</div><div class="value">${totals.months.size}</div></div>
-      `;
-    }
-
-    function renderHistory(entries) {
-      if (!entries.length) {
-        renderHistorySummary([]);
-        historyList.innerHTML = `<div class="saved-row"><div class="saved-meta">No saved history in the selected date range.</div></div>`;
-        return;
-      }
-
-      renderHistorySummary(entries);
-      const grouped = new Map();
-      entries.forEach((entry) => {
-        const key = String(entry.log_date || "unknown").slice(0, 7);
-        if (!grouped.has(key)) grouped.set(key, []);
-        grouped.get(key).push(entry);
-      });
-
-      historyList.innerHTML = "";
-      Array.from(grouped.entries()).sort((a, b) => b[0].localeCompare(a[0])).forEach(([monthKey, monthEntries]) => {
-        const monthFlight = monthEntries.reduce((sum, entry) => sum + Number(entry.flt1 || 0), 0);
-        const monthDuty = monthEntries.reduce((sum, entry) => sum + Number(entry.duty || 0), 0);
-        const group = document.createElement("div");
-        group.className = "history-month-group";
-        group.innerHTML = `
-          <div class="history-month-header">
-            <div>${formatDisplayMonth(monthKey)}</div>
-            <div class="history-month-stats">${monthEntries.length} day(s) | FLT ${monthFlight.toFixed(1)} | DUTY ${monthDuty.toFixed(1)}</div>
-          </div>
-        `;
-
-        monthEntries.sort((a, b) => String(b.log_date).localeCompare(String(a.log_date))).forEach((entry) => {
-          const row = document.createElement("div");
-          row.className = "history-entry";
-          row.innerHTML = `
-            <div class="history-entry-meta">
-              <strong>${formatHistoryDate(entry.log_date)}</strong> |
-              A/C ${entry.aircraft_name || "-"} |
-              DUTY ${entry.duty_start || "--:--"}-${entry.duty_stop || "--:--"} |
-              DUTY ${Number(entry.duty || 0).toFixed(1)} |
-              FLT ${Number(entry.flt1 || 0).toFixed(1)}
-              ${entry.route ? `| ROUTE ${entry.route}` : ""}
-              ${entry.remarks ? `| ${entry.remarks}` : ""}
-            </div>
-            <div class="history-entry-actions"></div>
-          `;
-          const actions = row.querySelector('.history-entry-actions');
-          const loadBtn = document.createElement('button');
-          loadBtn.type = 'button';
-          loadBtn.className = 'load-btn';
-          loadBtn.textContent = 'Load to Day';
-          loadBtn.onclick = () => {
-            loadDayFromData(currentRowId, entry);
-            document.getElementById('pilotName').value = entry.pilot_name || '';
-            document.getElementById('logPeriod').value = entry.period || '';
-            computeWeeklySummary();
-            setStatus(`Loaded ${formatDateForRow(entry.log_date)} into day ${currentRowId}.`);
-          };
-          actions.appendChild(loadBtn);
-          row.appendChild(actions);
-          group.appendChild(row);
-        });
-
-        historyList.appendChild(group);
-      });
-    }
-
-    async function loadHistory() {
-      setDebugAction(`load history (${historyMonthsBack.value} months)`);
-      const user = await getCurrentUser();
-      if (!user) {
-        historySummary.innerHTML = '';
-        historyList.innerHTML = `<div class="saved-row"><div class="saved-meta">Sign in to view saved history.</div></div>`;
-        return;
-      }
-
-      const startDate = getHistoryStartDate(historyMonthsBack.value);
-      let query = await sb
-        .from('logs')
-        .select('id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, route, remarks, flight_blocks, flight_marks, duty_blocks, day_aircraft_metrics')
-        .eq('user_id', user.id)
-        .gte('log_date', startDate)
-        .order('log_date', { ascending: false });
-
-      if (query.error && /column .* does not exist|schema cache/i.test(query.error.message)) {
-        query = await sb
-          .from('logs')
-          .select('id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, route, remarks, flight_blocks, duty_blocks')
-          .eq('user_id', user.id)
-          .gte('log_date', startDate)
-          .order('log_date', { ascending: false });
-      }
-
-      if (query.error) {
-        historySummary.innerHTML = '';
-        historyList.innerHTML = `<div class="saved-row"><div class="saved-meta">${query.error.message}</div></div>`;
-        return;
-      }
-
-      renderHistory(query.data || []);
-    }
-
-    async function loadSavedEntries() {
-      setDebugAction('load saved entries');
-      const user = await getCurrentUser();
-      if (!user) {
-        savedList.innerHTML = `<div class="saved-row"><div class="saved-meta">No user session.</div></div>`;
-        return;
-      }
-
-      let query = await sb
-        .from("logs")
-        .select("id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, route, remarks, flight_blocks, flight_marks, duty_blocks, day_aircraft_metrics")
-        .eq("user_id", user.id)
-        .order("log_date", { ascending: false });
-
-      if (query.error && /column .* does not exist|schema cache/i.test(query.error.message)) {
-        query = await sb
-          .from("logs")
-          .select("id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, route, remarks, flight_blocks, duty_blocks")
-          .eq("user_id", user.id)
-          .order("log_date", { ascending: false });
-      }
-
-      if (query.error) {
-        savedList.innerHTML = `<div class="saved-row"><div class="saved-meta">${query.error.message}</div></div>`;
-        return;
-      }
-
-      const data = query.data || [];
-      if (data.length === 0) {
-        savedList.innerHTML = `<div class="saved-row"><div class="saved-meta">No saved entries yet.</div></div>`;
-        return;
-      }
-
-      savedList.innerHTML = "";
-      data.slice(0, 21).forEach((entry) => {
-        const row = document.createElement("div");
-        row.className = "saved-row";
-        row.innerHTML = `
-          <div class="saved-meta">
-            <strong>${formatDateForRow(entry.log_date) || "-"}</strong> |
-            A/C ${entry.aircraft_name || "-"} |
-            DUTY ${entry.duty_start || "--:--"}-${entry.duty_stop || "--:--"} |
-            DUTY ${Number(entry.duty || 0).toFixed(1)} |
-            FLT ${Number(entry.flt1 || 0).toFixed(1)}
-            ${entry.route ? `| ROUTE ${entry.route}` : ""}
-            ${entry.remarks ? `| ${entry.remarks}` : ""}
-          </div>
-          <div class="saved-actions"></div>
-        `;
-
-        const actions = row.querySelector(".saved-actions");
-
-        const loadBtn = document.createElement("button");
-        loadBtn.type = "button";
-        loadBtn.className = "load-btn";
-        loadBtn.textContent = "Load to Day";
-        loadBtn.onclick = () => {
-          loadDayFromData(currentRowId, entry);
-          document.getElementById("pilotName").value = entry.pilot_name || "";
-          document.getElementById("logPeriod").value = entry.period || "";
-          computeWeeklySummary();
-          setStatus(`Loaded saved entry into day ${currentRowId}.`);
         };
-
-        const deleteBtn = document.createElement("button");
-        deleteBtn.type = "button";
-        deleteBtn.className = "delete-btn";
-        deleteBtn.textContent = "Delete";
-        deleteBtn.onclick = async () => {
-          const { error } = await sb.from("logs").delete().eq("id", entry.id);
-          if (error) {
-            setDebugError(error.message);
-        setStatus(error.message, "error");
-            return;
-          }
-          setDebugError("none");
-          setStatus("Entry deleted.");
-          await loadSavedEntries();
-          await loadHistory();
-          await runDiagnostics();
-        };
-
-        actions.appendChild(loadBtn);
-        actions.appendChild(deleteBtn);
-        row.appendChild(actions);
-        savedList.appendChild(row);
-      });
-    }
-
-    function collectDraftState() {
-      return {
-        pilotName: document.getElementById("pilotName").value,
-        certificateNumber: document.getElementById("certificateNumber").value,
-        logPeriod: document.getElementById("logPeriod").value,
-        currencyDateMonth: document.getElementById("currencyDateMonth").value,
-        currencyDateDay: document.getElementById("currencyDateDay").value,
-        currencyDateYear: document.getElementById("currencyDateYear").value,
-        currencyAircraft: document.getElementById("currencyAircraft").value,
-        currencyN: document.getElementById("currencyN").value,
-        currencyFrom: document.getElementById("currencyFrom").value,
-        currencyTo: document.getElementById("currencyTo").value,
-        currencyDayDuration: document.getElementById("currencyDayDuration").value,
-        currencyNightDuration: document.getElementById("currencyNightDuration").value,
-        currencyTakeoffs: document.getElementById("currencyTakeoffs").value,
-        currencyRemarks: document.getElementById("currencyRemarks").value,
-        pilotSignature: document.getElementById("pilotSignature").value,
-        selectedAircraftIndex,
-        aircraftLabels: aircraftOptions.map((_, index) => getAircraftLabel(index)),
-        days: Array.from({ length: DAY_COUNT }, (_, idx) => {
-          const dayId = idx + 1;
-          return {
-            logDate: getInput(dayId, "logDate")?.value || "",
-            route: getInput(dayId, "route")?.value || "",
-            remarks: getInput(dayId, "remarks")?.value || "",
-            route133Top: document.querySelector(`[data-day-id="${dayId}"][data-key="route133Top"]`)?.value || "",
-            route133Bottom: document.querySelector(`[data-day-id="${dayId}"][data-key="route133Bottom"]`)?.value || "",
-            flightMarks: getFlightMarks(dayId),
-            dutyBlocks: getDutyBlocks(dayId),
-            metrics: getDayAircraftMetrics(dayId)
-          };
-        })
-      };
-    }
-
-    function applyDraftState(draft) {
-      if (!draft) return;
-      document.getElementById("pilotName").value = draft.pilotName || "";
-      document.getElementById("certificateNumber").value = draft.certificateNumber || "";
-      document.getElementById("logPeriod").value = draft.logPeriod || "";
-      document.getElementById("currencyDateMonth").value = draft.currencyDateMonth || "";
-      document.getElementById("currencyDateDay").value = draft.currencyDateDay || "";
-      document.getElementById("currencyDateYear").value = draft.currencyDateYear || "";
-      document.getElementById("currencyAircraft").value = draft.currencyAircraft || "";
-      document.getElementById("currencyN").value = draft.currencyN || "";
-      document.getElementById("currencyFrom").value = draft.currencyFrom || "";
-      document.getElementById("currencyTo").value = draft.currencyTo || "";
-      document.getElementById("currencyDayDuration").value = draft.currencyDayDuration || "";
-      document.getElementById("currencyNightDuration").value = draft.currencyNightDuration || "";
-      document.getElementById("currencyTakeoffs").value = draft.currencyTakeoffs || "";
-      document.getElementById("currencyRemarks").value = draft.currencyRemarks || "";
-      document.getElementById("pilotSignature").value = draft.pilotSignature || "";
-
-      (draft.aircraftLabels || []).forEach((label, index) => {
-        const input = document.querySelector(`.aircraft-chip[data-aircraft-index="${index}"] input`);
-        if (input && label) input.value = label;
-      });
-
-      if (Number.isInteger(draft.selectedAircraftIndex)) {
-        selectedAircraftIndex = Math.max(0, Math.min(AIRCRAFT_COUNT - 1, draft.selectedAircraftIndex));
       }
-      refreshAircraftSelection();
 
-      (draft.days || []).forEach((day, idx) => {
-        const dayId = idx + 1;
-        if (getInput(dayId, "logDate")) getInput(dayId, "logDate").value = day.logDate || "";
-        if (getInput(dayId, "route")) getInput(dayId, "route").value = day.route || "";
-        if (getInput(dayId, "remarks")) {
-          getInput(dayId, "remarks").value = day.remarks || "";
-          applyRemarksSizing(getInput(dayId, "remarks"));
-          syncRemarksDisplay(dayId);
-        }
-        const route133Top = document.querySelector(`[data-day-id="${dayId}"][data-key="route133Top"]`);
-        const route133Bottom = document.querySelector(`[data-day-id="${dayId}"][data-key="route133Bottom"]`);
-        if (route133Top) route133Top.value = day.route133Top || "";
-        if (route133Bottom) route133Bottom.value = day.route133Bottom || "";
-        setDayAircraftMetrics(dayId, day.metrics || null);
-        applyFlightMarksToDay(dayId, day.flightMarks || [], null);
-        clearDutyOnly(dayId);
-        (day.dutyBlocks || []).forEach((value, blockIndex) => {
-          if (Number(value) > 0) {
-            const cell = document.querySelector(`.duty-block[data-day-id="${dayId}"][data-block="${blockIndex}"]`);
-            if (cell) cell.classList.add("on");
+      function init() {
+        buildWeekRows();
+        bindStaticEvents();
+        loadState();
+        applyWeekDatesFromWeekStart(false);
+        validateAllDays();
+        renderAll();
+        updateSaveStatus(appState.meta.lastSavedAt ? 'Restored saved draft' : 'Ready');
+      }
+
+      function buildWeekRows() {
+        const rowsHtml = appState.days.map((day, index) => {
+          return `
+            <tr>
+              <td class="day-cell">
+                <div class="day-block mini">
+                  <div><strong>${dayNames[index]}</strong></div>
+                  <div>#${index + 1}</div>
+                </div>
+              </td>
+              <td class="day-cell">
+                <div class="day-block">
+                  <input data-bind-day="${index}" data-bind-field="date" type="date" />
+                </div>
+              </td>
+              <td class="day-cell">
+                <div class="day-block">
+                  <select data-bind-day="${index}" data-bind-field="aircraft">
+                    <option value="">Select</option>
+                    <option value="R44">R44</option>
+                    <option value="R66">R66</option>
+                    <option value="B206">B206</option>
+                    <option value="B407">B407</option>
+                    <option value="AS350">AS350</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </td>
+              <td class="day-cell">
+                <div class="day-block">
+                  <div class="two-col">
+                    <div>
+                      <div class="mini">On</div>
+                      <input data-bind-day="${index}" data-bind-field="dutyStart" type="time" />
+                    </div>
+                    <div>
+                      <div class="mini">Off</div>
+                      <input data-bind-day="${index}" data-bind-field="dutyEnd" type="time" />
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td class="day-cell">
+                <div class="day-block">
+                  <div class="two-col">
+                    <div>
+                      <div class="mini">Out</div>
+                      <input data-bind-day="${index}" data-bind-field="flightStart" type="time" />
+                    </div>
+                    <div>
+                      <div class="mini">In</div>
+                      <input data-bind-day="${index}" data-bind-field="flightEnd" type="time" />
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td class="day-cell">
+                <div class="day-block">
+                  <div>
+                    <div class="mini">Flight Time</div>
+                    <input data-bind-day="${index}" data-bind-field="flightTime" type="text" inputmode="decimal" />
+                  </div>
+                  <div class="day-actions">
+                    <button type="button" data-copy-prev-day="${index}">Copy Prev</button>
+                    <button type="button" data-clear-day="${index}">Clear Day</button>
+                  </div>
+                </div>
+              </td>
+              <td class="day-cell">
+                <div class="day-block">
+                  <div class="day-meta">
+                    <span id="dayFlag_${index}" class="day-flag flag-ok">OK</span>
+                    <span class="mini" id="dayHours_${index}">0.0 duty</span>
+                  </div>
+                  <div class="mini" id="daySummary_${index}">No issues</div>
+                </div>
+              </td>
+              <td class="day-cell">
+                <div class="day-block">
+                  <textarea data-remarks-visible-day="${index}"></textarea>
+                  <div class="day-meta">
+                    <button type="button" class="remarks-btn" data-open-remarks-day="${index}">Expand</button>
+                    <span class="remarks-counter" id="remarksCounter_${index}">0 / ${REMARKS_PRINT_LIMIT}</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        dom.weekRows.innerHTML = rowsHtml;
+      }
+
+      function bindStaticEvents() {
+        bindAllInputs();
+
+        dom.saveNowBtn.addEventListener('click', saveState);
+        dom.restoreBtn.addEventListener('click', () => {
+          loadState();
+          validateAllDays();
+          renderAll();
+          updateSaveStatus('Restored saved draft');
+        });
+        dom.exportJsonBtn.addEventListener('click', exportJson);
+        dom.importJsonBtn.addEventListener('click', () => dom.importJsonInput.click());
+        dom.importJsonInput.addEventListener('change', importJsonFromFile);
+        dom.exportCsvBtn.addEventListener('click', exportCsv);
+        dom.printBtn.addEventListener('click', () => window.print());
+
+        dom.weekRows.addEventListener('click', handleWeekRowButtons);
+        dom.closeRemarksBtn.addEventListener('click', closeRemarksModal);
+        dom.applyRemarksBtn.addEventListener('click', applyRemarksModal);
+        dom.remarksModalBackdrop.addEventListener('click', (event) => {
+          if (event.target === dom.remarksModalBackdrop) {
+            closeRemarksModal();
           }
         });
-        updateTotals(dayId);
-      });
+        dom.remarksModalTextarea.addEventListener('input', handleRemarksModalInput);
 
-      updatePeriodFromRows();
-      computeWeeklySummary();
-    }
+        document.addEventListener('keydown', handleGlobalKeydown);
+      }
 
-    let persistTimer = null;
-    function persistDraftSoon() {
-      window.clearTimeout(persistTimer);
-      persistTimer = window.setTimeout(() => {
+      function bindAllInputs() {
+        document.querySelectorAll('[data-bind]').forEach((el) => {
+          el.addEventListener('input', handleTopLevelInput);
+          el.addEventListener('change', handleTopLevelInput);
+        });
+
+        document.querySelectorAll('[data-bind-day][data-bind-field]').forEach((el) => {
+          el.addEventListener('input', handleDayInput);
+          el.addEventListener('change', handleDayInput);
+          el.addEventListener('keydown', handleGridNavigation);
+        });
+
+        document.querySelectorAll('[data-remarks-visible-day]').forEach((el) => {
+          el.addEventListener('input', handleVisibleRemarksInput);
+          el.addEventListener('change', handleVisibleRemarksInput);
+          el.addEventListener('keydown', handleGridNavigation);
+        });
+      }
+
+      function handleGlobalKeydown(event) {
+        if (event.key === 'Escape' && dom.remarksModalBackdrop.classList.contains('open')) {
+          closeRemarksModal();
+        }
+      }
+
+      function handleGridNavigation(event) {
+        const key = event.key;
+        if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter'].includes(key)) return;
+
+        const all = Array.from(document.querySelectorAll(
+          '[data-bind-day][data-bind-field], [data-remarks-visible-day]'
+        ));
+        const currentIndex = all.indexOf(event.target);
+        if (currentIndex < 0) return;
+
+        if (key === 'Enter') {
+          event.preventDefault();
+          const next = all[currentIndex + 1] || all[0];
+          next.focus();
+          return;
+        }
+
+        const currentDay = getElementDayIndex(event.target);
+        let target = null;
+
+        if (key === 'ArrowUp' || key === 'ArrowDown') {
+          event.preventDefault();
+          const currentFieldKey = getNavigationFieldKey(event.target);
+          const delta = key === 'ArrowDown' ? 1 : -1;
+          const nextDay = currentDay + delta;
+          if (nextDay < 0 || nextDay >= DAYS_IN_WEEK) return;
+          target = findFieldByDayAndKey(nextDay, currentFieldKey);
+        }
+
+        if (key === 'ArrowLeft' || key === 'ArrowRight') {
+          if (event.target.tagName === 'TEXTAREA') return;
+          const delta = key === 'ArrowRight' ? 1 : -1;
+          target = all[currentIndex + delta] || null;
+        }
+
+        if (target) {
+          target.focus();
+        }
+      }
+
+      function getElementDayIndex(el) {
+        if (el.dataset.bindDay != null) return Number(el.dataset.bindDay);
+        if (el.dataset.remarksVisibleDay != null) return Number(el.dataset.remarksVisibleDay);
+        return -1;
+      }
+
+      function getNavigationFieldKey(el) {
+        if (el.dataset.bindField) return el.dataset.bindField;
+        if (el.dataset.remarksVisibleDay != null) return 'remarks';
+        return '';
+      }
+
+      function findFieldByDayAndKey(dayIndex, key) {
+        if (key === 'remarks') {
+          return document.querySelector(`[data-remarks-visible-day="${dayIndex}"]`);
+        }
+        return document.querySelector(`[data-bind-day="${dayIndex}"][data-bind-field="${key}"]`);
+      }
+
+      function handleTopLevelInput(event) {
+        if (suppressInputHandlers) return;
+        const fieldName = event.target.dataset.bind;
+        updateTopLevelField(fieldName, getElementValue(event.target));
+      }
+
+      function handleDayInput(event) {
+        if (suppressInputHandlers) return;
+        const el = event.target;
+        const dayIndex = Number(el.dataset.bindDay);
+        const fieldName = el.dataset.bindField;
+        updateField(dayIndex, fieldName, getElementValue(el));
+      }
+
+      function handleVisibleRemarksInput(event) {
+        if (suppressInputHandlers) return;
+        const dayIndex = Number(event.target.dataset.remarksVisibleDay);
+        updateRemarks(dayIndex, getElementValue(event.target));
+      }
+
+      function handleWeekRowButtons(event) {
+        const copyIndex = event.target.dataset.copyPrevDay;
+        if (copyIndex != null) {
+          copyPreviousDay(Number(copyIndex));
+          return;
+        }
+
+        const clearIndex = event.target.dataset.clearDay;
+        if (clearIndex != null) {
+          clearDay(Number(clearIndex));
+          return;
+        }
+
+        const remarksIndex = event.target.dataset.openRemarksDay;
+        if (remarksIndex != null) {
+          openRemarksModal(Number(remarksIndex));
+        }
+      }
+
+      function updateTopLevelField(fieldName, value) {
+        if (!(fieldName in appState)) return;
+        appState[fieldName] = value;
+
+        if (fieldName === 'weekStart') {
+          applyWeekDatesFromWeekStart(true);
+        }
+
+        markDirty();
+        validateAllDays();
+        scheduleAutosave();
+        renderAll();
+      }
+
+      function updateField(dayIndex, fieldName, value) {
+        const day = appState.days[dayIndex];
+        if (!day || !(fieldName in day)) return;
+
+        day[fieldName] = normalizeFieldValue(fieldName, value);
+        syncDerivedFields(dayIndex);
+        validateDay(dayIndex);
+        markDirty();
+        scheduleAutosave();
+        renderDay(dayIndex);
+        renderSummaryAndReport();
+      }
+
+      function updateRemarks(dayIndex, value) {
+        const day = appState.days[dayIndex];
+        if (!day) return;
+        day.remarks = String(value || '');
+        validateDay(dayIndex);
+        markDirty();
+        scheduleAutosave();
+        renderRemarks(dayIndex);
+        renderDayValidation(dayIndex);
+        renderSummaryAndReport();
+      }
+
+      function normalizeFieldValue(fieldName, value) {
+        if (fieldName === 'flightTime') {
+          return String(value).trim();
+        }
+        return value;
+      }
+
+      function syncDerivedFields(dayIndex) {
+        const day = appState.days[dayIndex];
+        if (!day) return;
+
+        if (!day.aircraft && appState.selectedAircraft && hasAnyFlightData(day)) {
+          day.aircraft = appState.selectedAircraft;
+        }
+
+        if (day.flightStart && day.flightEnd) {
+          const calc = calculateTimeDifferenceDecimal(day.flightStart, day.flightEnd);
+          if (calc !== '') {
+            day.flightTime = calc;
+          }
+        }
+      }
+
+      function hasAnyFlightData(day) {
+        return Boolean(day.flightStart || day.flightEnd || day.flightTime);
+      }
+
+      function validateAllDays() {
+        for (let i = 0; i < DAYS_IN_WEEK; i += 1) {
+          validateDay(i);
+        }
+      }
+
+      function validateDay(dayIndex) {
+        const day = appState.days[dayIndex];
+        if (!day) return;
+
+        const errors = [];
+        const warnings = [];
+
+        if (day.flightTime && !day.aircraft) {
+          errors.push({ field: 'aircraft', message: 'Aircraft is required when flight time is entered.' });
+        }
+
+        if (day.dutyStart && day.dutyEnd && compareTimes(day.dutyEnd, day.dutyStart) < 0) {
+          errors.push({ field: 'dutyEnd', message: 'Duty end must be after duty start.' });
+        }
+
+        if (day.flightStart && day.flightEnd && compareTimes(day.flightEnd, day.flightStart) < 0) {
+          errors.push({ field: 'flightEnd', message: 'Flight end must be after flight start.' });
+        }
+
+        if (day.flightTime && !isValidDecimal(day.flightTime)) {
+          errors.push({ field: 'flightTime', message: 'Flight time must be numeric.' });
+        }
+
+        if (day.flightTime && day.dutyStart && day.dutyEnd) {
+          const dutyHours = getDurationHours(day.dutyStart, day.dutyEnd);
+          const flightHours = Number(day.flightTime);
+          if (dutyHours != null && !Number.isNaN(flightHours) && flightHours > dutyHours) {
+            errors.push({ field: 'flightTime', message: 'Flight time cannot exceed duty duration.' });
+          }
+        }
+
+        if (remarksWouldOverflow(day.remarks)) {
+          warnings.push({ field: 'remarks', message: 'Remarks may exceed printed space.' });
+        }
+
+        if (day.flightStart && !day.flightEnd) {
+          warnings.push({ field: 'flightEnd', message: 'Flight end is missing.' });
+        }
+
+        if (day.dutyStart && !day.dutyEnd) {
+          warnings.push({ field: 'dutyEnd', message: 'Duty end is missing.' });
+        }
+
+        day.validation = { errors, warnings };
+      }
+
+      function remarksWouldOverflow(text) {
+        return String(text || '').trim().length > REMARKS_PRINT_LIMIT;
+      }
+
+      function isValidDecimal(value) {
+        if (value === '') return true;
+        return /^\d+(\.\d+)?$/.test(String(value).trim());
+      }
+
+      function compareTimes(a, b) {
+        const aMinutes = toMinutes(a);
+        const bMinutes = toMinutes(b);
+        if (aMinutes == null || bMinutes == null) return 0;
+        if (aMinutes === bMinutes) return 0;
+        return aMinutes > bMinutes ? 1 : -1;
+      }
+
+      function toMinutes(hhmm) {
+        if (!hhmm || typeof hhmm !== 'string' || !hhmm.includes(':')) return null;
+        const [hoursStr, minutesStr] = hhmm.split(':');
+        const hours = Number(hoursStr);
+        const minutes = Number(minutesStr);
+        if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+        if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return null;
+        return hours * 60 + minutes;
+      }
+
+      function calculateTimeDifferenceDecimal(start, end) {
+        const startMin = toMinutes(start);
+        const endMin = toMinutes(end);
+        if (startMin == null || endMin == null || endMin < startMin) return '';
+        const diffMinutes = endMin - startMin;
+        return (diffMinutes / 60).toFixed(1);
+      }
+
+      function getDurationHours(start, end) {
+        const startMin = toMinutes(start);
+        const endMin = toMinutes(end);
+        if (startMin == null || endMin == null || endMin < startMin) return null;
+        return (endMin - startMin) / 60;
+      }
+
+      function markDirty() {
+        appState.meta.dirty = true;
+        updateSaveStatus('Unsaved changes');
+      }
+
+      function scheduleAutosave() {
+        updateSaveStatus('Saving...');
+        clearTimeout(autosaveTimer);
+        autosaveTimer = window.setTimeout(saveState, AUTOSAVE_DELAY_MS);
+      }
+
+      function saveState() {
         try {
-          localStorage.setItem(DRAFT_KEY, JSON.stringify(collectDraftState()));
-          updateDebugDraftState();
-        } catch (err) {
-          console.warn("Draft save failed", err);
+          const existing = localStorage.getItem(STORAGE_KEY);
+          if (existing) {
+            localStorage.setItem(BACKUP_KEY, existing);
+          }
+
+          const payload = {
+            version: APP_VERSION,
+            savedAt: new Date().toISOString(),
+            data: deepClone(appState)
+          };
+
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+          appState.meta.lastSavedAt = payload.savedAt;
+          appState.meta.dirty = false;
+          updateSaveStatus('Saved');
+        } catch (error) {
+          console.error('saveState failed:', error);
+          updateSaveStatus('Save failed');
         }
-      }, 120);
-    }
-
-    function loadBrowserDraft() {
-      try {
-        const raw = localStorage.getItem(DRAFT_KEY);
-        if (!raw) return;
-        const draft = JSON.parse(raw);
-        applyDraftState(draft);
-        updateDebugDraftState();
-        setStatus("Restored browser draft.");
-      } catch (err) {
-        console.warn("Draft load failed", err);
-      }
-    }
-
-    function clearBrowserDraft() {
-      setDebugAction('clear browser draft');
-      localStorage.removeItem(DRAFT_KEY);
-      updateDebugDraftState();
-      setStatus("Browser draft cleared.");
-    }
-
-    function exportCsv() {
-      setDebugAction('export csv');
-      const headers = ["log_date", "pilot_name", "period", "aircraft_name", "duty_start", "duty_stop", "duty", "flight_total", "133_hours", "133_class", "route", "remarks"];
-      const lines = [headers.join(",")];
-
-      for (let dayId = 1; dayId <= DAY_COUNT; dayId++) {
-        const logDateRaw = getInput(dayId, "logDate")?.value.trim() || "";
-        const route = getInput(dayId, "route")?.value.trim() || "";
-        const remarks = getInput(dayId, "remarks")?.value.trim() || "";
-        const route133Top = document.querySelector(`[data-day-id="${dayId}"][data-key="route133Top"]`)?.value.trim() || "";
-        const route133Bottom = document.querySelector(`[data-day-id="${dayId}"][data-key="route133Bottom"]`)?.value.trim() || "";
-        const flightTotal = getReadout(dayId, "flightTotal")?.textContent || "0.0";
-        const dutyTotal = getReadout(dayId, "dutyTotal")?.textContent || "0.0";
-        const hasAnyData = logDateRaw || route || remarks || Number(flightTotal) > 0 || Number(dutyTotal) > 0;
-        if (!hasAnyData) continue;
-
-        const row = [
-          buildStoredDate(logDateRaw, logPeriodEl.value),
-          document.getElementById("pilotName").value.trim(),
-          logPeriodEl.value.trim(),
-          getUsedAircraftNames(dayId).join("; "),
-          getReadout(dayId, "dutyStart")?.textContent || "",
-          getReadout(dayId, "dutyStop")?.textContent || "",
-          dutyTotal,
-          flightTotal,
-          route133Top,
-          route133Bottom,
-          route,
-          remarks
-        ].map(value => `"${String(value || "").replaceAll('"', '""')}"`);
-
-        lines.push(row.join(","));
       }
 
-      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `pilot_log_${new Date().toISOString().slice(0,10)}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      setStatus("CSV exported.");
-    }
-
-    document.addEventListener("mouseup", () => {
-      isDrawing = false;
-    });
-
-    sb.auth.onAuthStateChange(async () => {
-      setDebugAction("auth state changed");
-      await refreshAuthState();
-      await loadSavedEntries();
-      await loadHistory();
-      await runDiagnostics();
-    });
-
-    dutyBtn.addEventListener("click", () => setMode("duty"));
-    clearSelectedBtn.addEventListener("click", clearSelectedModeForCurrentRow);
-    saveAllBtn.addEventListener("click", saveAllRows);
-    loadSavedBtn.addEventListener("click", loadSavedEntries);
-    exportCsvBtn.addEventListener("click", exportCsv);
-    clearDraftBtn.addEventListener("click", clearBrowserDraft);
-    emailLoginBtn.addEventListener("click", sendMagicLink);
-    signOutBtn.addEventListener("click", signOut);
-    refreshHistoryBtn.addEventListener("click", loadHistory);
-    runDebugBtn.addEventListener("click", runDiagnostics);
-    clearDebugBtn.addEventListener("click", () => { debugLogEl.textContent = "debug log cleared"; setDebugError("none"); });
-    remarksPopupSaveBtn.addEventListener("click", () => closeRemarksPopup(true));
-    remarksPopupCancelBtn.addEventListener("click", () => closeRemarksPopup(false));
-    remarksPopupTextarea.addEventListener("input", () => {
-      if (activeRemarksDayId === null) return;
-
-      const proposed = remarksPopupTextarea.value;
-
-      if (remarksFitsVisibleBox(activeRemarksDayId, proposed)) {
-        lastValidRemarksText = proposed;
-        updateRemarksPopupHint("Fits in the visible printed remarks box.");
-      } else {
-        remarksPopupTextarea.value = lastValidRemarksText;
-        updateRemarksPopupHint("Maximum printed remarks reached.", true);
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return false;
+          const payload = JSON.parse(raw);
+          if (!payload || payload.version !== APP_VERSION || !payload.data) return false;
+          hydrateState(payload.data);
+          appState.meta.lastSavedAt = payload.savedAt || null;
+          appState.meta.dirty = false;
+          return true;
+        } catch (error) {
+          console.error('loadState failed:', error);
+          updateSaveStatus('Restore failed');
+          return false;
+        }
       }
-    });
 
-    remarksPopupOverlay.addEventListener("click", (e) => {
-      if (e.target === remarksPopupOverlay) closeRemarksPopup(false);
-    });
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && remarksPopupOverlay.classList.contains("open")) {
-        closeRemarksPopup(false);
+      function hydrateState(data) {
+        appState.weekStart = data.weekStart || '';
+        appState.selectedAircraft = data.selectedAircraft || '';
+        appState.days = Array.isArray(data.days)
+          ? data.days.slice(0, DAYS_IN_WEEK).map((day, index) => ({
+              ...createEmptyDay(index),
+              ...day,
+              validation: {
+                errors: Array.isArray(day?.validation?.errors) ? day.validation.errors : [],
+                warnings: Array.isArray(day?.validation?.warnings) ? day.validation.warnings : []
+              }
+            }))
+          : createEmptyWeek();
+
+        while (appState.days.length < DAYS_IN_WEEK) {
+          appState.days.push(createEmptyDay(appState.days.length));
+        }
       }
-    });
-    historyMonthsBack.addEventListener("change", loadHistory);
-    document.getElementById("pilotName").addEventListener("input", persistDraftSoon);
-    logPeriodEl.addEventListener("input", persistDraftSoon);
 
-    try {
-      buildAircraftBar();
-      buildTable();
-      document.querySelectorAll('.rowspan-input.remarkscol textarea').forEach(applyRemarksSizing);
-      for (let dayId = 1; dayId <= DAY_COUNT; dayId++) syncRemarksDisplay(dayId);
-      loadBrowserDraft();
-      document.querySelectorAll('.rowspan-input.remarkscol textarea').forEach(applyRemarksSizing);
-      for (let dayId = 1; dayId <= DAY_COUNT; dayId++) syncRemarksDisplay(dayId);
-      updatePeriodFromRows();
-      computeWeeklySummary();
-      refreshAuthState();
-      loadSavedEntries();
-      loadHistory();
-      runDiagnostics();
-    } catch (err) {
-      console.error("App bootstrap failed", err);
-      statusEl.textContent = "App load error: " + err.message;
-      appendDebugLog("bootstrap error: " + err.message);
-    }
+      function renderAll() {
+        suppressInputHandlers = true;
+        try {
+          renderTopLevelFields();
+          for (let i = 0; i < DAYS_IN_WEEK; i += 1) {
+            renderDay(i);
+          }
+          renderSummaryAndReport();
+        } finally {
+          suppressInputHandlers = false;
+        }
+      }
+
+      function renderTopLevelFields() {
+        document.querySelectorAll('[data-bind]').forEach((el) => {
+          const fieldName = el.dataset.bind;
+          setElementValue(el, appState[fieldName]);
+        });
+      }
+
+      function renderDay(dayIndex) {
+        const day = appState.days[dayIndex];
+        if (!day) return;
+
+        document.querySelectorAll(`[data-bind-day="${dayIndex}"][data-bind-field]`).forEach((el) => {
+          setElementValue(el, day[el.dataset.bindField]);
+        });
+
+        renderRemarks(dayIndex);
+        renderDayValidation(dayIndex);
+      }
+
+      function renderRemarks(dayIndex) {
+        const day = appState.days[dayIndex];
+        const visible = document.querySelector(`[data-remarks-visible-day="${dayIndex}"]`);
+        if (visible) setElementValue(visible, day.remarks);
+
+        const counter = document.getElementById(`remarksCounter_${dayIndex}`);
+        if (counter) {
+          const len = String(day.remarks || '').length;
+          counter.textContent = `${len} / ${REMARKS_PRINT_LIMIT}`;
+          counter.className = 'remarks-counter';
+          if (remarksWouldOverflow(day.remarks)) {
+            counter.classList.add('status-warn');
+          }
+        }
+      }
+
+      function renderDayValidation(dayIndex) {
+        clearFieldValidation(dayIndex);
+
+        const day = appState.days[dayIndex];
+        day.validation.errors.forEach((item) => markFieldValidation(dayIndex, item.field, 'error', item.message));
+        day.validation.warnings.forEach((item) => markFieldValidation(dayIndex, item.field, 'warning', item.message));
+
+        const flag = document.getElementById(`dayFlag_${dayIndex}`);
+        const summary = document.getElementById(`daySummary_${dayIndex}`);
+        const hours = document.getElementById(`dayHours_${dayIndex}`);
+        const dutyHours = getDurationHours(day.dutyStart, day.dutyEnd);
+
+        if (hours) {
+          hours.textContent = dutyHours != null ? `${dutyHours.toFixed(1)} duty` : '0.0 duty';
+        }
+
+        if (day.validation.errors.length > 0) {
+          flag.textContent = 'Error';
+          flag.className = 'day-flag flag-error';
+          summary.textContent = day.validation.errors[0].message;
+        } else if (day.validation.warnings.length > 0) {
+          flag.textContent = 'Warn';
+          flag.className = 'day-flag flag-warn';
+          summary.textContent = day.validation.warnings[0].message;
+        } else {
+          flag.textContent = 'OK';
+          flag.className = 'day-flag flag-ok';
+          summary.textContent = 'No issues';
+        }
+      }
+
+      function clearFieldValidation(dayIndex) {
+        document.querySelectorAll(`[data-bind-day="${dayIndex}"][data-bind-field]`).forEach((el) => {
+          el.classList.remove('field-error', 'field-warning');
+          el.removeAttribute('title');
+        });
+        const remarksField = document.querySelector(`[data-remarks-visible-day="${dayIndex}"]`);
+        if (remarksField) {
+          remarksField.classList.remove('field-error', 'field-warning');
+          remarksField.removeAttribute('title');
+        }
+      }
+
+      function markFieldValidation(dayIndex, fieldName, type, message) {
+        let elements = [];
+        if (fieldName === 'remarks') {
+          const remarks = document.querySelector(`[data-remarks-visible-day="${dayIndex}"]`);
+          if (remarks) elements.push(remarks);
+        } else {
+          elements = Array.from(document.querySelectorAll(`[data-bind-day="${dayIndex}"][data-bind-field="${fieldName}"]`));
+        }
+
+        elements.forEach((el) => {
+          el.classList.add(type === 'error' ? 'field-error' : 'field-warning');
+          el.title = message;
+        });
+      }
+
+      function renderSummaryAndReport() {
+        renderValidationSummary();
+        renderTotals();
+        renderReport();
+      }
+
+      function renderValidationSummary() {
+        const lines = [];
+        appState.days.forEach((day, index) => {
+          day.validation.errors.forEach((item) => lines.push(`Day ${index + 1} ERROR: ${item.message}`));
+          day.validation.warnings.forEach((item) => lines.push(`Day ${index + 1} WARN: ${item.message}`));
+        });
+        dom.validationSummary.textContent = lines.length ? lines.join('\n') : 'No validation issues.';
+      }
+
+      function renderTotals() {
+        let totalFlight = 0;
+        let totalDuty = 0;
+        let daysWithFlights = 0;
+        const aircraftTotals = {};
+
+        appState.days.forEach((day) => {
+          const flight = Number(day.flightTime);
+          if (!Number.isNaN(flight) && day.flightTime !== '') {
+            totalFlight += flight;
+            daysWithFlights += 1;
+            if (day.aircraft) {
+              aircraftTotals[day.aircraft] = (aircraftTotals[day.aircraft] || 0) + flight;
+            }
+          }
+
+          const duty = getDurationHours(day.dutyStart, day.dutyEnd);
+          if (duty != null) totalDuty += duty;
+        });
+
+        dom.totalFlightHours.textContent = totalFlight.toFixed(1);
+        dom.totalDutyHours.textContent = totalDuty.toFixed(1);
+        dom.daysWithFlights.textContent = String(daysWithFlights);
+
+        const aircraftText = Object.keys(aircraftTotals).length
+          ? Object.entries(aircraftTotals).map(([k, v]) => `${k}: ${v.toFixed(1)}`).join(' · ')
+          : '—';
+        dom.aircraftBreakdown.textContent = aircraftText;
+      }
+
+      function renderReport() {
+        let errorCount = 0;
+        let warningCount = 0;
+        let totalFlight = 0;
+        let totalDuty = 0;
+
+        appState.days.forEach((day) => {
+          errorCount += day.validation.errors.length;
+          warningCount += day.validation.warnings.length;
+          const flight = Number(day.flightTime);
+          if (!Number.isNaN(flight) && day.flightTime !== '') totalFlight += flight;
+          const duty = getDurationHours(day.dutyStart, day.dutyEnd);
+          if (duty != null) totalDuty += duty;
+        });
+
+        const readiness = errorCount > 0 ? 'Blocked by errors' : warningCount > 0 ? 'Ready with warnings' : 'Ready to print';
+        const readinessClass = errorCount > 0 ? 'status-error' : warningCount > 0 ? 'status-warn' : 'status-ok';
+
+        dom.reportBox.innerHTML = `
+          <div><strong>Status:</strong> <span class="${readinessClass}">${readiness}</span></div>
+          <div><strong>Week Start:</strong> ${escapeHtml(appState.weekStart || '—')}</div>
+          <div><strong>Total Flight:</strong> ${totalFlight.toFixed(1)}</div>
+          <div><strong>Total Duty:</strong> ${totalDuty.toFixed(1)}</div>
+          <div><strong>Errors:</strong> ${errorCount}</div>
+          <div><strong>Warnings:</strong> ${warningCount}</div>
+          <div style="margin-top:8px;"><strong>Saved:</strong> ${escapeHtml(appState.meta.lastSavedAt || 'Not yet saved')}</div>
+        `;
+      }
+
+      function updateSaveStatus(text) {
+        appState.meta.saveStatus = text;
+        dom.saveStatus.textContent = text;
+        dom.saveStatus.className = 'status-pill';
+        if (text.includes('failed') || text.includes('Error')) dom.saveStatus.classList.add('status-error');
+        else if (text.includes('Unsaved') || text.includes('Saving')) dom.saveStatus.classList.add('status-warn');
+        else dom.saveStatus.classList.add('status-ok');
+      }
+
+      function setElementValue(el, value) {
+        if (el.type === 'checkbox') {
+          el.checked = Boolean(value);
+        } else {
+          el.value = value == null ? '' : value;
+        }
+      }
+
+      function getElementValue(el) {
+        if (el.type === 'checkbox') return Boolean(el.checked);
+        return el.value;
+      }
+
+      function openRemarksModal(dayIndex) {
+        activeRemarksDayIndex = dayIndex;
+        const day = appState.days[dayIndex];
+        dom.remarksModalTextarea.value = day.remarks || '';
+        updateRemarksModalPreview(day.remarks || '');
+        dom.remarksModalBackdrop.classList.add('open');
+        dom.remarksModalBackdrop.setAttribute('aria-hidden', 'false');
+        dom.remarksModalTextarea.focus();
+      }
+
+      function closeRemarksModal() {
+        activeRemarksDayIndex = null;
+        dom.remarksModalBackdrop.classList.remove('open');
+        dom.remarksModalBackdrop.setAttribute('aria-hidden', 'true');
+      }
+
+      function handleRemarksModalInput() {
+        updateRemarksModalPreview(dom.remarksModalTextarea.value);
+      }
+
+      function updateRemarksModalPreview(text) {
+        const safe = String(text || '');
+        dom.remarksPreview.textContent = safe;
+        dom.remarksModalCounter.textContent = `${safe.length} / ${REMARKS_PRINT_LIMIT}`;
+        if (remarksWouldOverflow(safe)) {
+          dom.remarksPreviewStatus.textContent = 'Warning: exceeds calibrated printed remarks space.';
+          dom.remarksPreviewStatus.className = 'mini status-warn';
+        } else {
+          dom.remarksPreviewStatus.textContent = 'Fits in printed space.';
+          dom.remarksPreviewStatus.className = 'mini status-ok';
+        }
+      }
+
+      function applyRemarksModal() {
+        if (activeRemarksDayIndex == null) return;
+        updateRemarks(activeRemarksDayIndex, dom.remarksModalTextarea.value);
+        closeRemarksModal();
+      }
+
+      function copyPreviousDay(dayIndex) {
+        if (dayIndex <= 0) return;
+        const prev = appState.days[dayIndex - 1];
+        const currentDate = appState.days[dayIndex].date;
+        appState.days[dayIndex] = {
+          ...createEmptyDay(dayIndex),
+          ...deepClone(prev),
+          dayIndex,
+          date: currentDate || appState.days[dayIndex].date || ''
+        };
+        validateDay(dayIndex);
+        markDirty();
+        scheduleAutosave();
+        renderDay(dayIndex);
+        renderSummaryAndReport();
+      }
+
+      function clearDay(dayIndex) {
+        const existingDate = appState.days[dayIndex].date;
+        appState.days[dayIndex] = createEmptyDay(dayIndex);
+        appState.days[dayIndex].date = existingDate;
+        validateDay(dayIndex);
+        markDirty();
+        scheduleAutosave();
+        renderDay(dayIndex);
+        renderSummaryAndReport();
+      }
+
+      function applyWeekDatesFromWeekStart(markChanged) {
+        if (!appState.weekStart) return;
+        const base = new Date(`${appState.weekStart}T00:00:00`);
+        if (Number.isNaN(base.getTime())) return;
+
+        appState.days.forEach((day, index) => {
+          const d = new Date(base);
+          d.setDate(base.getDate() + index);
+          day.date = formatDateInput(d);
+          validateDay(index);
+        });
+
+        if (markChanged) markDirty();
+      }
+
+      function formatDateInput(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      }
+
+      function exportJson() {
+        const payload = {
+          version: APP_VERSION,
+          exportedAt: new Date().toISOString(),
+          data: deepClone(appState)
+        };
+        downloadFile(
+          `pilot_log_v42_${(appState.weekStart || 'week').replace(/[^0-9-]/g, '')}.json`,
+          JSON.stringify(payload, null, 2),
+          'application/json'
+        );
+      }
+
+      function importJsonFromFile(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const payload = JSON.parse(String(reader.result || '{}'));
+            if (!payload.data) throw new Error('Invalid import payload.');
+            hydrateState(payload.data);
+            validateAllDays();
+            renderAll();
+            markDirty();
+            scheduleAutosave();
+          } catch (error) {
+            console.error(error);
+            updateSaveStatus('Import failed');
+            alert('Import failed. Check that the JSON file matches the V42 format.');
+          } finally {
+            dom.importJsonInput.value = '';
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      function exportCsv() {
+        const rows = [
+          [
+            'Day', 'Date', 'Aircraft', 'Duty Start', 'Duty End', 'Flight Start', 'Flight End', 'Flight Time', 'Remarks', 'Errors', 'Warnings'
+          ]
+        ];
+
+        appState.days.forEach((day, index) => {
+          rows.push([
+            dayNames[index],
+            day.date,
+            day.aircraft,
+            day.dutyStart,
+            day.dutyEnd,
+            day.flightStart,
+            day.flightEnd,
+            day.flightTime,
+            day.remarks.replace(/\r?\n/g, ' '),
+            day.validation.errors.map((x) => x.message).join(' | '),
+            day.validation.warnings.map((x) => x.message).join(' | ')
+          ]);
+        });
+
+        const csv = rows.map((row) => row.map(csvEscape).join(',')).join('\n');
+        downloadFile(
+          `pilot_log_v42_${(appState.weekStart || 'week').replace(/[^0-9-]/g, '')}.csv`,
+          csv,
+          'text/csv;charset=utf-8'
+        );
+      }
+
+      function csvEscape(value) {
+        const str = String(value ?? '');
+        if (/[",\n]/.test(str)) {
+          return `"${str.replace(/"/g, '""')}"`;
+        }
+        return str;
+      }
+
+      function downloadFile(filename, contents, mimeType) {
+        const blob = new Blob([contents], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      function deepClone(value) {
+        return JSON.parse(JSON.stringify(value));
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      window.PilotLogV42 = {
+        getState: () => deepClone(appState),
+        updateField,
+        updateRemarks,
+        saveState,
+        loadState,
+        exportJson,
+        exportCsv,
+        validateAllDays,
+        clearDay,
+        copyPreviousDay
+      };
+
+      init();
+    })();
   </script>
-  <div id="remarksMeasurer" class="remarks-measurer remarks-cell-clone"></div>
 </body>
 </html>
 
