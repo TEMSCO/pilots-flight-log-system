@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TEMSCO Pilot Flight & Duty Time Log V42</title>
+  <title>TEMSCO Pilot Flight & Duty Time Log V43 Step 4.5</title>
   <style>
     :root {
       --paper: #ffffff;
@@ -1624,7 +1624,7 @@
           <div class="summary-metric"><div class="label">Flight</div><div id="weekFlight" class="value">0.0</div></div>
           <div class="summary-metric"><div class="label">Duty</div><div id="weekDuty" class="value">0.0</div></div>
           <div class="summary-metric"><div class="label">Days Used</div><div id="weekDays" class="value">0</div></div>
-          <div id="restMetric" class="summary-metric"><div class="label">Rest Alerts</div><div id="restAlerts" class="value">0</div></div>
+          <div id="restMetric" class="summary-metric"><div class="label">QTR OFF DAYS</div><div id="restAlerts" class="value">0/13</div></div>
         </div>
         <div class="validation-wrap">
           <div class="validation-title">Validation</div>
@@ -1819,6 +1819,7 @@
     const tableBody = document.getElementById("tableBody");
     const APP_VERSION = 43;
     const DRAFT_KEY = "temsco_pilot_log_draft_v43";
+    const OFF_LEDGER_KEY = "temsco_pilot_log_off_ledger_v43";
 
     const aircraftOptions = [
       { id: "md500", label: "MD500", color: "#22c55e" },
@@ -1855,13 +1856,29 @@
     const historyMonthsBack = document.getElementById("historyMonthsBack");
     const refreshHistoryBtn = document.getElementById("refreshHistoryBtn");
     [
+      "pilotName", "certificateNumber",
+      "periodStartMonth", "periodStartDay", "periodStartYear",
+      "periodEndMonth", "periodEndDay", "periodEndYear",
       "currencyDateMonth", "currencyDateDay", "currencyDateYear", "currencyAircraft",
       "currencyN", "currencyFrom", "currencyTo", "currencyDayDuration",
       "currencyNightDuration", "currencyTakeoffs", "currencyRemarks", "pilotSignature"
     ].forEach((id) => {
       const el = document.getElementById(id);
       if (el) {
-        el.addEventListener("input", (e) => updateTopLevelField(id, e.target.value));
+        el.addEventListener("input", (e) => {
+          updateTopLevelField(id, e.target.value, { skipRender: true });
+          if (id === "pilotName" || id === "certificateNumber" || id.startsWith("currency") || id.startsWith("period")) {
+            if (el.value !== normalizeTopLevelValue(id, e.target.value)) {
+              el.value = normalizeTopLevelValue(id, e.target.value);
+            }
+          }
+          if (id.startsWith("periodStart") || id.startsWith("periodEnd")) {
+            renderTopLevelStateFields();
+            (appState.days || []).forEach((day, idx) => renderDayStateFields(idx + 1));
+            computeWeeklySummary();
+            renderValidationSummary();
+          }
+        });
       }
     });
 
@@ -1995,6 +2012,93 @@ const nInput = document.getElementById("currencyN");
       };
     }
 
+
+    function safeJsonParse(raw, fallback) {
+      try {
+        return JSON.parse(raw);
+      } catch (err) {
+        return fallback;
+      }
+    }
+
+    function getOffLedger() {
+      return safeJsonParse(localStorage.getItem(OFF_LEDGER_KEY), {});
+    }
+
+    function setOffLedger(ledger) {
+      try {
+        localStorage.setItem(OFF_LEDGER_KEY, JSON.stringify(ledger || {}));
+      } catch (err) {
+        console.warn("Off-day ledger save failed", err);
+      }
+    }
+
+    function dayQualifiesAsOff(day) {
+      if (!day) return false;
+      const remarks = String(day.remarks || "");
+      const hasOffWord = /\bOFF\b/i.test(remarks);
+      const flightTotal = Number(day.flightTotal || 0);
+      const dutyTotal = Number(day.dutyTotal || 0);
+      return hasOffWord && flightTotal === 0 && dutyTotal === 0;
+    }
+
+    function getQuarterInfo(dateStr) {
+      const d = new Date(`${dateStr}T00:00:00`);
+      if (Number.isNaN(d.getTime())) return null;
+      const year = d.getFullYear();
+      const quarter = Math.floor(d.getMonth() / 3) + 1;
+      return { year, quarter, key: `${year}-Q${quarter}` };
+    }
+
+    function getSheetQuarterInfo() {
+      for (const day of appState.days) {
+        const storedDate = inferStoredDateForDay(day);
+        if (/^\d{4}-\d{2}-\d{2}$/.test(storedDate)) {
+          const info = getQuarterInfo(storedDate);
+          if (info) return info;
+        }
+      }
+      return getQuarterInfo(new Date().toISOString().slice(0, 10));
+    }
+
+    function updateOffDayLedgerFromState() {
+      const ledger = getOffLedger();
+      appState.days.forEach((day) => {
+        const storedDate = inferStoredDateForDay(day);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(storedDate)) return;
+        delete ledger[storedDate];
+        if (dayQualifiesAsOff(day)) {
+          ledger[storedDate] = {
+            off: true,
+            remarks: String(day.remarks || ""),
+            source: "remarks-off",
+            updatedAt: new Date().toISOString()
+          };
+        }
+      });
+      setOffLedger(ledger);
+      return ledger;
+    }
+
+    function getQuarterOffDayCount() {
+      const quarterInfo = getSheetQuarterInfo();
+      const ledger = updateOffDayLedgerFromState();
+      const dates = Object.keys(ledger || {});
+      if (!quarterInfo) {
+        return { count: 0, target: 13, remaining: 13, key: "" };
+      }
+      const count = dates.filter((dateStr) => {
+        const info = getQuarterInfo(dateStr);
+        return info && info.key === quarterInfo.key && ledger[dateStr] && ledger[dateStr].off;
+      }).length;
+      return {
+        count,
+        target: 13,
+        remaining: Math.max(0, 13 - count),
+        key: quarterInfo.key
+      };
+    }
+
     function deepClone(value) {
       return JSON.parse(JSON.stringify(value));
     }
@@ -2024,6 +2128,7 @@ const nInput = document.getElementById("currencyN");
       const warnings = [];
       const flightTotal = Number(day.flightTotal || 0);
       const dutyTotal = Number(day.dutyTotal || 0);
+      const hasOffWord = /\bOFF\b/i.test(String(day.remarks || ""));
       if (day.logDate && !/^\d{2}\/\d{2}$/.test(day.logDate)) {
         errors.push('Date must be MM/DD.');
       }
@@ -2039,10 +2144,17 @@ const nInput = document.getElementById("currencyN");
       if (hasFlightOutsideDuty(day)) {
         warnings.push('Flight entry is outside duty time.');
       }
+      if (hasOffWord && (flightTotal > 0 || dutyTotal > 0)) {
+        warnings.push('OFF in remarks does not count while flight or duty is entered.');
+      }
       if (remarksWouldOverflow(dayId, day.remarks || '')) {
         warnings.push('Remarks are at visible print limit.');
       }
-      if ((day.logDate || day.remarks || flightTotal > 0 || dutyTotal > 0 || day.route133Top || day.route133Bottom) && !day.logDate) {
+      const inferredStoredDate = inferStoredDateForDay(day);
+      const canInferDate = /^\d{4}-\d{2}-\d{2}$/.test(inferredStoredDate);
+      const hasDataWithoutExplicitDate = (day.logDate || day.remarks || flightTotal > 0 || dutyTotal > 0 || day.route133Top || day.route133Bottom) && !day.logDate;
+      const isOffOnlyDay = hasOffWord && flightTotal === 0 && dutyTotal === 0 && !day.route133Top && !day.route133Bottom;
+      if (hasDataWithoutExplicitDate && !(isOffOnlyDay && canInferDate)) {
         warnings.push('Day has data but no date.');
       }
       day.validation = { errors, warnings };
@@ -2206,6 +2318,8 @@ const nInput = document.getElementById("currencyN");
       if (fieldName in (appState.period || {})) {
         appState.period[fieldName] = normalized;
         syncLogPeriodFromState();
+        populateDatesFromPeriod({ skipValidate: true });
+        (appState.days || []).forEach((day, idx) => validateDayState(idx + 1));
       } else if (fieldName in appState.currency) {
         appState.currency[fieldName] = normalized;
       } else if (fieldName in appState) {
@@ -2390,14 +2504,15 @@ const nInput = document.getElementById("currencyN");
       if (!day) return;
       day[key] = value;
 
-
       validateDayState(dayId);
-      renderValidationSummary();
       appState.meta.dirty = true;
 
       if (!options.skipRender) {
         renderDayStateFields(dayId);
       }
+
+      computeWeeklySummary();
+      renderValidationSummary();
 
       if (!options.skipPersist) {
         persistDraftSoon();
@@ -2471,7 +2586,13 @@ const nInput = document.getElementById("currencyN");
 
     function updateDebugDraftState() {
       try {
-        const raw = localStorage.getItem(DRAFT_KEY);
+        let raw = localStorage.getItem(DRAFT_KEY);
+        if (!raw) {
+          for (const key of LEGACY_DRAFT_KEYS) {
+            raw = localStorage.getItem(key);
+            if (raw) break;
+          }
+        }
         if (!raw) {
           debugDraftState.textContent = 'no browser draft';
           return;
@@ -2625,6 +2746,28 @@ function getAircraftLabel(index) {
       return appState.logPeriod;
     }
 
+    function getPeriodStartDateObj() {
+      const p = appState.period || {};
+      if (!(p.periodStartMonth && p.periodStartDay && p.periodStartYear)) return null;
+      const start = new Date(`${p.periodStartYear}-${p.periodStartMonth}-${p.periodStartDay}T00:00:00`);
+      return Number.isNaN(start.getTime()) ? null : start;
+    }
+
+    function populateDatesFromPeriod(options = {}) {
+      const start = getPeriodStartDateObj();
+      if (!start) return false;
+      (appState.days || []).forEach((day, idx) => {
+        if (!day) return;
+        const next = new Date(start);
+        next.setDate(start.getDate() + idx);
+        day.logDate = `${String(next.getMonth() + 1).padStart(2, '0')}/${String(next.getDate()).padStart(2, '0')}`;
+      });
+      if (!options.skipValidate) {
+        (appState.days || []).forEach((day, idx) => validateDayState(idx + 1));
+      }
+      return true;
+    }
+
     function setPeriodFromString(periodText, options = {}) {
       const text = String(periodText || "").trim();
       const matches = text.match(/(\d{2})\/(\d{2})\/(\d{4})/g) || [];
@@ -2645,7 +2788,12 @@ function getAircraftLabel(index) {
         periodEndYear: b.year
       };
       syncLogPeriodFromState();
-      if (!options.skipRender) renderTopLevelStateFields();
+      populateDatesFromPeriod({ skipValidate: true });
+      (appState.days || []).forEach((day, idx) => validateDayState(idx + 1));
+      if (!options.skipRender) {
+        renderTopLevelStateFields();
+        (appState.days || []).forEach((day, idx) => renderDayStateFields(idx + 1));
+      }
       if (!options.skipPersist) persistDraftSoon();
     }
 
@@ -2676,6 +2824,25 @@ function getAircraftLabel(index) {
         return `${year}-${mm}-${dd}`;
       }
       return cleaned;
+    }
+
+    function inferStoredDateForDay(day) {
+      if (!day) return "";
+      const explicit = buildStoredDate(day.logDate || "", appState.logPeriod || "");
+      if (/^\d{4}-\d{2}-\d{2}$/.test(explicit)) return explicit;
+
+      const p = appState.period || {};
+      if (!(p.periodStartMonth && p.periodStartDay && p.periodStartYear)) return explicit;
+
+      const start = new Date(`${p.periodStartYear}-${p.periodStartMonth}-${p.periodStartDay}T00:00:00`);
+      if (Number.isNaN(start.getTime())) return explicit;
+
+      const offset = Math.max(0, Number(day.id || 1) - 1);
+      start.setDate(start.getDate() + offset);
+      const y = start.getFullYear();
+      const m = String(start.getMonth() + 1).padStart(2, '0');
+      const d = String(start.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
     }
 
     function updatePeriodFromRows() {
@@ -2814,35 +2981,25 @@ function getAircraftLabel(index) {
       let flight = 0;
       let duty = 0;
       let days = 0;
-      let restAlerts = 0;
-      let previousDutyStop = null;
 
       appState.days.forEach((day) => {
         const dayFlight = Number(day.flightTotal || 0);
         const dayDuty = Number(day.dutyTotal || 0);
-        const dutyStart = day.dutyStart || "--:--";
-        const dutyStop = day.dutyStop || "--:--";
 
         flight += dayFlight;
         duty += dayDuty;
         if (dayHasUsedContent(day.id)) days += 1;
-
-        const currentStart = timeToMinutes(dutyStart);
-        if (previousDutyStop !== null && currentStart !== null) {
-          let gap = currentStart - previousDutyStop;
-          if (gap < 0) gap += 24 * 60;
-          if (gap < 600) restAlerts += 1;
-        }
-
-        const currentStop = timeToMinutes(dutyStop);
-        previousDutyStop = currentStop;
       });
+
+      const offTracker = getQuarterOffDayCount();
 
       weekFlightEl.textContent = flight.toFixed(1);
       weekDutyEl.textContent = duty.toFixed(1);
       weekDaysEl.textContent = String(days);
-      restAlertsEl.textContent = String(restAlerts);
-      restMetricEl.classList.toggle("warn", restAlerts > 0);
+      restAlertsEl.textContent = `${offTracker.count}/${offTracker.target}`;
+      restMetricEl.classList.toggle("warn", false);
+      restMetricEl.title = `Quarter ${offTracker.key}: ${offTracker.count} OFF day(s) marked. ${offTracker.remaining} remaining to reach 13. Use OFF in remarks on a no-flight/no-duty day.`;
+      restAlertsEl.title = restMetricEl.title;
     }
 
     function updateTotals(dayId) {
@@ -3823,9 +3980,10 @@ function getAircraftLabel(index) {
       appState.period.periodEndDay = draft.periodEndDay || "";
       appState.period.periodEndYear = draft.periodEndYear || "";
       if (!(appState.period.periodStartMonth || appState.period.periodStartDay || appState.period.periodStartYear || appState.period.periodEndMonth || appState.period.periodEndDay || appState.period.periodEndYear) && draft.logPeriod) {
-        setPeriodFromString(draft.logPeriod, { skipPersist: true });
+        setPeriodFromString(draft.logPeriod, { skipPersist: true, skipRender: true });
       } else {
         syncLogPeriodFromState();
+        populateDatesFromPeriod({ skipValidate: true });
       }
       appState.currency.currencyDateMonth = draft.currencyDateMonth || "";
       appState.currency.currencyDateDay = draft.currencyDateDay || "";
@@ -3885,8 +4043,10 @@ function getAircraftLabel(index) {
     function persistDraftNow() {
       if (suppressPersist) return;
       try {
+        syncStateFromDom();
         const payload = collectDraftState();
         localStorage.setItem(DRAFT_KEY, JSON.stringify(payload));
+        updateOffDayLedgerFromState();
         appState.meta.dirty = false;
         appState.meta.lastSavedAt = payload.savedAt;
         updateDebugDraftState();
@@ -3905,10 +4065,17 @@ function getAircraftLabel(index) {
 
     function loadBrowserDraft() {
       try {
-        const raw = localStorage.getItem(DRAFT_KEY);
+        let raw = localStorage.getItem(DRAFT_KEY);
+        if (!raw) {
+          for (const key of LEGACY_DRAFT_KEYS) {
+            raw = localStorage.getItem(key);
+            if (raw) break;
+          }
+        }
         if (!raw) return;
         const draft = JSON.parse(raw);
         applyDraftState(draft);
+        updateOffDayLedgerFromState();
         updateDebugDraftState();
         setStatus("Restored browser draft.");
       } catch (err) {
@@ -3926,7 +4093,7 @@ function getAircraftLabel(index) {
 
     function exportCsv() {
       setDebugAction('export csv');
-      const headers = ["log_date", "pilot_name", "period", "aircraft_name", "duty_start", "duty_stop", "duty", "flight_total", "133_hours", "133_class", "route", "remarks"];
+      const headers = ["log_date", "pilot_name", "period", "aircraft_name", "duty_start", "duty_stop", "duty", "flight_total", "133_hours", "133_class", "route", "remarks", "off_day"];
       const lines = [headers.join(",")];
 
       for (let dayId = 1; dayId <= DAY_COUNT; dayId++) {
