@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TEMSCO Pilot Flight & Duty Time Log V43 Step 4.5</title>
+  <title>TEMSCO Pilot Flight & Duty Time Log V44 Step 3</title>
   <style>
     :root {
       --paper: #ffffff;
@@ -1559,6 +1559,469 @@
       }
     }
 
+  
+
+    .view-btn { background: #f8fafc; }
+    .view-btn.active { background: #dbeafe; }
+
+    .reports-wrap {
+      margin-top: 10px;
+      border: 1.5px solid var(--line);
+      background: white;
+      display: none;
+    }
+
+    .reports-wrap.active {
+      display: block;
+    }
+
+    .reports-toolbar {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 12px;
+      padding: 10px;
+      border-bottom: 1px solid var(--soft-line);
+      background: #f8fafc;
+    }
+
+    .reports-controls {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .reports-controls label {
+      font-size: 11px;
+      font-weight: bold;
+      color: #334155;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .reports-controls select,
+    .reports-controls button {
+      min-height: 30px;
+      border: 1px solid var(--soft-line);
+      background: white;
+      font-size: 11px;
+      padding: 5px 8px;
+    }
+
+    .reports-summary-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 8px;
+      align-content: start;
+    }
+
+    .reports-strip-card {
+      border: 1px solid var(--soft-line);
+      background: white;
+      padding: 8px;
+      min-height: 54px;
+    }
+
+    .reports-strip-card .label {
+      font-size: 10px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #475569;
+      margin-bottom: 4px;
+    }
+
+    .reports-strip-card .value {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .reports-banner {
+      margin: 10px;
+      padding: 8px 10px;
+      border: 1px solid #f59e0b;
+      background: #fffbeb;
+      color: #92400e;
+      font-size: 11px;
+      display: none;
+    }
+
+    .reports-banner.active { display: block; }
+
+    .reports-preview {
+      padding: 10px;
+    }
+
+    .report-sheet {
+      border: 1px solid var(--line);
+      background: white;
+    }
+
+    .report-sheet-header {
+      display: grid;
+      grid-template-columns: 1fr 220px 180px;
+      gap: 8px;
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      background: #f8fafc;
+      align-items: start;
+    }
+
+    .report-sheet-title {
+      font-size: 18px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .report-sheet-sub {
+      font-size: 11px;
+      margin-top: 3px;
+      color: #475569;
+    }
+
+    .report-mini-box {
+      border: 1px solid var(--soft-line);
+      background: white;
+      padding: 6px 8px;
+      min-height: 46px;
+    }
+
+    .report-mini-box .k {
+      font-size: 10px;
+      text-transform: uppercase;
+      font-weight: bold;
+      color: #475569;
+      margin-bottom: 3px;
+    }
+
+    .report-mini-box .v {
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 11px;
+    }
+
+    .report-table th,
+    .report-table td {
+      border: 1px solid var(--line);
+      padding: 6px 5px;
+      text-align: center;
+    }
+
+    .report-table th {
+      background: var(--header);
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
+    .report-table td.month-label {
+      text-align: left;
+      font-weight: bold;
+      background: #f8fafc;
+    }
+
+    .report-table tfoot td {
+      font-weight: bold;
+      background: #eef2ff;
+    }
+
+    .report-notes {
+      padding: 10px;
+      font-size: 10px;
+      color: #475569;
+      border-top: 1px solid var(--soft-line);
+      background: #f8fafc;
+    }
+
+    .report-page {
+      border: 1px solid var(--line);
+      background: white;
+      padding: 10px;
+      margin-bottom: 12px;
+    }
+
+    .report-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      align-items: start;
+    }
+
+    .report-compact-ident {
+      border-bottom: 1px solid var(--line);
+      padding: 6px 8px 5px;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      background: #f8fafc;
+      letter-spacing: 0.2px;
+    }
+
+
+    .report-sheet-subhead {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: stretch;
+      padding: 8px 10px;
+      border-top: 1px solid var(--soft-line);
+      border-bottom: 1px solid var(--soft-line);
+      background: #f8fafc;
+    }
+
+    .report-sheet-subhead .meta {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      flex: 1 1 auto;
+    }
+
+    .report-sheet-subhead .item,
+    .report-print-note {
+      border: 1px solid var(--soft-line);
+      background: white;
+      padding: 6px 8px;
+    }
+
+    .report-sheet-subhead .item .k,
+    .report-print-note .k {
+      font-size: 9px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #475569;
+      margin-bottom: 2px;
+    }
+
+    .report-sheet-subhead .item .v,
+    .report-print-note .v {
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .report-sheet.compact .report-compact-ident {
+      font-size: 14px;
+      padding: 8px 10px 7px;
+      text-align: center;
+      letter-spacing: 0.3px;
+    }
+
+    .report-sheet.compact .report-table {
+      font-size: 10.5px;
+    }
+
+    .report-sheet.compact .report-table th,
+    .report-sheet.compact .report-table td {
+      padding: 5px 4px;
+      line-height: 1.2;
+    }
+
+    .report-sheet.compact .report-table th {
+      font-size: 8.5px;
+    }
+
+    .report-sheet.compact .report-notes {
+      display: none;
+    }
+
+    @media print {
+      body.print-reports .sheet-header,
+      body.print-reports .top-panels,
+      body.print-reports .controls,
+      body.print-reports .mode-line,
+      body.print-reports .aircraft-layout,
+      body.print-reports .table-wrap,
+      body.print-reports .currency-section,
+      body.print-reports #status,
+      body.print-reports .saved-wrap,
+      body.print-reports .history-wrap,
+      body.print-reports .remarks-popup-overlay,
+      body.print-reports .reports-controls,
+      body.print-reports .reports-summary-strip,
+      body.print-reports .reports-banner {
+        display: none !important;
+      }
+
+      body.print-reports .reports-wrap,
+      body.print-reports .reports-wrap.active {
+        display: block !important;
+        margin-top: 0 !important;
+        border: none !important;
+      }
+
+      body.print-reports .reports-toolbar {
+        display: block !important;
+        border-bottom: none !important;
+        background: white !important;
+        padding: 0 !important;
+      }
+
+      body.print-reports .reports-preview {
+        padding: 0 !important;
+      }
+
+      body.print-reports .report-page {
+        border: none !important;
+        background: white !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        min-height: 7.45in !important;
+        break-after: page !important;
+        page-break-after: always !important;
+        overflow: hidden !important;
+      }
+
+      body.print-reports .report-page:last-child {
+        break-after: auto !important;
+        page-break-after: auto !important;
+      }
+
+      body.print-reports .report-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
+        gap: 4px !important;
+        align-items: stretch !important;
+      }
+
+      body.print-reports .report-sheet {
+        display: block !important;
+        break-inside: avoid-page !important;
+        page-break-inside: avoid !important;
+      }
+
+      body.print-reports .report-sheet.compact {
+        border: 1px solid var(--line) !important;
+        height: 3.80in !important;
+        overflow: hidden !important;
+      }
+
+      body.print-reports .report-sheet.compact .report-sheet-header {
+        grid-template-columns: 1fr 92px 92px !important;
+        gap: 4px !important;
+        padding: 4px !important;
+      }
+
+      body.print-reports .report-sheet.compact .report-sheet-title {
+        font-size: 11px !important;
+        line-height: 1.05 !important;
+      }
+
+      body.print-reports .report-sheet.compact .report-sheet-sub {
+        font-size: 7px !important;
+        margin-top: 1px !important;
+        line-height: 1.05 !important;
+      }
+
+      body.print-reports .report-sheet.compact .report-mini-box {
+        min-height: 22px !important;
+        padding: 2px 4px !important;
+      }
+
+      body.print-reports .report-sheet.compact .report-mini-box .k {
+        font-size: 6px !important;
+        margin-bottom: 0 !important;
+      }
+
+      body.print-reports .report-sheet.compact .report-mini-box .v {
+        font-size: 8px !important;
+        line-height: 1 !important;
+      }
+
+      body.print-reports .report-sheet.compact .report-sheet-subhead {
+        padding: 3px 4px !important;
+        gap: 4px !important;
+      }
+
+      body.print-reports .report-sheet.compact .report-sheet-subhead .meta {
+        gap: 3px !important;
+      }
+
+      body.print-reports .report-sheet.compact .report-sheet-subhead .item,
+      body.print-reports .report-sheet.compact .report-print-note {
+        padding: 2px 4px !important;
+      }
+
+      body.print-reports .report-sheet.compact .report-sheet-subhead .item .k,
+      body.print-reports .report-sheet.compact .report-print-note .k {
+        font-size: 6px !important;
+        margin-bottom: 0 !important;
+      }
+
+      body.print-reports .report-sheet.compact .report-sheet-subhead .item .v,
+      body.print-reports .report-sheet.compact .report-print-note .v {
+        font-size: 8px !important;
+        line-height: 1 !important;
+      }
+
+      body.print-reports .report-sheet.compact .report-table {
+        font-size: 7px !important;
+      }
+
+      body.print-reports .report-sheet.compact .report-table th,
+      body.print-reports .report-sheet.compact .report-table td {
+        padding: 1px 2px !important;
+      }
+
+      body.print-reports .report-sheet.compact .report-table th {
+        font-size: 6px !important;
+      }
+
+      body.print-reports .report-sheet.compact .report-notes {
+        display: none !important;
+      }
+    }
+
+  
+    @media print {
+      body.print-reports .report-page {
+        min-height: 7.62in !important;
+      }
+
+      body.print-reports .report-grid {
+        gap: 2px !important;
+      }
+
+      body.print-reports .report-sheet.compact {
+        height: 3.93in !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      body.print-reports .report-sheet.compact .report-compact-ident {
+        padding: 6px 8px 5px !important;
+        font-size: 13.5px !important;
+        flex: 0 0 auto !important;
+      }
+
+      body.print-reports .report-sheet.compact .report-table {
+        width: 100% !important;
+        height: calc(100% - 28px) !important;
+        flex: 1 1 auto !important;
+        font-size: 8.8px !important;
+        table-layout: fixed !important;
+      }
+
+      body.print-reports .report-sheet.compact .report-table thead tr,
+      body.print-reports .report-sheet.compact .report-table tbody tr,
+      body.print-reports .report-sheet.compact .report-table tfoot tr {
+        height: 7.08% !important;
+      }
+
+      body.print-reports .report-sheet.compact .report-table th,
+      body.print-reports .report-sheet.compact .report-table td {
+        padding: 2px 3px !important;
+        line-height: 1.2 !important;
+        vertical-align: middle !important;
+      }
+
+      body.print-reports .report-sheet.compact .report-table th {
+        font-size: 7px !important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -1567,7 +2030,7 @@
       <div class="sheet-title">
         <div class="company">TEMSCO HELICOPTERS INC.</div>
         <div class="form-title">Pilot's Flight & Duty Time Log</div>
-        <div class="note">v43 step 2 fix: preserved v41-1 layout, manual tab-friendly period date fields, locked aircraft names, and restored state-backed draft persistence.</div>
+        <div class="note">v44 step 2: reporting foundation plus day/night T/O & Ldgs capture tied to the selected day and selected aircraft for monthly aircraft reporting.</div>
       </div>
 
       <div class="header-box">
@@ -1657,6 +2120,8 @@
     </div>
 
     <div class="controls">
+      <button id="weeklyViewBtn" class="view-btn active" type="button">Weekly Log</button>
+      <button id="reportsViewBtn" class="view-btn" type="button">Reports</button>
       <button id="dutyBtn" class="duty-btn" type="button">Duty Mode</button>
       <button id="clearSelectedBtn" class="clear-btn" type="button">Clear Selected Aircraft</button>
       <button id="saveAllBtn" class="save-btn" type="button">Save 7 Days</button>
@@ -1752,8 +2217,11 @@
         <input id="currencyDayDuration" class="small" type="text" />
         <span>Night</span>
         <input id="currencyNightDuration" class="small" type="text" />
-        <span>No. T/O &amp; Ldgs</span>
-        <input id="currencyTakeoffs" class="small" type="text" />
+        <span>Day T/O &amp; Ldgs</span>
+        <input id="currencyTakeoffsDay" class="tiny" type="text" inputmode="numeric" />
+        <span>Night T/O &amp; Ldgs</span>
+        <input id="currencyTakeoffsNight" class="tiny" type="text" inputmode="numeric" />
+        <span id="takeoffBindingLabel" style="font-size:10px; color:#475569; min-width:140px;">(selected day/aircraft)</span>
         <span>Remarks</span>
         <input id="currencyRemarks" class="remarks-wide" type="text" />
       </div>
@@ -1791,6 +2259,63 @@
       <div id="historySummary" class="history-summary-grid"></div>
       <div id="historyList"></div>
     </div>
+
+    <div id="reportsWrap" class="reports-wrap">
+      <div class="saved-title">Reports</div>
+      <div class="reports-toolbar">
+        <div class="reports-controls">
+          <div>
+            <label for="reportTypeSelect">Report Type</label>
+            <select id="reportTypeSelect">
+              <option value="monthlyByAircraft">Monthly Flight by Aircraft</option>
+              <option value="quarterlyRest">Quarterly Rest Report</option>
+              <option value="quarterlyFlightSummary">Quarterly Flight Summary</option>
+            </select>
+          </div>
+          <div>
+            <label for="reportYearSelect">Calendar Year</label>
+            <select id="reportYearSelect"></select>
+          </div>
+          <div id="reportQuarterWrap">
+            <label for="reportQuarterSelect">Quarter</label>
+            <select id="reportQuarterSelect">
+              <option value="1">Q1 (Jan-Mar)</option>
+              <option value="2">Q2 (Apr-Jun)</option>
+              <option value="3">Q3 (Jul-Sep)</option>
+              <option value="4">Q4 (Oct-Dec)</option>
+            </select>
+          </div>
+          <div id="reportAircraftWrap">
+            <label for="reportAircraftSelect">Aircraft</label>
+            <select id="reportAircraftSelect"></select>
+          </div>
+          <div>
+            <label for="reportSourceMode">Source Mode</label>
+            <select id="reportSourceMode">
+              <option value="savedRows">Saved Rows Only</option>
+              <option value="savedRowsPlusCurrentWeek">Saved Rows + Current Week Preview</option>
+              <option value="currentWeekOnly">Current Week Only</option>
+            </select>
+          </div>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button id="generateReportBtn" class="load-btn" type="button">Generate Report</button>
+            <button id="generateAllAircraftBtn" class="secondary-btn" type="button">Generate All Aircraft</button>
+            <button id="reportExportCsvBtn" class="secondary-btn" type="button">Export CSV</button>
+            <button id="reportExportJsonBtn" class="secondary-btn" type="button">Export JSON</button>
+            <button id="printReportBtn" class="secondary-btn" type="button">Print Report</button>
+          </div>
+          <div id="reportGenerationStatus" class="report-generation-status">Preview is live. Use Generate Report for refreshed status, timestamps, and report-specific summaries.</div>
+        </div>
+        <div id="reportsSummaryStrip" class="reports-summary-strip">
+          <div class="reports-strip-card"><div class="label">Annual PIC</div><div id="reportSummaryPic" class="value">0.0</div></div>
+          <div class="reports-strip-card"><div class="label">Annual Night</div><div id="reportSummaryNight" class="value">0.0</div></div>
+          <div class="reports-strip-card"><div class="label">Annual Training</div><div id="reportSummaryTraining" class="value">0.0</div></div>
+          <div class="reports-strip-card"><div class="label">T/O &amp; Ldg</div><div id="reportSummaryLandings" class="value">0 / 0</div></div>
+        </div>
+      </div>
+      <div id="reportsBanner" class="reports-banner"></div>
+      <div id="reportsPreview" class="reports-preview"></div>
+    </div>
   </div>
 
 
@@ -1817,8 +2342,8 @@
     const DAY_COUNT = 7;
     const AIRCRAFT_COUNT = 6;
     const tableBody = document.getElementById("tableBody");
-    const APP_VERSION = 43;
-    const DRAFT_KEY = "temsco_pilot_log_draft_v43";
+    const APP_VERSION = 44.5;
+    const DRAFT_KEY = "temsco_pilot_log_draft_v44_step5";
     const OFF_LEDGER_KEY = "temsco_pilot_log_off_ledger_v43";
 
     const aircraftOptions = [
@@ -1855,13 +2380,35 @@
     const historySummary = document.getElementById("historySummary");
     const historyMonthsBack = document.getElementById("historyMonthsBack");
     const refreshHistoryBtn = document.getElementById("refreshHistoryBtn");
+    const weeklyViewBtn = document.getElementById("weeklyViewBtn");
+    const reportsViewBtn = document.getElementById("reportsViewBtn");
+    const reportsWrap = document.getElementById("reportsWrap");
+    const reportTypeSelect = document.getElementById("reportTypeSelect");
+    const reportYearSelect = document.getElementById("reportYearSelect");
+    const reportQuarterWrap = document.getElementById("reportQuarterWrap");
+    const reportQuarterSelect = document.getElementById("reportQuarterSelect");
+    const reportAircraftWrap = document.getElementById("reportAircraftWrap");
+    const reportAircraftSelect = document.getElementById("reportAircraftSelect");
+    const reportSourceMode = document.getElementById("reportSourceMode");
+    const generateReportBtn = document.getElementById("generateReportBtn");
+    const generateAllAircraftBtn = document.getElementById("generateAllAircraftBtn");
+    const reportExportCsvBtn = document.getElementById("reportExportCsvBtn");
+    const reportExportJsonBtn = document.getElementById("reportExportJsonBtn");
+    const printReportBtn = document.getElementById("printReportBtn");
+    const reportsPreview = document.getElementById("reportsPreview");
+    const reportsBanner = document.getElementById("reportsBanner");
+    const reportSummaryPic = document.getElementById("reportSummaryPic");
+    const reportSummaryNight = document.getElementById("reportSummaryNight");
+    const reportSummaryTraining = document.getElementById("reportSummaryTraining");
+    const reportSummaryLandings = document.getElementById("reportSummaryLandings");
+    const reportGenerationStatus = document.getElementById("reportGenerationStatus");
     [
       "pilotName", "certificateNumber",
       "periodStartMonth", "periodStartDay", "periodStartYear",
       "periodEndMonth", "periodEndDay", "periodEndYear",
       "currencyDateMonth", "currencyDateDay", "currencyDateYear", "currencyAircraft",
       "currencyN", "currencyFrom", "currencyTo", "currencyDayDuration",
-      "currencyNightDuration", "currencyTakeoffs", "currencyRemarks", "pilotSignature"
+      "currencyNightDuration", "currencyTakeoffsDay", "currencyTakeoffsNight", "currencyRemarks", "pilotSignature"
     ].forEach((id) => {
       const el = document.getElementById(id);
       if (el) {
@@ -1890,7 +2437,7 @@
     const currencyFields = [
       "currencyDateMonth","currencyDateDay","currencyDateYear",
       "currencyAircraft","currencyN","currencyFrom","currencyTo",
-      "currencyDayDuration","currencyNightDuration","currencyTakeoffs",
+      "currencyDayDuration","currencyNightDuration","currencyTakeoffsDay","currencyTakeoffsNight",
       "currencyRemarks","pilotSignature"
     ];
 
@@ -1898,12 +2445,25 @@
       const el = document.getElementById(id);
       if (el) {
         el.addEventListener("input", () => {
-          if (id !== "currencyDateMonth" && id !== "currencyDateDay" && id !== "currencyDateYear" && id !== "currencyDayDuration" && id !== "currencyNightDuration" && id !== "currencyTakeoffs") {
+          if (id !== "currencyDateMonth" && id !== "currencyDateDay" && id !== "currencyDateYear" && id !== "currencyDayDuration" && id !== "currencyNightDuration" && id !== "currencyTakeoffsDay" && id !== "currencyTakeoffsNight") {
             el.value = el.value.toUpperCase();
           }
         });
       }
     });
+
+const takeoffDayInput = document.getElementById("currencyTakeoffsDay");
+    const takeoffNightInput = document.getElementById("currencyTakeoffsNight");
+    if (takeoffDayInput) {
+      takeoffDayInput.addEventListener("input", () => {
+        updateSelectedTakeoffLandingField("takeoffsLandingsDay", takeoffDayInput.value);
+      });
+    }
+    if (takeoffNightInput) {
+      takeoffNightInput.addEventListener("input", () => {
+        updateSelectedTakeoffLandingField("takeoffsLandingsNight", takeoffNightInput.value);
+      });
+    }
 
 const nInput = document.getElementById("currencyN");
     if (nInput) {
@@ -1953,6 +2513,7 @@ const nInput = document.getElementById("currencyN");
 
 
     const appState = createInitialAppState();
+    const reportsState = createInitialReportsState();
 
     function createEmptyDayState(dayId) {
       return {
@@ -1961,7 +2522,7 @@ const nInput = document.getElementById("currencyN");
         remarks: "",
         route133Top: "",
         route133Bottom: "",
-        metrics: Array.from({ length: AIRCRAFT_COUNT }, () => ({ night: "", trng: "" })),
+        metrics: Array.from({ length: AIRCRAFT_COUNT }, () => ({ night: "", trng: "", takeoffsLandingsDay: "", takeoffsLandingsNight: "" })),
         flightMarks: Array.from({ length: 48 }, () => Array.from({ length: 5 }, () => null)),
         dutyBlocks: Array.from({ length: 48 }, () => 0),
         dutyStart: "--:--",
@@ -1997,7 +2558,8 @@ const nInput = document.getElementById("currencyN");
           currencyTo: "",
           currencyDayDuration: "",
           currencyNightDuration: "",
-          currencyTakeoffs: "",
+          currencyTakeoffsDay: "",
+          currencyTakeoffsNight: "",
           currencyRemarks: "",
           pilotSignature: ""
         },
@@ -2099,7 +2661,18 @@ const nInput = document.getElementById("currencyN");
       };
     }
 
-    function deepClone(value) {
+    
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+function deepClone(value) {
       return JSON.parse(JSON.stringify(value));
     }
 
@@ -2224,7 +2797,7 @@ const nInput = document.getElementById("currencyN");
           ...createEmptyDayState(dayId),
           ...existingDay,
           id: dayId,
-          metrics: getDayAircraftMetrics(dayId),
+          metrics: getDayAircraftMetrics(dayId, existingDay.metrics || []),
           flightMarks: getFlightMarks(dayId),
           dutyBlocks: getDutyBlocks(dayId),
           dutyStart: getReadout(dayId, "dutyStart")?.textContent || "--:--",
@@ -2271,6 +2844,39 @@ const nInput = document.getElementById("currencyN");
       if (nField) {
         nField.classList.toggle("alert-exceed", !!nField.value && !isValidNNumber(nField.value));
       }
+      renderSelectedTakeoffLandingFields();
+    }
+
+    function getSelectedDayMetricState() {
+      const day = getDayState(currentRowId);
+      if (!day) return null;
+      if (!Array.isArray(day.metrics)) day.metrics = createEmptyDayState(currentRowId).metrics;
+      if (!day.metrics[selectedAircraftIndex]) {
+        day.metrics[selectedAircraftIndex] = { night: "", trng: "", takeoffsLandingsDay: "", takeoffsLandingsNight: "" };
+      }
+      return day.metrics[selectedAircraftIndex];
+    }
+
+    function renderSelectedTakeoffLandingFields() {
+      const dayInput = document.getElementById("currencyTakeoffsDay");
+      const nightInput = document.getElementById("currencyTakeoffsNight");
+      const bindLabel = document.getElementById("takeoffBindingLabel");
+      const metric = getSelectedDayMetricState();
+      if (dayInput) dayInput.value = metric?.takeoffsLandingsDay || "";
+      if (nightInput) nightInput.value = metric?.takeoffsLandingsNight || "";
+      if (bindLabel) {
+        bindLabel.textContent = `Day ${currentRowId} / ${getAircraftLabel(selectedAircraftIndex)}`;
+      }
+    }
+
+    function updateSelectedTakeoffLandingField(key, rawValue) {
+      const metric = getSelectedDayMetricState();
+      if (!metric) return;
+      const value = String(rawValue || "").replace(/[^\d]/g, "").slice(0, 3);
+      metric[key] = value;
+      appState.meta.dirty = true;
+      renderSelectedTakeoffLandingFields();
+      persistDraftSoon();
     }
 
     function renderStateToDom() {
@@ -2682,6 +3288,7 @@ function getAircraftLabel(index) {
       });
       updateSelectedAircraftDisplay();
       appState.selectedAircraftIndex = selectedAircraftIndex;
+      renderSelectedTakeoffLandingFields();
       persistDraftSoon();
     }
 
@@ -2700,6 +3307,7 @@ function getAircraftLabel(index) {
         el.style.outline = "1.5px solid #2563eb";
         el.style.outlineOffset = "-1px";
       });
+      renderSelectedTakeoffLandingFields();
     }
 
     function formatHalfHourBlock(blockIndex) {
@@ -3383,10 +3991,12 @@ function getAircraftLabel(index) {
       computeWeeklySummary();
     }
 
-    function getDayAircraftMetrics(dayId) {
+    function getDayAircraftMetrics(dayId, existingMetrics = []) {
       return aircraftOptions.map((_, idx) => ({
         night: getDayMetricInput(dayId, idx, "night")?.value.trim() || "",
-        trng: getDayMetricInput(dayId, idx, "trng")?.value.trim() || ""
+        trng: getDayMetricInput(dayId, idx, "trng")?.value.trim() || "",
+        takeoffsLandingsDay: existingMetrics?.[idx]?.takeoffsLandingsDay || "",
+        takeoffsLandingsNight: existingMetrics?.[idx]?.takeoffsLandingsNight || ""
       }));
     }
 
@@ -3395,14 +4005,22 @@ function getAircraftLabel(index) {
       aircraftOptions.forEach((_, idx) => {
         const nextNight = data?.[idx]?.night || "";
         const nextTrng = data?.[idx]?.trng || "";
+        const nextDayCount = data?.[idx]?.takeoffsLandingsDay || "";
+        const nextNightCount = data?.[idx]?.takeoffsLandingsNight || "";
         const night = getDayMetricInput(dayId, idx, "night");
         const trng = getDayMetricInput(dayId, idx, "trng");
         if (night) night.value = nextNight;
         if (trng) trng.value = nextTrng;
         if (day) {
-          day.metrics[idx] = { night: nextNight, trng: nextTrng };
+          day.metrics[idx] = {
+            night: nextNight,
+            trng: nextTrng,
+            takeoffsLandingsDay: nextDayCount,
+            takeoffsLandingsNight: nextNightCount
+          };
         }
       });
+      renderSelectedTakeoffLandingFields();
       if (!suppressPersist) persistDraftSoon();
     }
 
@@ -3651,7 +4269,7 @@ function getAircraftLabel(index) {
           flight_blocks: getFlightBlocks(dayId),
           flight_marks: getFlightMarks(dayId),
           duty_blocks: getDutyBlocks(dayId),
-          day_aircraft_metrics: getDayAircraftMetrics(dayId),
+          day_aircraft_metrics: deepClone(day.metrics || getDayAircraftMetrics(dayId)),
           flt1: flightTotal,
           duty: dutyTotal,
           duty_start: getReadout(dayId, "dutyStart").textContent === "--:--" ? null : getReadout(dayId, "dutyStart").textContent,
@@ -3994,7 +4612,8 @@ function getAircraftLabel(index) {
       appState.currency.currencyTo = draft.currencyTo || "";
       appState.currency.currencyDayDuration = draft.currencyDayDuration || "";
       appState.currency.currencyNightDuration = draft.currencyNightDuration || "";
-      appState.currency.currencyTakeoffs = draft.currencyTakeoffs || "";
+      appState.currency.currencyTakeoffsDay = draft.currencyTakeoffsDay || draft.currencyTakeoffs || "";
+      appState.currency.currencyTakeoffsNight = draft.currencyTakeoffsNight || "";
       appState.currency.currencyRemarks = draft.currencyRemarks || "";
       appState.currency.pilotSignature = draft.pilotSignature || "";
 
@@ -4137,6 +4756,890 @@ function getAircraftLabel(index) {
       setStatus("CSV exported.");
     }
 
+
+    function createInitialReportsState() {
+      return {
+        active: false,
+        reportType: 'monthlyByAircraft',
+        selectedYear: new Date().getFullYear(),
+        selectedAircraft: aircraftOptions[0].label,
+        selectedQuarter: getQuarterFromDate(new Date().toISOString().slice(0,10)) || 1,
+        sourceMode: 'savedRows',
+        previewData: null,
+        lastGeneratedAt: null,
+        sourceWarnings: [],
+        previewMode: 'single',
+        previewReports: []
+      };
+    }
+
+    function setActiveView(viewName) {
+      const weeklyEls = [
+        document.querySelector('.sheet-header'),
+        document.querySelector('.top-panels'),
+        document.querySelector('.mode-line'),
+        document.querySelector('.aircraft-layout'),
+        document.querySelector('.table-wrap'),
+        document.querySelector('.currency-section'),
+        document.getElementById('status'),
+        document.querySelector('.saved-wrap'),
+        document.querySelector('.history-wrap')
+      ];
+      const isReports = viewName === 'reports';
+      reportsState.active = isReports;
+      weeklyEls.forEach((el) => {
+        if (el) el.style.display = isReports ? 'none' : '';
+      });
+      if (reportsWrap) reportsWrap.classList.toggle('active', isReports);
+      weeklyViewBtn.classList.toggle('active', !isReports);
+      reportsViewBtn.classList.toggle('active', isReports);
+      if (isReports) {
+        generateCurrentReport().catch((err) => {
+          console.error(err);
+          setStatus('Report generation failed: ' + err.message, 'error');
+        });
+      } else {
+        document.body.classList.remove('print-reports');
+      }
+    }
+
+    function getCurrentWeekReportRows() {
+      syncStateFromDom();
+      return (appState.days || []).map((day) => ({
+        log_date: inferStoredDateForDay(day),
+        pilot_name: appState.pilotName || '',
+        certificate_number: appState.certificateNumber || '',
+        period: buildLogPeriodString(),
+        aircraft_name: (day.usedAircraft || []).join(', '),
+        remarks: day.remarks || '',
+        route_133_top: day.route133Top || '',
+        route_133_bottom: day.route133Bottom || '',
+        flight_marks: deepClone(day.flightMarks || []),
+        duty_blocks: deepClone(day.dutyBlocks || []),
+        day_aircraft_metrics: deepClone(day.metrics || []),
+        flt1: Number(day.flightTotal || 0),
+        duty: Number(day.dutyTotal || 0),
+        duty_start: day.dutyStart || null,
+        duty_stop: day.dutyStop || null,
+        validation: deepClone(day.validation || { errors: [], warnings: [] }),
+        _source: 'currentWeek'
+      })).filter((row) => row.log_date || row.remarks || Number(row.flt1 || 0) > 0 || Number(row.duty || 0) > 0 || (row.day_aircraft_metrics || []).some((m) => Number(m.takeoffsLandingsDay || m.takeoffsDay || 0) > 0 || Number(m.takeoffsLandingsNight || m.takeoffsNight || 0) > 0));
+    }
+
+    async function fetchSavedRowsForYear(userId, year) {
+      if (!userId) return [];
+      const startDate = `${year}-01-01`;
+      const endDate = `${year}-12-31`;
+      return fetchSavedRowsForDateRange(userId, startDate, endDate);
+    }
+
+    async function fetchSavedRowsForDateRange(userId, startDate, endDate) {
+      if (!userId) return [];
+      let query = await sb
+        .from('logs')
+        .select('id, log_date, aircraft_name, flt1, duty, duty_start, duty_stop, pilot_name, period, remarks, route_133_top, route_133_bottom, flight_blocks, flight_marks, duty_blocks, day_aircraft_metrics')
+        .eq('user_id', userId)
+        .gte('log_date', startDate)
+        .lte('log_date', endDate)
+        .order('log_date', { ascending: true });
+      if (query.error) {
+        throw new Error(query.error.message);
+      }
+      return query.data || [];
+    }
+
+    function includeCurrentWeekPreviewRows(savedRows, currentStateRows) {
+      const map = new Map();
+      (savedRows || []).forEach((row) => {
+        const key = String(row.log_date || '') || `saved-${Math.random()}`;
+        map.set(key, row);
+      });
+      (currentStateRows || []).forEach((row) => {
+        const key = String(row.log_date || '') || `preview-${Math.random()}`;
+        map.set(key, row);
+      });
+      return Array.from(map.values());
+    }
+
+    function getYearFromDate(dateStr) {
+      const d = new Date(`${dateStr}T00:00:00`);
+      return Number.isNaN(d.getTime()) ? null : d.getFullYear();
+    }
+
+    function getMonthFromDate(dateStr) {
+      const d = new Date(`${dateStr}T00:00:00`);
+      return Number.isNaN(d.getTime()) ? null : d.getMonth() + 1;
+    }
+
+    function getQuarterFromDate(dateStr) {
+      const d = new Date(`${dateStr}T00:00:00`);
+      return Number.isNaN(d.getTime()) ? null : Math.floor(d.getMonth() / 3) + 1;
+    }
+
+    function getEffectiveDateFromRow(row) {
+      const dateStr = String(row?.log_date || '').trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+      return '';
+    }
+
+    function coerceNumber(value, fallback = 0) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : fallback;
+    }
+
+    function getAircraftMetricTemplate(code) {
+      return {
+        aircraftCode: code,
+        pic: 0,
+        night: 0,
+        training: 0,
+        takeoffsDay: 0,
+        takeoffsNight: 0,
+        landingsDay: 0,
+        landingsNight: 0
+      };
+    }
+
+    function computePicTotalsFromFlightMarks(flightMarks) {
+      const totals = {};
+      if (!Array.isArray(flightMarks)) return totals;
+      flightMarks.forEach((blockMarks) => {
+        if (!Array.isArray(blockMarks)) return;
+        blockMarks.forEach((aircraftIndex) => {
+          if (aircraftIndex === null || aircraftIndex === undefined) return;
+          const label = aircraftOptions[Number(aircraftIndex)]?.label || aircraftOptions[0].label;
+          totals[label] = (totals[label] || 0) + 0.1;
+        });
+      });
+      Object.keys(totals).forEach((k) => {
+        totals[k] = Number(totals[k].toFixed(1));
+      });
+      return totals;
+    }
+
+    function normalizeAircraftMetricsFromRow(row) {
+      const picTotals = computePicTotalsFromFlightMarks(row?.flight_marks || []);
+      const baseMetrics = Array.isArray(row?.day_aircraft_metrics) ? row.day_aircraft_metrics : [];
+      const result = [];
+      aircraftOptions.forEach((option, index) => {
+        const m = baseMetrics[index] || {};
+        const pic = coerceNumber(picTotals[option.label], 0);
+        const night = coerceNumber(m.night, 0);
+        const training = coerceNumber(m.trng, 0);
+        const takeoffsDay = coerceNumber(m.takeoffsDay ?? m.takeoffsLandingsDay, 0);
+        const takeoffsNight = coerceNumber(m.takeoffsNight ?? m.takeoffsLandingsNight, 0);
+        const landingsDay = coerceNumber(m.landingsDay ?? m.takeoffsLandingsDay, 0);
+        const landingsNight = coerceNumber(m.landingsNight ?? m.takeoffsLandingsNight, 0);
+        if (pic || night || training || takeoffsDay || takeoffsNight || landingsDay || landingsNight) {
+          result.push({
+            aircraftCode: option.label,
+            pic,
+            night,
+            training,
+            takeoffsDay,
+            takeoffsNight,
+            landingsDay,
+            landingsNight
+          });
+        }
+      });
+
+      if (!result.length) {
+        const fallbackAircraft = String(row?.aircraft_name || '').split(',').map((s) => s.trim()).filter(Boolean);
+        const fallbackPic = coerceNumber(row?.flt1, 0);
+        if (fallbackAircraft.length && fallbackPic > 0) {
+          result.push({
+            ...getAircraftMetricTemplate(fallbackAircraft[0]),
+            pic: fallbackPic
+          });
+        }
+      }
+      return result;
+    }
+
+    function buildReportLedger(savedRows, options = {}) {
+      const sourceWarnings = [];
+      const ledger = [];
+      (savedRows || []).forEach((row) => {
+        const date = getEffectiveDateFromRow(row);
+        if (!date) {
+          sourceWarnings.push('Skipped a row with no resolved date.');
+          return;
+        }
+        const year = getYearFromDate(date);
+        const month = getMonthFromDate(date);
+        const quarter = getQuarterFromDate(date);
+        const aircraftMetrics = normalizeAircraftMetricsFromRow(row);
+        ledger.push({
+          date,
+          year,
+          month,
+          quarter,
+          pilotName: row.pilot_name || appState.pilotName || '',
+          certificateNumber: row.certificate_number || appState.certificateNumber || '',
+          offMarker: /\bOFF\b/i.test(String(row.remarks || '')),
+          offQualifies: /\bOFF\b/i.test(String(row.remarks || '')) && coerceNumber(row.flt1, 0) === 0 && coerceNumber(row.duty, 0) === 0,
+          dutyTotal: coerceNumber(row.duty, 0),
+          flightTotal: coerceNumber(row.flt1, 0),
+          remarks: row.remarks || '',
+          validation: row.validation || { errors: [], warnings: [] },
+          aircraftMetrics,
+          _source: row._source || 'saved'
+        });
+      });
+      return { ledger, sourceWarnings };
+    }
+
+    function getAvailableYearsFromLedger(ledger) {
+      const years = Array.from(new Set((ledger || []).map((row) => row.year).filter(Boolean)));
+      if (!years.length) years.push(new Date().getFullYear());
+      return years.sort((a, b) => a - b);
+    }
+
+    function getAvailableAircraftFromLedger(ledger, year) {
+      const set = new Set();
+      (ledger || []).forEach((row) => {
+        if (year && row.year !== Number(year)) return;
+        (row.aircraftMetrics || []).forEach((metric) => set.add(metric.aircraftCode));
+      });
+      if (!set.size) aircraftOptions.forEach((opt) => set.add(opt.label));
+      return Array.from(set.values());
+    }
+
+    function getPilotHeaderFromLedger(ledger) {
+      const first = (ledger || []).find((row) => row.pilotName || row.certificateNumber) || {};
+      return {
+        pilotName: first.pilotName || appState.pilotName || '',
+        certificateNumber: first.certificateNumber || appState.certificateNumber || ''
+      };
+    }
+
+    function createEmptyMonthlyAircraftReport(year, aircraftCode, pilotHeader) {
+      const labels = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+      return {
+        pilotName: pilotHeader.pilotName || '',
+        certificateNumber: pilotHeader.certificateNumber || '',
+        calendarYear: Number(year),
+        aircraftCode,
+        months: labels.map((label, idx) => ({
+          month: idx + 1,
+          label,
+          pic: 0,
+          night: 0,
+          training: 0,
+          takeoffsDay: 0,
+          takeoffsNight: 0,
+          landingsDay: 0,
+          landingsNight: 0
+        })),
+        totals: {
+          pic: 0,
+          night: 0,
+          training: 0,
+          takeoffsDay: 0,
+          takeoffsNight: 0,
+          landingsDay: 0,
+          landingsNight: 0
+        },
+        sourceWarnings: []
+      };
+    }
+
+    function addLedgerRowToMonthlyReport(report, ledgerRow, aircraftCode) {
+      if (!report || !ledgerRow || ledgerRow.year !== Number(report.calendarYear)) return;
+      const metric = (ledgerRow.aircraftMetrics || []).find((item) => item.aircraftCode === aircraftCode);
+      if (!metric) return;
+      const monthRow = report.months[ledgerRow.month - 1];
+      if (!monthRow) return;
+      monthRow.pic += coerceNumber(metric.pic, 0);
+      monthRow.night += coerceNumber(metric.night, 0);
+      monthRow.training += coerceNumber(metric.training, 0);
+      monthRow.takeoffsDay += coerceNumber(metric.takeoffsDay, 0);
+      monthRow.takeoffsNight += coerceNumber(metric.takeoffsNight, 0);
+      monthRow.landingsDay += coerceNumber(metric.landingsDay, 0);
+      monthRow.landingsNight += coerceNumber(metric.landingsNight, 0);
+    }
+
+    function finalizeMonthlyAircraftReport(report) {
+      report.months.forEach((monthRow) => {
+        monthRow.pic = Number(monthRow.pic.toFixed(1));
+        monthRow.night = Number(monthRow.night.toFixed(1));
+        monthRow.training = Number(monthRow.training.toFixed(1));
+        Object.keys(report.totals).forEach((key) => {
+          report.totals[key] += coerceNumber(monthRow[key], 0);
+        });
+      });
+      Object.keys(report.totals).forEach((key) => {
+        report.totals[key] = Number(report.totals[key].toFixed(1));
+      });
+      return report;
+    }
+
+    function buildMonthlyAircraftReport(ledger, year, aircraftCode) {
+      const pilotHeader = getPilotHeaderFromLedger(ledger);
+      const report = createEmptyMonthlyAircraftReport(year, aircraftCode, pilotHeader);
+      (ledger || []).forEach((row) => addLedgerRowToMonthlyReport(report, row, aircraftCode));
+      return finalizeMonthlyAircraftReport(report);
+    }
+
+
+    function createEmptyQuarterlyRestReport(year, quarter, pilotHeader) {
+      const quarterMonthSets = {
+        1: [{ month: 1, label: 'JAN' }, { month: 2, label: 'FEB' }, { month: 3, label: 'MAR' }],
+        2: [{ month: 4, label: 'APR' }, { month: 5, label: 'MAY' }, { month: 6, label: 'JUN' }],
+        3: [{ month: 7, label: 'JUL' }, { month: 8, label: 'AUG' }, { month: 9, label: 'SEP' }],
+        4: [{ month: 10, label: 'OCT' }, { month: 11, label: 'NOV' }, { month: 12, label: 'DEC' }]
+      };
+      return {
+        reportType: 'quarterlyRest',
+        pilotName: pilotHeader.pilotName || '',
+        certificateNumber: pilotHeader.certificateNumber || '',
+        calendarYear: Number(year),
+        quarter: Number(quarter),
+        months: (quarterMonthSets[Number(quarter)] || []).map((m) => ({ ...m, count: 0, dates: [] })),
+        totalQualifyingRestPeriods: 0,
+        target: 13,
+        remaining: 13,
+        status: 'On Track'
+      };
+    }
+
+    function buildQuarterlyRestReport(ledger, year, quarter) {
+      const pilotHeader = getPilotHeaderFromLedger(ledger);
+      const report = createEmptyQuarterlyRestReport(year, quarter, pilotHeader);
+      (ledger || []).forEach((row) => {
+        if (row.year !== Number(year) || row.quarter !== Number(quarter) || !row.offQualifies) return;
+        const monthRow = report.months.find((m) => m.month === row.month);
+        if (!monthRow) return;
+        monthRow.count += 1;
+        monthRow.dates.push(row.date);
+        report.totalQualifyingRestPeriods += 1;
+      });
+      report.remaining = Math.max(0, report.target - report.totalQualifyingRestPeriods);
+      report.status = report.remaining === 0 ? 'Requirement Met' : `${report.remaining} remaining to reach 13`;
+      return report;
+    }
+
+    function createEmptyQuarterlyFlightSummary(year, quarter, pilotHeader) {
+      const quarterMonthSets = {
+        1: [{ month: 1, label: 'JAN' }, { month: 2, label: 'FEB' }, { month: 3, label: 'MAR' }],
+        2: [{ month: 4, label: 'APR' }, { month: 5, label: 'MAY' }, { month: 6, label: 'JUN' }],
+        3: [{ month: 7, label: 'JUL' }, { month: 8, label: 'AUG' }, { month: 9, label: 'SEP' }],
+        4: [{ month: 10, label: 'OCT' }, { month: 11, label: 'NOV' }, { month: 12, label: 'DEC' }]
+      };
+      return {
+        reportType: 'quarterlyFlightSummary',
+        pilotName: pilotHeader.pilotName || '',
+        certificateNumber: pilotHeader.certificateNumber || '',
+        calendarYear: Number(year),
+        quarter: Number(quarter),
+        months: (quarterMonthSets[Number(quarter)] || []).map((m) => ({ ...m, totalFlight: 0 })),
+        quarterTotalFlight: 0,
+        yearToDateFlight: 0,
+        aircraftBreakdown: {}
+      };
+    }
+
+    function buildQuarterlyFlightSummary(ledger, year, quarter) {
+      const pilotHeader = getPilotHeaderFromLedger(ledger);
+      const report = createEmptyQuarterlyFlightSummary(year, quarter, pilotHeader);
+      (ledger || []).forEach((row) => {
+        if (row.year !== Number(year)) return;
+        if (row.month <= Number(quarter) * 3) report.yearToDateFlight += coerceNumber(row.flightTotal, 0);
+        if (row.quarter !== Number(quarter)) return;
+        const monthRow = report.months.find((m) => m.month === row.month);
+        if (monthRow) monthRow.totalFlight += coerceNumber(row.flightTotal, 0);
+        report.quarterTotalFlight += coerceNumber(row.flightTotal, 0);
+        (row.aircraftMetrics || []).forEach((metric) => {
+          report.aircraftBreakdown[metric.aircraftCode] = (report.aircraftBreakdown[metric.aircraftCode] || 0) + coerceNumber(metric.pic, 0);
+        });
+      });
+      report.months.forEach((m) => { m.totalFlight = Number(m.totalFlight.toFixed(1)); });
+      report.quarterTotalFlight = Number(report.quarterTotalFlight.toFixed(1));
+      report.yearToDateFlight = Number(report.yearToDateFlight.toFixed(1));
+      Object.keys(report.aircraftBreakdown).forEach((k) => { report.aircraftBreakdown[k] = Number(report.aircraftBreakdown[k].toFixed(1)); });
+      return report;
+    }
+
+    function updateReportControlVisibility() {
+      const type = reportsState.reportType || reportTypeSelect.value || 'monthlyByAircraft';
+      const monthly = type === 'monthlyByAircraft';
+      if (reportAircraftWrap) reportAircraftWrap.style.display = monthly ? '' : 'none';
+      if (reportQuarterWrap) reportQuarterWrap.style.display = monthly ? 'none' : '';
+      if (generateAllAircraftBtn) generateAllAircraftBtn.style.display = monthly ? '' : 'none';
+    }
+
+    function updateReportsSelectorsFromLedger(ledger) {
+      const years = getAvailableYearsFromLedger(ledger);
+      reportYearSelect.innerHTML = years.map((year) => `<option value="${year}">${year}</option>`).join('');
+      const preferredYear = years.includes(Number(reportsState.selectedYear)) ? Number(reportsState.selectedYear) : years[years.length - 1];
+      reportsState.selectedYear = preferredYear;
+      reportYearSelect.value = String(preferredYear);
+      const aircraft = getAvailableAircraftFromLedger(ledger, preferredYear);
+      reportAircraftSelect.innerHTML = aircraft.map((code) => `<option value="${code}">${code}</option>`).join('');
+      const preferredAircraft = aircraft.includes(reportsState.selectedAircraft) ? reportsState.selectedAircraft : (aircraft[0] || aircraftOptions[0].label);
+      reportsState.selectedAircraft = preferredAircraft;
+      reportAircraftSelect.value = preferredAircraft;
+      reportQuarterSelect.value = String(reportsState.selectedQuarter || 1);
+      reportSourceMode.value = reportsState.sourceMode;
+      reportTypeSelect.value = reportsState.reportType;
+      updateReportControlVisibility();
+    }
+
+    function renderReportsSummaryStrip(report) {
+      const cards = Array.from(document.querySelectorAll('#reportsSummaryStrip .reports-strip-card'));
+      const labels = cards.map((card) => card.querySelector('.label'));
+      const values = [reportSummaryPic, reportSummaryNight, reportSummaryTraining, reportSummaryLandings];
+      const type = report?.reportType || reportsState.reportType || 'monthlyByAircraft';
+      if (type === 'quarterlyRest') {
+        const total = Number(report?.totalQualifyingRestPeriods || 0);
+        const remaining = Number(report?.remaining || 0);
+        const status = report?.status || 'On Track';
+        ['Quarter Rest', 'Remaining', 'Quarter', 'Status'].forEach((txt, i) => { if (labels[i]) labels[i].textContent = txt; });
+        values[0].textContent = String(total);
+        values[1].textContent = String(remaining);
+        values[2].textContent = `Q${report?.quarter || reportsState.selectedQuarter}`;
+        values[3].textContent = status;
+        return;
+      }
+      if (type === 'quarterlyFlightSummary') {
+        ['Quarter Flight', 'YTD Flight', 'Quarter', 'Aircraft Used'].forEach((txt, i) => { if (labels[i]) labels[i].textContent = txt; });
+        values[0].textContent = Number(report?.quarterTotalFlight || 0).toFixed(1);
+        values[1].textContent = Number(report?.yearToDateFlight || 0).toFixed(1);
+        values[2].textContent = `Q${report?.quarter || reportsState.selectedQuarter}`;
+        values[3].textContent = String(Object.keys(report?.aircraftBreakdown || {}).length);
+        return;
+      }
+      ['Annual PIC', 'Annual Night', 'Annual Training', 'T/O & Ldg'].forEach((txt, i) => { if (labels[i]) labels[i].textContent = txt; });
+      values[0].textContent = Number(report?.totals?.pic || 0).toFixed(1);
+      values[1].textContent = Number(report?.totals?.night || 0).toFixed(1);
+      values[2].textContent = Number(report?.totals?.training || 0).toFixed(1);
+      const dayTotal = Number(report?.totals?.takeoffsDay || 0) + Number(report?.totals?.landingsDay || 0);
+      const nightTotal = Number(report?.totals?.takeoffsNight || 0) + Number(report?.totals?.landingsNight || 0);
+      values[3].textContent = `${dayTotal.toFixed(0)} / ${nightTotal.toFixed(0)}`;
+    }
+
+    function renderReportsBanner(messages) {
+      const list = (messages || []).filter(Boolean);
+      if (!list.length) {
+        reportsBanner.classList.remove('active');
+        reportsBanner.textContent = '';
+        return;
+      }
+      reportsBanner.classList.add('active');
+      reportsBanner.textContent = list.join(' | ');
+    }
+
+    function formatGeneratedStamp(dateValue) {
+      if (!dateValue) return 'Not yet generated';
+      const date = new Date(dateValue);
+      if (Number.isNaN(date.getTime())) return 'Not yet generated';
+      return date.toLocaleString();
+    }
+
+    function setReportGenerationStatus(message, tone = 'info') {
+      if (!reportGenerationStatus) return;
+      reportGenerationStatus.textContent = message || '';
+      reportGenerationStatus.style.borderColor = tone === 'warn' ? '#d97706' : (tone === 'error' ? '#b91c1c' : '#94a3b8');
+      reportGenerationStatus.style.color = tone === 'warn' ? '#92400e' : (tone === 'error' ? '#991b1b' : '#334155');
+      reportGenerationStatus.style.background = tone === 'warn' ? '#fff7ed' : (tone === 'error' ? '#fef2f2' : '#f8fafc');
+    }
+
+    function getCombinedReportTotals(reports) {
+      const list = Array.isArray(reports) ? reports : [];
+      return list.reduce((acc, report) => {
+        acc.pic += Number(report?.totals?.pic || 0);
+        acc.night += Number(report?.totals?.night || 0);
+        acc.training += Number(report?.totals?.training || 0);
+        acc.takeoffsDay += Number(report?.totals?.takeoffsDay || 0);
+        acc.takeoffsNight += Number(report?.totals?.takeoffsNight || 0);
+        acc.landingsDay += Number(report?.totals?.landingsDay || 0);
+        acc.landingsNight += Number(report?.totals?.landingsNight || 0);
+        return acc;
+      }, { pic: 0, night: 0, training: 0, takeoffsDay: 0, takeoffsNight: 0, landingsDay: 0, landingsNight: 0 });
+    }
+
+    function buildMonthlyReportSection(report, opts = {}) {
+      const monthRows = report.months.map((row) => `
+        <tr>
+          <td class="month-label">${row.label}</td>
+          <td>${row.pic.toFixed(1)}</td>
+          <td>${row.night.toFixed(1)}</td>
+          <td>${row.training.toFixed(1)}</td>
+          <td>${row.takeoffsDay.toFixed(0)}</td>
+          <td>${row.landingsDay.toFixed(0)}</td>
+          <td>${row.takeoffsNight.toFixed(0)}</td>
+          <td>${row.landingsNight.toFixed(0)}</td>
+        </tr>`).join('');
+      const compactClass = opts.compact ? ' compact' : '';
+      if (opts.compact) {
+        return `
+          <div class="report-sheet${compactClass}">
+            <div class="report-compact-ident">( ${escapeHtml(String(report.calendarYear))} / Flight Time / ${escapeHtml(report.aircraftCode)} )</div>
+            <table class="report-table">
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>PIC</th>
+                  <th>Night</th>
+                  <th>Trng</th>
+                  <th>T/O Day</th>
+                  <th>Ldg Day</th>
+                  <th>T/O Night</th>
+                  <th>Ldg Night</th>
+                </tr>
+              </thead>
+              <tbody>${monthRows}</tbody>
+              <tfoot>
+                <tr>
+                  <td>Total</td>
+                  <td>${report.totals.pic.toFixed(1)}</td>
+                  <td>${report.totals.night.toFixed(1)}</td>
+                  <td>${report.totals.training.toFixed(1)}</td>
+                  <td>${report.totals.takeoffsDay.toFixed(0)}</td>
+                  <td>${report.totals.landingsDay.toFixed(0)}</td>
+                  <td>${report.totals.takeoffsNight.toFixed(0)}</td>
+                  <td>${report.totals.landingsNight.toFixed(0)}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>`;
+      }
+      return `
+        <div class="report-sheet${compactClass}">
+          <div class="report-sheet-header">
+            <div class="report-sheet-brand">
+              <div class="report-sheet-company">TEMSCO HELICOPTERS INC.</div>
+              <div class="report-sheet-title">Monthly Flight by Aircraft</div>
+              <div class="report-sheet-sub">Digital rollup aligned to the current monthly aircraft record forms using the weekly log as the single entry source.</div>
+            </div>
+            <div class="report-mini-box"><div class="k">Pilot</div><div class="v">${escapeHtml(report.pilotName || '—')}</div></div>
+            <div class="report-mini-box"><div class="k">Certificate #</div><div class="v">${escapeHtml(report.certificateNumber || '—')}</div></div>
+            <div class="report-mini-box"><div class="k">Year / Aircraft</div><div class="v">${escapeHtml(String(report.calendarYear))} / ${escapeHtml(report.aircraftCode)}</div></div>
+          </div>
+          <div class="report-sheet-subhead">
+            <div class="meta">
+              <div class="item"><div class="k">Annual PIC</div><div class="v">${report.totals.pic.toFixed(1)}</div></div>
+              <div class="item"><div class="k">Annual Night</div><div class="v">${report.totals.night.toFixed(1)}</div></div>
+              <div class="item"><div class="k">Annual Training</div><div class="v">${report.totals.training.toFixed(1)}</div></div>
+              <div class="item"><div class="k">T/O &amp; Ldg</div><div class="v">${(Number(report.totals.takeoffsDay||0)+Number(report.totals.landingsDay||0)).toFixed(0)} / ${(Number(report.totals.takeoffsNight||0)+Number(report.totals.landingsNight||0)).toFixed(0)}</div></div>
+            </div>
+            <div class="report-print-note">
+              <div class="k">Generated</div>
+              <div class="v">${escapeHtml(formatGeneratedStamp(reportsState.lastGeneratedAt))}</div>
+            </div>
+          </div>
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>PIC</th>
+                <th>Night</th>
+                <th>Trng</th>
+                <th>T/O Day</th>
+                <th>Ldg Day</th>
+                <th>T/O Night</th>
+                <th>Ldg Night</th>
+              </tr>
+            </thead>
+            <tbody>${monthRows}</tbody>
+            <tfoot>
+              <tr>
+                <td>Total</td>
+                <td>${report.totals.pic.toFixed(1)}</td>
+                <td>${report.totals.night.toFixed(1)}</td>
+                <td>${report.totals.training.toFixed(1)}</td>
+                <td>${report.totals.takeoffsDay.toFixed(0)}</td>
+                <td>${report.totals.landingsDay.toFixed(0)}</td>
+                <td>${report.totals.takeoffsNight.toFixed(0)}</td>
+                <td>${report.totals.landingsNight.toFixed(0)}</td>
+              </tr>
+            </tfoot>
+          </table>
+          <div class="report-notes">Print note: single-aircraft preview stays readable on screen, while multi-aircraft print layout compacts up to four aircraft blocks onto each page.</div>
+        </div>`;
+    }
+
+function renderMonthlyAircraftReportPreview(report) {
+      reportsPreview.innerHTML = buildMonthlyReportSection(report);
+      renderReportsSummaryStrip(report);
+    }
+
+    function renderMultiAircraftMonthlyPreview(reports) {
+      const list = Array.isArray(reports) ? reports : [];
+      const combinedTotals = getCombinedReportTotals(list);
+      if (!list.length) {
+        reportsPreview.innerHTML = '<div class="report-sheet"><div class="report-sheet-header"><div class="report-sheet-brand"><div class="report-sheet-title">No report data available</div><div class="report-sheet-sub">There are no aircraft rows available for the selected source and year.</div></div></div></div>';
+        renderReportsSummaryStrip({ totals: combinedTotals });
+        return;
+      }
+      const pageChunks = [];
+      for (let i = 0; i < list.length; i += 4) {
+        const chunk = list.slice(i, i + 4);
+        while (chunk.length < 4) chunk.push(null);
+        pageChunks.push(chunk);
+      }
+      reportsPreview.innerHTML = pageChunks.map((chunk) => `
+        <div class="report-page">
+          <div class="report-grid">
+            ${chunk.map((report) => report ? buildMonthlyReportSection(report, { compact: true }) : '<div class="report-sheet compact" style="visibility:hidden"></div>').join('')}
+          </div>
+        </div>
+      `).join('');
+      renderReportsSummaryStrip({ totals: combinedTotals });
+    }
+
+
+    function buildQuarterlyRestReportSection(report) {
+      const rows = report.months.map((row) => `
+        <tr>
+          <td class="month-label">${row.label}</td>
+          <td>${row.count}</td>
+          <td>${escapeHtml(row.dates.map((d) => d.slice(5)).join(', ') || '—')}</td>
+        </tr>`).join('');
+      return `
+        <div class="report-sheet">
+          <div class="report-sheet-header">
+            <div class="report-sheet-brand">
+              <div class="report-sheet-company">TEMSCO HELICOPTERS INC.</div>
+              <div class="report-sheet-title">Quarterly Rest Report</div>
+              <div class="report-sheet-sub">OFF-day tracking rollup for calendar quarter progress toward 13 qualifying rest days.</div>
+            </div>
+            <div class="report-mini-box"><div class="k">Pilot</div><div class="v">${escapeHtml(report.pilotName || '—')}</div></div>
+            <div class="report-mini-box"><div class="k">Certificate #</div><div class="v">${escapeHtml(report.certificateNumber || '—')}</div></div>
+            <div class="report-mini-box"><div class="k">Year / Quarter</div><div class="v">${report.calendarYear} / Q${report.quarter}</div></div>
+          </div>
+          <div class="report-sheet-subhead">
+            <div class="meta">
+              <div class="item"><div class="k">Qualifying OFF Days</div><div class="v">${report.totalQualifyingRestPeriods}</div></div>
+              <div class="item"><div class="k">Remaining</div><div class="v">${report.remaining}</div></div>
+              <div class="item"><div class="k">Target</div><div class="v">${report.target}</div></div>
+              <div class="item"><div class="k">Status</div><div class="v">${escapeHtml(report.status)}</div></div>
+            </div>
+            <div class="report-print-note"><div class="k">Generated</div><div class="v">${escapeHtml(formatGeneratedStamp(reportsState.lastGeneratedAt))}</div></div>
+          </div>
+          <table class="report-table">
+            <thead><tr><th>Month</th><th>Qualifying OFF Days</th><th>Dates</th></tr></thead>
+            <tbody>${rows}</tbody>
+            <tfoot><tr><td>Total</td><td>${report.totalQualifyingRestPeriods}</td><td>${report.remaining} remaining to 13</td></tr></tfoot>
+          </table>
+        </div>`;
+    }
+
+    function renderQuarterlyRestReportPreview(report) {
+      reportsPreview.innerHTML = buildQuarterlyRestReportSection(report);
+      renderReportsSummaryStrip(report);
+    }
+
+    function buildQuarterlyFlightSummarySection(report) {
+      const rows = report.months.map((row) => `
+        <tr>
+          <td class="month-label">${row.label}</td>
+          <td>${row.totalFlight.toFixed(1)}</td>
+        </tr>`).join('');
+      const aircraftText = Object.keys(report.aircraftBreakdown || {}).length
+        ? Object.entries(report.aircraftBreakdown).map(([k,v]) => `${escapeHtml(k)}: ${Number(v).toFixed(1)}`).join(' · ')
+        : '—';
+      return `
+        <div class="report-sheet">
+          <div class="report-sheet-header">
+            <div class="report-sheet-brand">
+              <div class="report-sheet-company">TEMSCO HELICOPTERS INC.</div>
+              <div class="report-sheet-title">Quarterly Flight Summary</div>
+              <div class="report-sheet-sub">All-aircraft quarter total and year-to-date flight summary from weekly log records.</div>
+            </div>
+            <div class="report-mini-box"><div class="k">Pilot</div><div class="v">${escapeHtml(report.pilotName || '—')}</div></div>
+            <div class="report-mini-box"><div class="k">Certificate #</div><div class="v">${escapeHtml(report.certificateNumber || '—')}</div></div>
+            <div class="report-mini-box"><div class="k">Year / Quarter</div><div class="v">${report.calendarYear} / Q${report.quarter}</div></div>
+          </div>
+          <div class="report-sheet-subhead">
+            <div class="meta">
+              <div class="item"><div class="k">Quarter Flight</div><div class="v">${report.quarterTotalFlight.toFixed(1)}</div></div>
+              <div class="item"><div class="k">YTD Flight</div><div class="v">${report.yearToDateFlight.toFixed(1)}</div></div>
+              <div class="item"><div class="k">Aircraft Used</div><div class="v">${Object.keys(report.aircraftBreakdown || {}).length}</div></div>
+              <div class="item"><div class="k">Aircraft Breakdown</div><div class="v">${aircraftText}</div></div>
+            </div>
+            <div class="report-print-note"><div class="k">Generated</div><div class="v">${escapeHtml(formatGeneratedStamp(reportsState.lastGeneratedAt))}</div></div>
+          </div>
+          <table class="report-table">
+            <thead><tr><th>Month</th><th>Total Flight All Aircraft</th></tr></thead>
+            <tbody>${rows}</tbody>
+            <tfoot><tr><td>Quarter Total</td><td>${report.quarterTotalFlight.toFixed(1)}</td></tr><tr><td>Year To Date</td><td>${report.yearToDateFlight.toFixed(1)}</td></tr></tfoot>
+          </table>
+        </div>`;
+    }
+
+    function renderQuarterlyFlightSummaryPreview(report) {
+      reportsPreview.innerHTML = buildQuarterlyFlightSummarySection(report);
+      renderReportsSummaryStrip(report);
+    }
+
+    async function generateCurrentReport(options = {}) {
+      const isManual = !!options.manual;
+      const multiAircraft = !!options.multiAircraft;
+      reportsState.reportType = reportTypeSelect.value;
+      reportsState.sourceMode = reportSourceMode.value;
+      reportsState.selectedQuarter = Number(reportQuarterSelect.value || reportsState.selectedQuarter || 1);
+      updateReportControlVisibility();
+      syncStateFromDom();
+      const user = await getCurrentUser();
+      const currentYear = Number(reportYearSelect.value || reportsState.selectedYear || new Date().getFullYear());
+      let savedRows = [];
+      if (reportsState.sourceMode !== 'currentWeekOnly' && user?.id) {
+        savedRows = await fetchSavedRowsForYear(user.id, currentYear);
+      }
+      let rows = savedRows;
+      if (!user?.id && reportsState.sourceMode !== 'currentWeekOnly') {
+        rows = getCurrentWeekReportRows();
+      } else if (reportsState.sourceMode === 'savedRowsPlusCurrentWeek') {
+        rows = includeCurrentWeekPreviewRows(savedRows, getCurrentWeekReportRows());
+      } else if (reportsState.sourceMode === 'currentWeekOnly') {
+        rows = getCurrentWeekReportRows();
+      }
+      const built = buildReportLedger(rows);
+      const ledger = built.ledger;
+      const years = getAvailableYearsFromLedger(ledger);
+      reportsState.selectedYear = years.includes(currentYear) ? currentYear : years[years.length - 1];
+      updateReportsSelectorsFromLedger(ledger);
+      reportsState.selectedAircraft = reportAircraftSelect.value;
+      reportsState.selectedQuarter = Number(reportQuarterSelect.value || reportsState.selectedQuarter || 1);
+      const rowIssues = ledger.filter((row) => (row.validation?.errors || []).length || (row.validation?.warnings || []).length).length;
+      const bannerMessages = [];
+      if (!user?.id && reportsState.sourceMode !== 'currentWeekOnly') {
+        bannerMessages.push('Not signed in: showing current week data only.');
+      }
+      if (built.sourceWarnings.length) bannerMessages.push(...built.sourceWarnings);
+      if (rowIssues) bannerMessages.push(`Source data contains ${rowIssues} row(s) with validation issues.`);
+      renderReportsBanner(bannerMessages);
+
+      reportsState.lastGeneratedAt = new Date().toISOString();
+      reportsState.sourceWarnings = bannerMessages.slice();
+      reportsState.previewMode = multiAircraft ? 'multi' : 'single';
+
+      if (reportsState.reportType === 'quarterlyRest') {
+        const report = buildQuarterlyRestReport(ledger, reportsState.selectedYear, reportsState.selectedQuarter);
+        reportsState.previewReports = [report];
+        reportsState.previewData = { mode: 'single', report, reportType: 'quarterlyRest' };
+        renderQuarterlyRestReportPreview(report);
+        if (isManual) {
+          setReportGenerationStatus(`Generated Q${report.quarter} rest report at ${formatGeneratedStamp(reportsState.lastGeneratedAt)} from ${reportSourceMode.options[reportSourceMode.selectedIndex]?.text || reportsState.sourceMode}.`);
+          setStatus(`Generated quarterly rest report for Q${report.quarter}.`, 'ok');
+        }
+        return;
+      }
+
+      if (reportsState.reportType === 'quarterlyFlightSummary') {
+        const report = buildQuarterlyFlightSummary(ledger, reportsState.selectedYear, reportsState.selectedQuarter);
+        reportsState.previewReports = [report];
+        reportsState.previewData = { mode: 'single', report, reportType: 'quarterlyFlightSummary' };
+        renderQuarterlyFlightSummaryPreview(report);
+        if (isManual) {
+          setReportGenerationStatus(`Generated Q${report.quarter} flight summary at ${formatGeneratedStamp(reportsState.lastGeneratedAt)} from ${reportSourceMode.options[reportSourceMode.selectedIndex]?.text || reportsState.sourceMode}.`);
+          setStatus(`Generated quarterly flight summary for Q${report.quarter}.`, 'ok');
+        }
+        return;
+      }
+
+      if (multiAircraft) {
+        const availableAircraft = getAvailableAircraftFromLedger(ledger, reportsState.selectedYear);
+        const reports = availableAircraft.map((code) => buildMonthlyAircraftReport(ledger, reportsState.selectedYear, code));
+        reportsState.previewReports = reports;
+        reportsState.previewData = { mode: 'multi', reports, reportType: 'monthlyByAircraft' };
+        renderMultiAircraftMonthlyPreview(reports);
+        if (isManual) {
+          setReportGenerationStatus(`Generated ${reports.length} aircraft section(s) at ${formatGeneratedStamp(reportsState.lastGeneratedAt)} from ${reportSourceMode.options[reportSourceMode.selectedIndex]?.text || reportsState.sourceMode}.`);
+          setStatus(`Generated ${reports.length} aircraft report section(s).`, 'ok');
+        }
+      } else {
+        const report = buildMonthlyAircraftReport(ledger, reportsState.selectedYear, reportsState.selectedAircraft);
+        reportsState.previewReports = [report];
+        reportsState.previewData = { mode: 'single', report, reportType: 'monthlyByAircraft' };
+        renderMonthlyAircraftReportPreview(report);
+        if (isManual) {
+          setReportGenerationStatus(`Generated ${report.aircraftCode} ${report.calendarYear} report at ${formatGeneratedStamp(reportsState.lastGeneratedAt)} from ${reportSourceMode.options[reportSourceMode.selectedIndex]?.text || reportsState.sourceMode}.`);
+          setStatus(`Generated monthly report for ${report.aircraftCode}.`, 'ok');
+        }
+      }
+    }
+
+    function exportCurrentReportCsv(reportOrBundle) {
+      if (!reportOrBundle) return;
+      const type = reportOrBundle.reportType || reportOrBundle?.report?.reportType || reportsState.reportType;
+      const csvEscape = (v) => `"${String(v ?? '').replaceAll('"', '""')}"`;
+      const rows = [];
+      let filename = `report_${type}_${reportsState.selectedYear}.csv`;
+
+      if (type === 'quarterlyRest') {
+        const report = reportOrBundle.report || reportOrBundle;
+        rows.push([csvEscape('Quarterly Rest Report')].join(','));
+        rows.push([csvEscape('Pilot'), csvEscape(report.pilotName || ''), csvEscape('Certificate #'), csvEscape(report.certificateNumber || ''), csvEscape('Year'), csvEscape(report.calendarYear), csvEscape('Quarter'), csvEscape(`Q${report.quarter}`)].join(','));
+        rows.push(['Month','Qualifying OFF Days','Dates'].map(csvEscape).join(','));
+        report.months.forEach((row) => rows.push([row.label, row.count, row.dates.join(' | ')].map(csvEscape).join(',')));
+        rows.push(['TOTAL', report.totalQualifyingRestPeriods, `${report.remaining} remaining to 13`].map(csvEscape).join(','));
+        filename = `quarterly_rest_q${report.quarter}_${report.calendarYear}.csv`;
+      } else if (type === 'quarterlyFlightSummary') {
+        const report = reportOrBundle.report || reportOrBundle;
+        rows.push([csvEscape('Quarterly Flight Summary')].join(','));
+        rows.push([csvEscape('Pilot'), csvEscape(report.pilotName || ''), csvEscape('Certificate #'), csvEscape(report.certificateNumber || ''), csvEscape('Year'), csvEscape(report.calendarYear), csvEscape('Quarter'), csvEscape(`Q${report.quarter}`)].join(','));
+        rows.push(['Month','Total Flight All Aircraft'].map(csvEscape).join(','));
+        report.months.forEach((row) => rows.push([row.label, row.totalFlight.toFixed(1)].map(csvEscape).join(',')));
+        rows.push(['Quarter Total', report.quarterTotalFlight.toFixed(1)].map(csvEscape).join(','));
+        rows.push(['Year To Date', report.yearToDateFlight.toFixed(1)].map(csvEscape).join(','));
+        filename = `quarterly_flight_q${report.quarter}_${report.calendarYear}.csv`;
+      } else {
+        const reports = Array.isArray(reportOrBundle?.reports) ? reportOrBundle.reports : [reportOrBundle?.report || reportOrBundle].filter(Boolean);
+        reports.forEach((report, reportIndex) => {
+          rows.push([`Monthly Flight by Aircraft`, '', '', '', '', '', '', ''].join(','));
+          rows.push([`Pilot`, report.pilotName || '', `Certificate #`, report.certificateNumber || '', `Year`, report.calendarYear, `Aircraft`, report.aircraftCode].map(csvEscape).join(','));
+          rows.push(['Month','PIC','Night','Training','Takeoffs Day','Landings Day','Takeoffs Night','Landings Night'].map(csvEscape).join(','));
+          report.months.forEach((row) => {
+            rows.push([row.label,row.pic.toFixed(1),row.night.toFixed(1),row.training.toFixed(1),row.takeoffsDay.toFixed(0),row.landingsDay.toFixed(0),row.takeoffsNight.toFixed(0),row.landingsNight.toFixed(0)].map(csvEscape).join(','));
+          });
+          rows.push(['TOTAL',report.totals.pic.toFixed(1),report.totals.night.toFixed(1),report.totals.training.toFixed(1),report.totals.takeoffsDay.toFixed(0),report.totals.landingsDay.toFixed(0),report.totals.takeoffsNight.toFixed(0),report.totals.landingsNight.toFixed(0)].map(csvEscape).join(','));
+          if (reportIndex < reports.length - 1) rows.push('');
+        });
+        const monthlyReports = Array.isArray(reportOrBundle?.reports) ? reportOrBundle.reports : [reportOrBundle?.report || reportOrBundle].filter(Boolean);
+        const suffix = monthlyReports.length > 1 ? 'all_aircraft' : (monthlyReports[0]?.aircraftCode || reportsState.selectedAircraft);
+        const year = monthlyReports[0]?.calendarYear || reportsState.selectedYear;
+        filename = `monthly_flight_by_aircraft_${suffix}_${year}.csv`;
+      }
+
+      const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportCurrentReportJson(reportOrBundle) {
+      if (!reportOrBundle) return;
+      const blob = new Blob([JSON.stringify(reportOrBundle, null, 2)], { type: 'application/json;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const type = reportOrBundle.reportType || reportOrBundle?.report?.reportType || reportsState.reportType;
+      const suffix = type === 'monthlyByAircraft'
+        ? (Array.isArray(reportOrBundle?.reports) ? 'all_aircraft' : ((reportOrBundle?.report || reportOrBundle)?.aircraftCode || reportsState.selectedAircraft))
+        : `q${reportsState.selectedQuarter}`;
+      a.download = `${type}_${suffix}_${reportsState.selectedYear}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function printCurrentReportPreview() {
+      if (!reportsState.previewData) return;
+      setReportGenerationStatus(`Prepared print preview at ${formatGeneratedStamp(new Date().toISOString())}.`);
+      document.body.classList.add('print-reports');
+      window.print();
+      window.setTimeout(() => document.body.classList.remove('print-reports'), 400);
+    }
+
     document.addEventListener("mouseup", () => {
       if (isDrawing) {
         isDrawing = false;
@@ -4204,6 +5707,18 @@ function getAircraftLabel(index) {
       }
     });
     historyMonthsBack.addEventListener("change", loadHistory);
+    weeklyViewBtn.addEventListener("click", () => setActiveView('weekly'));
+    reportsViewBtn.addEventListener("click", () => setActiveView('reports'));
+    generateReportBtn.addEventListener("click", () => { generateCurrentReport({ manual: true, multiAircraft: false }).catch((err) => { console.error(err); setStatus('Report generation failed: ' + err.message, 'error'); setReportGenerationStatus('Report generation failed: ' + err.message, 'error'); }); });
+    generateAllAircraftBtn.addEventListener("click", () => { generateCurrentReport({ manual: true, multiAircraft: true }).catch((err) => { console.error(err); setStatus('Report generation failed: ' + err.message, 'error'); setReportGenerationStatus('Report generation failed: ' + err.message, 'error'); }); });
+    reportYearSelect.addEventListener("change", () => { reportsState.selectedYear = Number(reportYearSelect.value || new Date().getFullYear()); generateCurrentReport({ manual: false, multiAircraft: reportsState.reportType === 'monthlyByAircraft' && reportsState.previewMode === 'multi' }).catch((err) => { console.error(err); }); });
+    reportAircraftSelect.addEventListener("change", () => { reportsState.selectedAircraft = reportAircraftSelect.value; generateCurrentReport({ manual: false, multiAircraft: false }).catch((err) => { console.error(err); }); });
+    reportQuarterSelect.addEventListener("change", () => { reportsState.selectedQuarter = Number(reportQuarterSelect.value || 1); generateCurrentReport({ manual: false, multiAircraft: false }).catch((err) => { console.error(err); }); });
+    reportTypeSelect.addEventListener("change", () => { reportsState.reportType = reportTypeSelect.value; updateReportControlVisibility(); generateCurrentReport({ manual: false, multiAircraft: false }).catch((err) => { console.error(err); }); });
+    reportSourceMode.addEventListener("change", () => { reportsState.sourceMode = reportSourceMode.value; generateCurrentReport({ manual: false, multiAircraft: reportsState.previewMode === 'multi' }).catch((err) => { console.error(err); }); });
+    reportExportCsvBtn.addEventListener("click", () => exportCurrentReportCsv(reportsState.previewData));
+    reportExportJsonBtn.addEventListener("click", () => exportCurrentReportJson(reportsState.previewData));
+    printReportBtn.addEventListener("click", printCurrentReportPreview);
 
     try {
       buildAircraftBar();
@@ -4220,6 +5735,10 @@ function getAircraftLabel(index) {
       loadSavedEntries();
       loadHistory();
       runDiagnostics();
+      updateReportsSelectorsFromLedger([]);
+      updateReportControlVisibility();
+      renderReportsBanner([]);
+      reportsPreview.innerHTML = '<div class="report-sheet"><div class="report-sheet-header"><div><div class="report-sheet-title">Monthly Flight by Aircraft</div><div class="report-sheet-sub">Open Reports to generate monthly or quarterly rollup previews.</div></div><div class="report-mini-box"><div class="k">Pilot</div><div class="v">' + escapeHtml(appState.pilotName || '—') + '</div></div><div class="report-mini-box"><div class="k">Year / Aircraft</div><div class="v">' + String(new Date().getFullYear()) + ' / ' + escapeHtml(aircraftOptions[0].label) + '</div></div></div><div class="report-notes">This is the V44 step 5 reporting layer. Use Reports to build monthly or quarterly rollups from saved weekly data.</div></div>';
     } catch (err) {
       console.error("App bootstrap failed", err);
       statusEl.textContent = "App load error: " + err.message;
@@ -4229,6 +5748,7 @@ function getAircraftLabel(index) {
   <div id="remarksMeasurer" class="remarks-measurer remarks-cell-clone"></div>
 </body>
 </html>
+
 
 
 
