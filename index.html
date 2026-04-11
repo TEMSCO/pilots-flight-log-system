@@ -1669,6 +1669,37 @@
       font-size: 18px;
       font-weight: bold;
       text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .report-sheet-company {
+      font-size: 10px;
+      font-weight: bold;
+      letter-spacing: 0.3px;
+      color: #334155;
+      text-transform: uppercase;
+    }
+
+    .report-sheet-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .report-type-badge {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: 2px 8px;
+      border: 1px solid var(--soft-line);
+      background: white;
+      border-radius: 999px;
+      font-size: 9px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.25px;
+      color: #334155;
+      margin-bottom: 4px;
     }
 
     .report-sheet-sub {
@@ -1810,6 +1841,233 @@
 
     .report-sheet.compact .report-table {
       font-size: 10.5px;
+    }
+
+
+    .quarter-progress-wrap {
+      padding: 10px;
+      border-bottom: 1px solid var(--soft-line);
+      background: white;
+    }
+
+    .quarter-progress-title {
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #334155;
+      margin-bottom: 8px;
+    }
+
+    .quarter-progress-grid {
+      display: grid;
+      grid-template-columns: repeat(13, minmax(0, 1fr));
+      gap: 4px;
+    }
+
+    .quarter-progress-box {
+      border: 1px solid var(--soft-line);
+      background: #f8fafc;
+      min-height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .quarter-progress-box.hit {
+      background: #d1fae5;
+      border-color: #10b981;
+      color: #065f46;
+    }
+
+    .quarter-progress-box.remaining {
+      background: #fef3c7;
+      border-color: #f59e0b;
+      color: #92400e;
+    }
+
+    .quarter-month-cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      padding: 10px;
+      border-bottom: 1px solid var(--soft-line);
+      background: #f8fafc;
+    }
+
+    .quarter-month-card {
+      border: 1px solid var(--soft-line);
+      background: white;
+      padding: 8px;
+    }
+
+    .quarter-month-card .month {
+      font-size: 10px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #475569;
+      margin-bottom: 4px;
+    }
+
+    .quarter-month-card .value {
+      font-size: 20px;
+      font-weight: bold;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .quarter-month-card .dates {
+      font-size: 10px;
+      color: #475569;
+      line-height: 1.3;
+      min-height: 26px;
+    }
+
+    .report-quarter-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      padding: 10px;
+      border-bottom: 1px solid var(--soft-line);
+      background: white;
+    }
+
+    .report-quarter-meta .meta-card {
+      border: 1px solid var(--soft-line);
+      background: #f8fafc;
+      padding: 8px;
+    }
+
+    .report-quarter-meta .meta-card .k {
+      font-size: 10px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #475569;
+      margin-bottom: 3px;
+    }
+
+    .report-quarter-meta .meta-card .v {
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .report-two-col {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 10px;
+      padding: 10px;
+    }
+
+    .report-panel {
+      border: 1px solid var(--soft-line);
+      background: white;
+    }
+
+    .report-panel-title {
+      padding: 7px 8px;
+      font-size: 10px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #334155;
+      border-bottom: 1px solid var(--soft-line);
+      background: #f8fafc;
+    }
+
+    .aircraft-breakdown-list {
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .aircraft-breakdown-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 11px;
+    }
+
+    .aircraft-breakdown-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .report-footnote {
+      padding: 8px 10px;
+      font-size: 10px;
+      color: #475569;
+      border-top: 1px solid var(--soft-line);
+      background: #f8fafc;
+      line-height: 1.35;
+    }
+
+    .report-footnote strong {
+      color: #334155;
+    }
+
+    .report-data-note {
+      margin: 10px 10px 0;
+      padding: 8px 10px;
+      border: 1px solid var(--soft-line);
+      background: #f8fafc;
+      font-size: 10px;
+      color: #475569;
+      line-height: 1.35;
+    }
+
+    .report-panel {
+      border: 1px solid var(--soft-line);
+      background: white;
+    }
+
+    .report-panel-title {
+      padding: 7px 9px;
+      border-bottom: 1px solid var(--soft-line);
+      background: #f8fafc;
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.2px;
+      color: #334155;
+    }
+
+    .aircraft-breakdown-list {
+      display: grid;
+      gap: 6px;
+      padding: 8px 10px 10px;
+    }
+
+    .report-table tfoot td {
+      border-top-width: 2px;
+    }
+
+    @media print {
+      body.print-reports .quarter-month-cards,
+      body.print-reports .report-quarter-meta,
+      body.print-reports .report-two-col {
+        gap: 6px;
+        padding: 8px;
+      }
+
+      body.print-reports .quarter-progress-wrap,
+      body.print-reports .report-footnote {
+        padding: 8px;
+      }
+
+      body.print-reports .quarter-progress-box {
+        min-height: 28px;
+        font-size: 10px;
+      }
+
+      body.print-reports .quarter-month-card .value {
+        font-size: 18px;
+      }
+
+      body.print-reports .aircraft-breakdown-item {
+        font-size: 10px;
+      }
     }
 
     .report-sheet.compact .report-table th,
@@ -5083,60 +5341,81 @@ function getAircraftLabel(index) {
     }
 
 
-    function createEmptyQuarterlyRestReport(year, quarter, pilotHeader) {
-      const quarterMonthSets = {
+
+    function getQuarterMonthSets() {
+      return {
         1: [{ month: 1, label: 'JAN' }, { month: 2, label: 'FEB' }, { month: 3, label: 'MAR' }],
         2: [{ month: 4, label: 'APR' }, { month: 5, label: 'MAY' }, { month: 6, label: 'JUN' }],
         3: [{ month: 7, label: 'JUL' }, { month: 8, label: 'AUG' }, { month: 9, label: 'SEP' }],
         4: [{ month: 10, label: 'OCT' }, { month: 11, label: 'NOV' }, { month: 12, label: 'DEC' }]
       };
+    }
+
+    function getQuarterDateRangeText(year, quarter) {
+      const sets = getQuarterMonthSets();
+      const months = sets[Number(quarter)] || [];
+      if (!months.length) return '—';
+      const start = new Date(Number(year), months[0].month - 1, 1);
+      const end = new Date(Number(year), months[months.length - 1].month, 0);
+      const fmt = (d) => `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()}`;
+      return `${fmt(start)} - ${fmt(end)}`;
+    }
+
+    function createEmptyQuarterlyRestReport(year, quarter, pilotHeader) {
+      const quarterMonthSets = getQuarterMonthSets();
       return {
         reportType: 'quarterlyRest',
         pilotName: pilotHeader.pilotName || '',
         certificateNumber: pilotHeader.certificateNumber || '',
         calendarYear: Number(year),
         quarter: Number(quarter),
+        quarterDateRange: getQuarterDateRangeText(year, quarter),
         months: (quarterMonthSets[Number(quarter)] || []).map((m) => ({ ...m, count: 0, dates: [] })),
         totalQualifyingRestPeriods: 0,
         target: 13,
         remaining: 13,
-        status: 'On Track'
+        status: 'On Track',
+        sourceDates: []
       };
     }
 
     function buildQuarterlyRestReport(ledger, year, quarter) {
       const pilotHeader = getPilotHeaderFromLedger(ledger);
       const report = createEmptyQuarterlyRestReport(year, quarter, pilotHeader);
+      const seenDates = new Set();
       (ledger || []).forEach((row) => {
         if (row.year !== Number(year) || row.quarter !== Number(quarter) || !row.offQualifies) return;
+        if (seenDates.has(row.date)) return;
+        seenDates.add(row.date);
         const monthRow = report.months.find((m) => m.month === row.month);
-        if (!monthRow) return;
-        monthRow.count += 1;
-        monthRow.dates.push(row.date);
+        if (monthRow) {
+          monthRow.count += 1;
+          monthRow.dates.push(row.date);
+        }
         report.totalQualifyingRestPeriods += 1;
+        report.sourceDates.push(row.date);
       });
       report.remaining = Math.max(0, report.target - report.totalQualifyingRestPeriods);
-      report.status = report.remaining === 0 ? 'Requirement Met' : `${report.remaining} remaining to reach 13`;
+      report.status = report.totalQualifyingRestPeriods >= report.target ? 'Meets Quarter Target' : (report.totalQualifyingRestPeriods >= 10 ? 'Approaching Target' : 'Below Target');
+      report.months.forEach((m) => { m.dates.sort(); });
+      report.sourceDates.sort();
       return report;
     }
 
     function createEmptyQuarterlyFlightSummary(year, quarter, pilotHeader) {
-      const quarterMonthSets = {
-        1: [{ month: 1, label: 'JAN' }, { month: 2, label: 'FEB' }, { month: 3, label: 'MAR' }],
-        2: [{ month: 4, label: 'APR' }, { month: 5, label: 'MAY' }, { month: 6, label: 'JUN' }],
-        3: [{ month: 7, label: 'JUL' }, { month: 8, label: 'AUG' }, { month: 9, label: 'SEP' }],
-        4: [{ month: 10, label: 'OCT' }, { month: 11, label: 'NOV' }, { month: 12, label: 'DEC' }]
-      };
+      const quarterMonthSets = getQuarterMonthSets();
       return {
         reportType: 'quarterlyFlightSummary',
         pilotName: pilotHeader.pilotName || '',
         certificateNumber: pilotHeader.certificateNumber || '',
         calendarYear: Number(year),
         quarter: Number(quarter),
-        months: (quarterMonthSets[Number(quarter)] || []).map((m) => ({ ...m, totalFlight: 0 })),
+        quarterDateRange: getQuarterDateRangeText(year, quarter),
+        months: (quarterMonthSets[Number(quarter)] || []).map((m) => ({ ...m, totalFlight: 0, daysWithFlight: 0 })),
         quarterTotalFlight: 0,
         yearToDateFlight: 0,
-        aircraftBreakdown: {}
+        aircraftBreakdown: {},
+        sourceDayCount: 0
       };
     }
 
@@ -5145,16 +5424,23 @@ function getAircraftLabel(index) {
       const report = createEmptyQuarterlyFlightSummary(year, quarter, pilotHeader);
       (ledger || []).forEach((row) => {
         if (row.year !== Number(year)) return;
-        if (row.month <= Number(quarter) * 3) report.yearToDateFlight += coerceNumber(row.flightTotal, 0);
+        const dayFlight = coerceNumber(row.flightTotal, 0);
+        if (row.month <= Number(quarter) * 3) report.yearToDateFlight += dayFlight;
         if (row.quarter !== Number(quarter)) return;
         const monthRow = report.months.find((m) => m.month === row.month);
-        if (monthRow) monthRow.totalFlight += coerceNumber(row.flightTotal, 0);
-        report.quarterTotalFlight += coerceNumber(row.flightTotal, 0);
+        if (monthRow) {
+          monthRow.totalFlight += dayFlight;
+          if (dayFlight > 0) monthRow.daysWithFlight += 1;
+        }
+        report.quarterTotalFlight += dayFlight;
+        if (dayFlight > 0) report.sourceDayCount += 1;
         (row.aircraftMetrics || []).forEach((metric) => {
           report.aircraftBreakdown[metric.aircraftCode] = (report.aircraftBreakdown[metric.aircraftCode] || 0) + coerceNumber(metric.pic, 0);
         });
       });
-      report.months.forEach((m) => { m.totalFlight = Number(m.totalFlight.toFixed(1)); });
+      report.months.forEach((m) => {
+        m.totalFlight = Number(m.totalFlight.toFixed(1));
+      });
       report.quarterTotalFlight = Number(report.quarterTotalFlight.toFixed(1));
       report.yearToDateFlight = Number(report.yearToDateFlight.toFixed(1));
       Object.keys(report.aircraftBreakdown).forEach((k) => { report.aircraftBreakdown[k] = Number(report.aircraftBreakdown[k].toFixed(1)); });
@@ -5237,6 +5523,10 @@ function getAircraftLabel(index) {
       return date.toLocaleString();
     }
 
+    function getReportSourceLabel() {
+      return reportSourceMode?.options?.[reportSourceMode.selectedIndex]?.text || reportsState.sourceMode || 'Current Week';
+    }
+
     function setReportGenerationStatus(message, tone = 'info') {
       if (!reportGenerationStatus) return;
       reportGenerationStatus.textContent = message || '';
@@ -5309,6 +5599,7 @@ function getAircraftLabel(index) {
         <div class="report-sheet${compactClass}">
           <div class="report-sheet-header">
             <div class="report-sheet-brand">
+              <div class="report-type-badge">Monthly Aircraft Report</div>
               <div class="report-sheet-company">TEMSCO HELICOPTERS INC.</div>
               <div class="report-sheet-title">Monthly Flight by Aircraft</div>
               <div class="report-sheet-sub">Digital rollup aligned to the current monthly aircraft record forms using the weekly log as the single entry source.</div>
@@ -5356,7 +5647,7 @@ function getAircraftLabel(index) {
               </tr>
             </tfoot>
           </table>
-          <div class="report-notes">Print note: single-aircraft preview stays readable on screen, while multi-aircraft print layout compacts up to four aircraft blocks onto each page.</div>
+          <div class="report-footnote"><strong>Source:</strong> ${escapeHtml(getReportSourceLabel())} &nbsp; | &nbsp; <strong>Generated:</strong> ${escapeHtml(formatGeneratedStamp(reportsState.lastGeneratedAt))} &nbsp; | &nbsp; Single-aircraft preview stays readable on screen, while multi-aircraft print layout compacts up to four aircraft blocks onto each page.</div>
         </div>`;
     }
 
@@ -5397,32 +5688,56 @@ function renderMonthlyAircraftReportPreview(report) {
           <td>${row.count}</td>
           <td>${escapeHtml(row.dates.map((d) => d.slice(5)).join(', ') || '—')}</td>
         </tr>`).join('');
+      const progressBoxes = Array.from({ length: 13 }, (_, idx) => {
+        const n = idx + 1;
+        const hit = n <= report.totalQualifyingRestPeriods;
+        const near = !hit && n === report.totalQualifyingRestPeriods + 1;
+        return `<div class="quarter-progress-box${hit ? ' hit' : (near ? ' remaining' : '')}">${hit ? n : n}</div>`;
+      }).join('');
+      const monthCards = report.months.map((row) => `
+        <div class="quarter-month-card">
+          <div class="month">${row.label}</div>
+          <div class="value">${row.count}</div>
+          <div class="dates">${escapeHtml(row.dates.map((d) => d.slice(5)).join(', ') || 'No qualifying days')}</div>
+        </div>`).join('');
       return `
         <div class="report-sheet">
           <div class="report-sheet-header">
             <div class="report-sheet-brand">
+              <div class="report-type-badge">Quarterly Rest Report</div>
               <div class="report-sheet-company">TEMSCO HELICOPTERS INC.</div>
-              <div class="report-sheet-title">Quarterly Rest Report</div>
-              <div class="report-sheet-sub">OFF-day tracking rollup for calendar quarter progress toward 13 qualifying rest days.</div>
+              <div class="report-sheet-title">Rest Periods by Calendar Quarter</div>
+              <div class="report-sheet-sub">Quarter rollup based on qualifying OFF days from the weekly log. A qualifying day requires OFF in remarks with no duty and no flight.</div>
             </div>
             <div class="report-mini-box"><div class="k">Pilot</div><div class="v">${escapeHtml(report.pilotName || '—')}</div></div>
             <div class="report-mini-box"><div class="k">Certificate #</div><div class="v">${escapeHtml(report.certificateNumber || '—')}</div></div>
             <div class="report-mini-box"><div class="k">Year / Quarter</div><div class="v">${report.calendarYear} / Q${report.quarter}</div></div>
+          </div>
+          <div class="report-quarter-meta">
+            <div class="meta-card"><div class="k">Quarter Range</div><div class="v">${escapeHtml(report.quarterDateRange)}</div></div>
+            <div class="meta-card"><div class="k">Status</div><div class="v">${escapeHtml(report.status)}</div></div>
+            <div class="meta-card"><div class="k">Generated</div><div class="v">${escapeHtml(formatGeneratedStamp(reportsState.lastGeneratedAt))}</div></div>
+          </div>
+          <div class="quarter-progress-wrap">
+            <div class="quarter-progress-title">Progress Toward 13 Qualifying Rest Days</div>
+            <div class="quarter-progress-grid">${progressBoxes}</div>
           </div>
           <div class="report-sheet-subhead">
             <div class="meta">
               <div class="item"><div class="k">Qualifying OFF Days</div><div class="v">${report.totalQualifyingRestPeriods}</div></div>
               <div class="item"><div class="k">Remaining</div><div class="v">${report.remaining}</div></div>
               <div class="item"><div class="k">Target</div><div class="v">${report.target}</div></div>
-              <div class="item"><div class="k">Status</div><div class="v">${escapeHtml(report.status)}</div></div>
+              <div class="item"><div class="k">Dates Counted</div><div class="v">${report.sourceDates.length}</div></div>
             </div>
-            <div class="report-print-note"><div class="k">Generated</div><div class="v">${escapeHtml(formatGeneratedStamp(reportsState.lastGeneratedAt))}</div></div>
           </div>
+          <div class="quarter-month-cards">${monthCards}</div>
+          <div class="report-data-note"><strong>Counting rule:</strong> a qualifying rest day is currently counted when the row contains OFF in remarks, has no flight, and has no duty. Use this as an operational tracking aid against the quarterly 13-day target.</div>
           <table class="report-table">
-            <thead><tr><th>Month</th><th>Qualifying OFF Days</th><th>Dates</th></tr></thead>
+            <thead><tr><th>Month</th><th>Qualifying OFF Days</th><th>Dates Counted</th></tr></thead>
             <tbody>${rows}</tbody>
             <tfoot><tr><td>Total</td><td>${report.totalQualifyingRestPeriods}</td><td>${report.remaining} remaining to 13</td></tr></tfoot>
           </table>
+          <div class="report-footnote"><strong>Source:</strong> ${escapeHtml(getReportSourceLabel())} &nbsp; | &nbsp; <strong>Generated:</strong> ${escapeHtml(formatGeneratedStamp(reportsState.lastGeneratedAt))} &nbsp; | &nbsp; This quarterly report reflects the current app rule for qualifying OFF days and is intended to support quarterly rest review.</div>
         </div>`;
     }
 
@@ -5436,36 +5751,56 @@ function renderMonthlyAircraftReportPreview(report) {
         <tr>
           <td class="month-label">${row.label}</td>
           <td>${row.totalFlight.toFixed(1)}</td>
+          <td>${row.daysWithFlight}</td>
         </tr>`).join('');
-      const aircraftText = Object.keys(report.aircraftBreakdown || {}).length
-        ? Object.entries(report.aircraftBreakdown).map(([k,v]) => `${escapeHtml(k)}: ${Number(v).toFixed(1)}`).join(' · ')
-        : '—';
+      const aircraftItems = Object.keys(report.aircraftBreakdown || {}).length
+        ? Object.entries(report.aircraftBreakdown)
+            .sort((a, b) => a[0].localeCompare(b[0]))
+            .map(([k, v]) => `<div class="aircraft-breakdown-item"><div>${escapeHtml(k)}</div><div>${Number(v).toFixed(1)}</div></div>`)
+            .join('')
+        : '<div class="aircraft-breakdown-item"><div>No aircraft logged</div><div>0.0</div></div>';
       return `
         <div class="report-sheet">
           <div class="report-sheet-header">
             <div class="report-sheet-brand">
+              <div class="report-type-badge">Quarterly Flight Summary</div>
               <div class="report-sheet-company">TEMSCO HELICOPTERS INC.</div>
-              <div class="report-sheet-title">Quarterly Flight Summary</div>
-              <div class="report-sheet-sub">All-aircraft quarter total and year-to-date flight summary from weekly log records.</div>
+              <div class="report-sheet-title">Quarterly Flight Time Summary</div>
+              <div class="report-sheet-sub">All-aircraft quarter totals and year-to-date flight rollup generated from weekly log records.</div>
             </div>
             <div class="report-mini-box"><div class="k">Pilot</div><div class="v">${escapeHtml(report.pilotName || '—')}</div></div>
             <div class="report-mini-box"><div class="k">Certificate #</div><div class="v">${escapeHtml(report.certificateNumber || '—')}</div></div>
             <div class="report-mini-box"><div class="k">Year / Quarter</div><div class="v">${report.calendarYear} / Q${report.quarter}</div></div>
           </div>
+          <div class="report-quarter-meta">
+            <div class="meta-card"><div class="k">Quarter Range</div><div class="v">${escapeHtml(report.quarterDateRange)}</div></div>
+            <div class="meta-card"><div class="k">Quarter Flight</div><div class="v">${report.quarterTotalFlight.toFixed(1)}</div></div>
+            <div class="meta-card"><div class="k">Year To Date</div><div class="v">${report.yearToDateFlight.toFixed(1)}</div></div>
+          </div>
           <div class="report-sheet-subhead">
             <div class="meta">
-              <div class="item"><div class="k">Quarter Flight</div><div class="v">${report.quarterTotalFlight.toFixed(1)}</div></div>
-              <div class="item"><div class="k">YTD Flight</div><div class="v">${report.yearToDateFlight.toFixed(1)}</div></div>
+              <div class="item"><div class="k">Flight Days</div><div class="v">${report.sourceDayCount}</div></div>
               <div class="item"><div class="k">Aircraft Used</div><div class="v">${Object.keys(report.aircraftBreakdown || {}).length}</div></div>
-              <div class="item"><div class="k">Aircraft Breakdown</div><div class="v">${aircraftText}</div></div>
+              <div class="item"><div class="k">Quarter</div><div class="v">Q${report.quarter}</div></div>
+              <div class="item"><div class="k">Generated</div><div class="v">${escapeHtml(formatGeneratedStamp(reportsState.lastGeneratedAt))}</div></div>
             </div>
-            <div class="report-print-note"><div class="k">Generated</div><div class="v">${escapeHtml(formatGeneratedStamp(reportsState.lastGeneratedAt))}</div></div>
           </div>
-          <table class="report-table">
-            <thead><tr><th>Month</th><th>Total Flight All Aircraft</th></tr></thead>
-            <tbody>${rows}</tbody>
-            <tfoot><tr><td>Quarter Total</td><td>${report.quarterTotalFlight.toFixed(1)}</td></tr><tr><td>Year To Date</td><td>${report.yearToDateFlight.toFixed(1)}</td></tr></tfoot>
-          </table>
+          <div class="report-data-note"><strong>Quarter basis:</strong> totals are rolled up from saved weekly entries by effective date. Year-to-date includes all flight totals from January 1 through the end of the selected quarter.</div>
+          <div class="report-two-col">
+            <div class="report-panel">
+              <div class="report-panel-title">Quarter Monthly Totals</div>
+              <table class="report-table">
+                <thead><tr><th>Month</th><th>Total Flight All Aircraft</th><th>Flight Days</th></tr></thead>
+                <tbody>${rows}</tbody>
+                <tfoot><tr><td>Quarter Total</td><td>${report.quarterTotalFlight.toFixed(1)}</td><td>${report.sourceDayCount}</td></tr><tr><td>Year To Date</td><td>${report.yearToDateFlight.toFixed(1)}</td><td>—</td></tr></tfoot>
+              </table>
+            </div>
+            <div class="report-panel">
+              <div class="report-panel-title">Aircraft Breakdown (PIC Rollup)</div>
+              <div class="aircraft-breakdown-list">${aircraftItems}</div>
+            </div>
+          </div>
+          <div class="report-footnote"><strong>Source:</strong> ${escapeHtml(getReportSourceLabel())} &nbsp; | &nbsp; <strong>Generated:</strong> ${escapeHtml(formatGeneratedStamp(reportsState.lastGeneratedAt))} &nbsp; | &nbsp; Quarter flight totals roll up all aircraft from weekly entries. Aircraft breakdown uses the PIC values recorded on each aircraft band for the same saved days.</div>
         </div>`;
     }
 
