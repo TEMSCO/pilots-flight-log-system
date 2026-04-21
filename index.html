@@ -1887,6 +1887,24 @@
       color: #92400e;
     }
 
+    .quarter-progress-wrap.compact {
+      padding: 6px 10px 8px;
+    }
+
+    .quarter-progress-wrap.compact .quarter-progress-title {
+      margin-bottom: 6px;
+      font-size: 10px;
+    }
+
+    .quarter-progress-grid.compact {
+      gap: 2px;
+    }
+
+    .quarter-progress-box.compact {
+      min-height: 22px;
+      font-size: 10px;
+    }
+
     .quarter-month-cards {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1989,9 +2007,66 @@
       font-size: 11px;
     }
 
-    .aircraft-breakdown-item:last-child {
-      border-bottom: none;
-      padding-bottom: 0;
+    .quarterly-annual-table th,
+    .quarterly-annual-table td {
+      font-size: 10px;
+      padding: 5px 6px;
+      vertical-align: top;
+    }
+
+    .quarter-order-row.previous-q4 td:first-child {
+      font-weight: bold;
+    }
+
+    .quarterly-rest-full .report-data-note,
+    .quarterly-flight-full .report-data-note {
+      margin: 8px 0;
+      font-size: 11px;
+      line-height: 1.35;
+      border: 1px solid var(--soft-line);
+      background: #f8fafc;
+      padding: 7px 8px;
+    }
+
+    @media print {
+      body.print-reports .quarterly-rest-full,
+      body.print-reports .quarterly-flight-full {
+        padding: 10px 12px;
+      }
+
+      body.print-reports .quarterly-annual-table th,
+      body.print-reports .quarterly-annual-table td {
+        font-size: 8px;
+        padding: 3px 4px;
+      }
+
+      body.print-reports .quarterly-rest-full .report-data-note,
+      body.print-reports .quarterly-flight-full .report-data-note {
+        font-size: 8px;
+        padding: 4px 5px;
+        margin: 5px 0;
+      }
+
+      body.print-reports .quarterly-rest-full .report-sheet-header,
+      body.print-reports .quarterly-flight-full .report-sheet-header {
+        margin-bottom: 6px;
+      }
+
+      body.print-reports .quarterly-rest-full .report-quarter-meta,
+      body.print-reports .quarterly-flight-full .report-quarter-meta {
+        margin-bottom: 6px;
+        gap: 6px;
+      }
+
+      body.print-reports .quarterly-rest-full .report-quarter-meta .meta-card,
+      body.print-reports .quarterly-flight-full .report-quarter-meta .meta-card {
+        padding: 5px 6px;
+      }
+
+      body.print-reports .quarterly-rest-full .report-two-col,
+      body.print-reports .quarterly-flight-full .report-two-col {
+        gap: 8px;
+      }
     }
 
     .report-footnote {
@@ -2110,7 +2185,7 @@
       }
 
       body.print-reports .reports-toolbar {
-        display: block !important;
+        display: none !important;
         border-bottom: none !important;
         background: white !important;
         padding: 0 !important;
@@ -2118,6 +2193,91 @@
 
       body.print-reports .reports-preview {
         padding: 0 !important;
+      }
+
+      body.print-reports .quarterly-rest-full,
+      body.print-reports .quarterly-flight-full {
+        margin: 0 !important;
+        min-height: 0 !important;
+        height: auto !important;
+        break-after: auto !important;
+        page-break-after: auto !important;
+        break-inside: avoid-page !important;
+        page-break-inside: avoid !important;
+      }
+
+      body.print-reports .quarterly-rest-full {
+        padding: 8px 10px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-sheet-header {
+        padding: 6px 8px !important;
+        gap: 6px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-type-badge {
+        margin-bottom: 2px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-sheet-title {
+        font-size: 15px !important;
+        line-height: 1.05 !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-sheet-sub {
+        font-size: 9px !important;
+        margin-top: 1px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-mini-box {
+        min-height: 34px !important;
+        padding: 4px 6px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-quarter-meta {
+        margin-bottom: 4px !important;
+        gap: 5px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-quarter-meta .meta-card {
+        padding: 4px 5px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .quarter-progress-wrap {
+        padding: 6px 8px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .quarter-progress-title {
+        margin-bottom: 4px !important;
+        font-size: 9px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .quarter-progress-grid.compact {
+        gap: 2px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .quarter-progress-box.compact {
+        min-height: 18px !important;
+        font-size: 8px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .quarterly-annual-table {
+        font-size: 8px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .quarterly-annual-table th,
+      body.print-reports .quarterly-rest-full .quarterly-annual-table td {
+        font-size: 7px !important;
+        padding: 2px 3px !important;
+        line-height: 1.15 !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-data-note,
+      body.print-reports .quarterly-rest-full .report-footnote {
+        font-size: 7px !important;
+        padding: 4px 6px !important;
+        margin: 4px 0 0 !important;
+        line-height: 1.2 !important;
       }
 
       body.print-reports .report-page {
@@ -2278,6 +2438,629 @@
       body.print-reports .report-sheet.compact .report-table th {
         font-size: 7px !important;
       }
+    }
+
+  
+    @media print {
+      body.print-reports .quarterly-rest-full {
+        padding: 5px 6px !important;
+        margin: 0 !important;
+        max-height: 7.0in !important;
+        overflow: hidden !important;
+        break-inside: avoid-page !important;
+        page-break-inside: avoid !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-sheet-header {
+        padding: 4px 6px !important;
+        gap: 4px !important;
+        margin-bottom: 2px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-sheet-company {
+        font-size: 8px !important;
+        line-height: 1.0 !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-sheet-title {
+        font-size: 12px !important;
+        line-height: 1.0 !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-sheet-sub {
+        font-size: 7px !important;
+        line-height: 1.05 !important;
+        margin-top: 1px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-mini-box {
+        min-height: 24px !important;
+        padding: 3px 4px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-quarter-meta {
+        margin-bottom: 2px !important;
+        gap: 4px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-quarter-meta .meta-card {
+        padding: 3px 4px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .quarter-progress-wrap {
+        padding: 4px 6px !important;
+        margin: 0 !important;
+      }
+
+      body.print-reports .quarterly-rest-full .quarter-progress-title {
+        margin-bottom: 2px !important;
+        font-size: 8px !important;
+        line-height: 1.0 !important;
+      }
+
+      body.print-reports .quarterly-rest-full .quarter-progress-grid.compact {
+        gap: 1px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .quarter-progress-box.compact {
+        min-height: 14px !important;
+        font-size: 7px !important;
+        padding: 0 !important;
+      }
+
+      body.print-reports .quarterly-rest-full .quarterly-annual-table {
+        margin-top: 0 !important;
+      }
+
+      body.print-reports .quarterly-rest-full .quarterly-annual-table th,
+      body.print-reports .quarterly-rest-full .quarterly-annual-table td {
+        font-size: 6px !important;
+        padding: 1px 2px !important;
+        line-height: 1.0 !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-data-note,
+      body.print-reports .quarterly-rest-full .report-footnote {
+        font-size: 6px !important;
+        padding: 2px 4px !important;
+        margin: 2px 0 0 !important;
+        line-height: 1.05 !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-footnote {
+        border-top-width: 1px !important;
+      }
+    }
+
+
+    @media print {
+      body.reports-active .sheet-header,
+      body.reports-active .top-panels,
+      body.reports-active .controls,
+      body.reports-active .mode-line,
+      body.reports-active .aircraft-layout,
+      body.reports-active .table-wrap,
+      body.reports-active .currency-section,
+      body.reports-active #status,
+      body.reports-active .saved-wrap,
+      body.reports-active .history-wrap {
+        display: none !important;
+      }
+
+      body.reports-active .sheet {
+        width: auto !important;
+        max-width: none !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      body.reports-active .reports-wrap,
+      body.reports-active .reports-wrap.active {
+        display: block !important;
+        margin: 0 !important;
+        border: none !important;
+        background: white !important;
+      }
+
+      body.reports-active .reports-toolbar,
+      body.reports-active .reports-summary-strip,
+      body.reports-active .reports-banner {
+        display: none !important;
+      }
+
+      body.reports-active .reports-preview {
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: visible !important;
+      }
+
+      body.print-reports.report-only-print .reports-preview {
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: visible !important;
+      }
+
+      body.reports-active .quarterly-rest-full,
+      body.reports-active .quarterly-flight-full {
+        width: 100% !important;
+        max-width: none !important;
+        min-height: 0 !important;
+        height: auto !important;
+        margin: 0 !important;
+        break-after: auto !important;
+        page-break-after: auto !important;
+      }
+
+      body.reports-active .quarterly-rest-full,
+      body.print-reports.report-only-print .quarterly-rest-full {
+        transform: scale(1.35) !important;
+        transform-origin: top left !important;
+        width: 74% !important;
+      }
+
+      body.reports-active .quarterly-rest-full .report-sheet-header,
+      body.print-reports.report-only-print .quarterly-rest-full .report-sheet-header {
+        padding: 6px 8px !important;
+        gap: 6px !important;
+      }
+
+      body.reports-active .quarterly-rest-full .report-sheet-company,
+      body.print-reports.report-only-print .quarterly-rest-full .report-sheet-company {
+        font-size: 7px !important;
+        line-height: 1 !important;
+      }
+
+      body.reports-active .quarterly-rest-full .report-sheet-title,
+      body.print-reports.report-only-print .quarterly-rest-full .report-sheet-title {
+        font-size: 14px !important;
+        line-height: 1 !important;
+      }
+
+      body.reports-active .quarterly-rest-full .report-sheet-sub,
+      body.print-reports.report-only-print .quarterly-rest-full .report-sheet-sub {
+        font-size: 7px !important;
+        line-height: 1.05 !important;
+        margin-top: 1px !important;
+      }
+
+      body.reports-active .quarterly-rest-full .report-mini-box,
+      body.print-reports.report-only-print .quarterly-rest-full .report-mini-box {
+        min-height: 26px !important;
+        padding: 4px 6px !important;
+      }
+
+      body.reports-active .quarterly-rest-full .report-mini-box .k,
+      body.print-reports.report-only-print .quarterly-rest-full .report-mini-box .k {
+        font-size: 7px !important;
+        margin-bottom: 1px !important;
+      }
+
+      body.reports-active .quarterly-rest-full .report-mini-box .v,
+      body.print-reports.report-only-print .quarterly-rest-full .report-mini-box .v {
+        font-size: 10px !important;
+        line-height: 1 !important;
+      }
+
+      body.reports-active .quarterly-rest-full .report-quarter-meta,
+      body.print-reports.report-only-print .quarterly-rest-full .report-quarter-meta {
+        padding: 6px 8px !important;
+        gap: 6px !important;
+      }
+
+      body.reports-active .quarterly-rest-full .report-quarter-meta .meta-card,
+      body.print-reports.report-only-print .quarterly-rest-full .report-quarter-meta .meta-card {
+        padding: 4px 6px !important;
+      }
+
+      body.reports-active .quarterly-rest-full .quarter-progress-wrap.compact,
+      body.print-reports.report-only-print .quarterly-rest-full .quarter-progress-wrap.compact {
+        padding: 4px 8px 5px !important;
+      }
+
+      body.reports-active .quarterly-rest-full .quarter-progress-title,
+      body.print-reports.report-only-print .quarterly-rest-full .quarter-progress-title {
+        font-size: 8px !important;
+        margin-bottom: 3px !important;
+      }
+
+      body.reports-active .quarterly-rest-full .quarter-progress-grid.compact,
+      body.print-reports.report-only-print .quarterly-rest-full .quarter-progress-grid.compact {
+        gap: 1px !important;
+      }
+
+      body.reports-active .quarterly-rest-full .quarter-progress-box.compact,
+      body.print-reports.report-only-print .quarterly-rest-full .quarter-progress-box.compact {
+        min-height: 14px !important;
+        font-size: 8px !important;
+      }
+
+      body.reports-active .quarterly-rest-full .quarterly-annual-table,
+      body.print-reports.report-only-print .quarterly-rest-full .quarterly-annual-table {
+        font-size: 7px !important;
+      }
+
+      body.reports-active .quarterly-rest-full .quarterly-annual-table th,
+      body.reports-active .quarterly-rest-full .quarterly-annual-table td,
+      body.print-reports.report-only-print .quarterly-rest-full .quarterly-annual-table th,
+      body.print-reports.report-only-print .quarterly-rest-full .quarterly-annual-table td {
+        font-size: 7px !important;
+        padding: 1px 3px !important;
+        line-height: 1.0 !important;
+      }
+
+      body.reports-active .quarterly-rest-full .report-data-note,
+      body.print-reports.report-only-print .quarterly-rest-full .report-data-note {
+        margin: 4px 0 !important;
+        padding: 4px 5px !important;
+        font-size: 7px !important;
+        line-height: 1.05 !important;
+      }
+
+      body.reports-active .quarterly-rest-full .report-footnote,
+      body.print-reports.report-only-print .quarterly-rest-full .report-footnote {
+        padding: 4px 6px !important;
+        font-size: 7px !important;
+        line-height: 1.05 !important;
+      }
+
+      body.reports-active .quarterly-rest-full .report-type-badge,
+      body.print-reports.report-only-print .quarterly-rest-full .report-type-badge {
+        padding: 1px 6px !important;
+        font-size: 7px !important;
+        margin-bottom: 2px !important;
+      }
+    }
+
+
+  
+
+    @media print {
+      body.report-only-print .quarterly-rest-full,
+      body.print-reports .quarterly-rest-full {
+        padding: 10px 12px !important;
+        transform-origin: top left !important;
+        zoom: 1.65 !important;
+        width: 60.5% !important;
+        max-width: none !important;
+        margin: 0 !important;
+      }
+
+      body.report-only-print .quarterly-rest-full .report-sheet-header,
+      body.print-reports .quarterly-rest-full .report-sheet-header {
+        padding: 8px 10px !important;
+        gap: 8px !important;
+      }
+
+      body.report-only-print .quarterly-rest-full .report-type-badge,
+      body.print-reports .quarterly-rest-full .report-type-badge {
+        margin-bottom: 3px !important;
+        font-size: 8px !important;
+        padding: 2px 6px !important;
+      }
+
+      body.report-only-print .quarterly-rest-full .report-sheet-company,
+      body.print-reports .quarterly-rest-full .report-sheet-company {
+        font-size: 10px !important;
+      }
+
+      body.report-only-print .quarterly-rest-full .report-sheet-title,
+      body.print-reports .quarterly-rest-full .report-sheet-title {
+        font-size: 18px !important;
+        line-height: 1.05 !important;
+      }
+
+      body.report-only-print .quarterly-rest-full .report-sheet-sub,
+      body.print-reports .quarterly-rest-full .report-sheet-sub {
+        font-size: 10px !important;
+        margin-top: 2px !important;
+        line-height: 1.15 !important;
+      }
+
+      body.report-only-print .quarterly-rest-full .report-quarter-meta,
+      body.print-reports .quarterly-rest-full .report-quarter-meta {
+        margin-bottom: 6px !important;
+        gap: 6px !important;
+      }
+
+      body.report-only-print .quarterly-rest-full .report-quarter-meta .meta-card,
+      body.print-reports .quarterly-rest-full .report-quarter-meta .meta-card {
+        padding: 6px 8px !important;
+      }
+
+      body.report-only-print .quarterly-rest-full .meta-card .k,
+      body.print-reports .quarterly-rest-full .meta-card .k {
+        font-size: 8px !important;
+      }
+
+      body.report-only-print .quarterly-rest-full .meta-card .v,
+      body.print-reports .quarterly-rest-full .meta-card .v {
+        font-size: 12px !important;
+        line-height: 1.1 !important;
+      }
+
+      body.report-only-print .quarterly-rest-full .quarter-progress-wrap,
+      body.print-reports .quarterly-rest-full .quarter-progress-wrap {
+        padding: 8px 10px !important;
+      }
+
+      body.report-only-print .quarterly-rest-full .quarter-progress-title,
+      body.print-reports .quarterly-rest-full .quarter-progress-title {
+        margin-bottom: 5px !important;
+        font-size: 10px !important;
+      }
+
+      body.report-only-print .quarterly-rest-full .quarter-progress-grid.compact,
+      body.print-reports .quarterly-rest-full .quarter-progress-grid.compact {
+        gap: 3px !important;
+      }
+
+      body.report-only-print .quarterly-rest-full .quarter-progress-box.compact,
+      body.print-reports .quarterly-rest-full .quarter-progress-box.compact {
+        min-height: 22px !important;
+        font-size: 9px !important;
+      }
+
+      body.report-only-print .quarterly-rest-full .quarterly-annual-table,
+      body.print-reports .quarterly-rest-full .quarterly-annual-table {
+        font-size: 9px !important;
+      }
+
+      body.report-only-print .quarterly-rest-full .quarterly-annual-table th,
+      body.report-only-print .quarterly-rest-full .quarterly-annual-table td,
+      body.print-reports .quarterly-rest-full .quarterly-annual-table th,
+      body.print-reports .quarterly-rest-full .quarterly-annual-table td {
+        font-size: 8px !important;
+        padding: 3px 4px !important;
+        line-height: 1.2 !important;
+      }
+
+      body.report-only-print .quarterly-rest-full .report-data-note,
+      body.report-only-print .quarterly-rest-full .report-footnote,
+      body.print-reports .quarterly-rest-full .report-data-note,
+      body.print-reports .quarterly-rest-full .report-footnote {
+        font-size: 8px !important;
+        padding: 5px 7px !important;
+        line-height: 1.2 !important;
+      }
+
+      body.report-only-print .quarterly-rest-full .report-footnote,
+      body.print-reports .quarterly-rest-full .report-footnote {
+        margin-top: 6px !important;
+      }
+    }
+
+
+
+    .quarterly-combined-page .compact-head { margin-bottom: 4px; padding: 6px 8px; grid-template-columns: 1fr 170px 150px; gap: 6px; align-items: center; }
+    .quarterly-combined-page .report-sheet-brand { gap: 1px; }
+    .quarterly-combined-page .report-type-badge { display: none; }
+    .quarterly-combined-page .report-sheet-company { display: none; }
+    .quarterly-combined-page .report-sheet-title { font-size: 14px; line-height: 1.05; white-space: nowrap; }
+    .quarterly-combined-page .report-sheet-sub { display: none; }
+    .quarterly-combined-page .report-mini-box { min-height: 34px; padding: 4px 6px; }
+    .quarterly-combined-page .report-mini-box .k { font-size: 9px; margin-bottom: 2px; }
+    .quarterly-combined-page .report-mini-box .v { font-size: 11px; }
+    .quarterly-combined-page .compact-meta { margin: 4px 0; padding: 6px 8px; gap: 6px; }
+    .quarterly-combined-page .compact-meta .meta-card { padding: 5px 6px; }
+    .quarterly-combined-page .compact-meta .meta-card .k { font-size: 9px; margin-bottom: 2px; }
+    .quarterly-combined-page .compact-meta .meta-card .v { font-size: 11px; }
+    .quarterly-combined-page .quarter-progress-wrap.compact { margin: 4px 0; padding: 0 8px 4px; }
+    .quarterly-combined-page .quarter-progress-title { font-size: 9px; margin-bottom: 2px; }
+    .quarterly-combined-page .compact-rest-table th,
+    .quarterly-combined-page .compact-rest-table td,
+    .quarterly-combined-page .compact-flight-table th,
+    .quarterly-combined-page .compact-flight-table td { padding: 2px 4px; font-size: 8.5px; line-height: 1.1; }
+    .quarterly-combined-page .compact-bottom-panel { margin-top: 4px; }
+    .quarterly-combined-page .report-panel-title { font-size: 10px; padding: 3px 6px; }
+    .quarterly-combined-page .report-footnote { margin-top: 4px; font-size: 8px; padding: 5px 8px; }
+    @media print {
+      .quarterly-combined-page { break-inside: avoid; page-break-inside: avoid; }
+      .quarterly-combined-page .compact-head { padding: 4px 6px; grid-template-columns: 1fr 150px 130px; gap: 4px; }
+      .quarterly-combined-page .report-sheet-title { font-size: 12px; }
+      .quarterly-combined-page .report-mini-box { min-height: 28px; padding: 3px 5px; }
+      .quarterly-combined-page .compact-meta { margin: 3px 0; padding: 4px 6px; gap: 4px; }
+      .quarterly-combined-page .compact-meta .meta-card { padding: 4px 5px; }
+      .quarterly-combined-page .quarter-progress-wrap.compact { padding: 0 6px 3px; margin: 3px 0; }
+      .quarterly-combined-page .quarter-progress-box.compact { min-height: 15px; font-size: 7px; }
+      .quarterly-combined-page .quarter-progress-title { font-size: 8px; margin-bottom: 1px; }
+      .quarterly-combined-page .compact-rest-table th,
+      .quarterly-combined-page .compact-rest-table td,
+      .quarterly-combined-page .compact-flight-table th,
+      .quarterly-combined-page .compact-flight-table td { font-size: 7.5px; padding: 1px 2px; line-height: 1.05; }
+      .quarterly-combined-page .report-panel-title { font-size: 9px; padding: 2px 5px; }
+      .quarterly-combined-page .report-footnote { font-size: 7px; padding: 4px 6px; margin-top: 3px; }
+    }
+
+
+    .previous-q4-row {
+      background: #f8fafc;
+    }
+
+    .rest-count-stack {
+      display: grid;
+      gap: 1px;
+      text-align: left;
+    }
+
+    .rest-subline {
+      font-size: 8px;
+      color: #475569;
+    }
+
+    .rest-subline.prior {
+      color: #92400e;
+      font-weight: bold;
+    }
+
+    @media print {
+      .rest-subline {
+        font-size: 7px;
+      }
+    }
+
+    .prior-employment-grid {
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+    }
+
+    .prior-row-header,
+    .prior-quarter-row {
+      display: grid;
+      grid-template-columns: 210px 70px repeat(3, minmax(70px, 1fr)) 100px 220px;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .prior-row-header {
+      border: 1px solid var(--soft-line);
+      background: #f8fafc;
+      padding: 6px 8px;
+      font-size: 10px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #334155;
+    }
+
+    .prior-quarter-row {
+      border: 1px solid var(--soft-line);
+      background: white;
+      padding: 8px;
+    }
+
+    .prior-quarter-label {
+      font-size: 11px;
+      font-weight: bold;
+      color: #0f172a;
+    }
+
+    .prior-entry-input {
+      width: 100%;
+      min-height: 30px;
+      border: 1px solid var(--soft-line);
+      background: white;
+      font-size: 11px;
+      padding: 5px 6px;
+      text-align: center;
+    }
+
+    .prior-entry-input.is-total {
+      font-weight: bold;
+      background: #f8fafc;
+    }
+
+    .prior-entry-input.is-invalid {
+      border-color: #b91c1c;
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .prior-row-status {
+      font-size: 10px;
+      line-height: 1.25;
+      color: #475569;
+      min-height: 30px;
+    }
+
+    .prior-row-status.warn {
+      color: #92400e;
+      font-weight: bold;
+    }
+
+    .prior-row-status.error {
+      color: #991b1b;
+      font-weight: bold;
+    }
+
+    .prior-entry-help {
+      padding: 0 10px 8px;
+      font-size: 10px;
+      color: #475569;
+    }
+
+    .prior-cert-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr;
+      gap: 8px;
+      padding: 0 10px 10px;
+    }
+
+    .prior-cert-box {
+      border: 1px solid var(--soft-line);
+      background: #f8fafc;
+      padding: 8px;
+    }
+
+    .prior-cert-box .k {
+      font-size: 10px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #475569;
+      margin-bottom: 4px;
+    }
+
+    .prior-cert-box .v input {
+      width: 100%;
+      min-height: 30px;
+      border: 1px solid var(--soft-line);
+      background: white;
+      padding: 5px 6px;
+      font-size: 11px;
+    }
+
+    @media print {
+      .prior-employment-grid {
+        gap: 5px;
+        padding: 8px;
+      }
+
+      .prior-row-header,
+      .prior-quarter-row {
+        grid-template-columns: 170px 58px repeat(3, minmax(54px, 1fr)) 82px 150px;
+        gap: 4px;
+      }
+
+      .prior-row-header {
+        padding: 4px 6px;
+        font-size: 8px;
+      }
+
+      .prior-quarter-row {
+        padding: 5px 6px;
+      }
+
+      .prior-quarter-label,
+      .prior-entry-input,
+      .prior-row-status,
+      .prior-cert-box .v input {
+        font-size: 9px;
+      }
+
+      .prior-entry-help {
+        font-size: 8px;
+        padding: 0 8px 6px;
+      }
+    }
+
+    .prior-month-field {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .prior-month-label {
+      font-size: 10px;
+      font-weight: bold;
+      color: #475569;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .prior-month-field .prior-entry-input {
+      min-width: 0;
     }
 
   </style>
@@ -2528,6 +3311,7 @@
               <option value="monthlyByAircraft">Monthly Flight by Aircraft</option>
               <option value="quarterlyRest">Quarterly Rest Report</option>
               <option value="quarterlyFlightSummary">Quarterly Flight Summary</option>
+            <option value="priorEmploymentStatement">Prior Employment Flight Time and Rest</option>
             </select>
           </div>
           <div>
@@ -2554,6 +3338,13 @@
               <option value="savedRowsPlusCurrentWeek">Saved Rows + Current Week Preview</option>
               <option value="currentWeekOnly">Current Week Only</option>
             </select>
+          </div>
+          <div>
+            <label style="display:flex; align-items:center; gap:6px; min-height:30px; font-weight:bold;">
+              <input type="checkbox" id="includePriorRestToggle" />
+              Include Prior Employment Rest
+            </label>
+            <div class="tiny-note">Includes prior-employment quarter flight and rest totals in the quarterly report, with TEMSCO and Prior values shown separately.</div>
           </div>
           <div style="display:flex; gap:6px; flex-wrap:wrap;">
             <button id="generateReportBtn" class="load-btn" type="button">Generate Report</button>
@@ -2648,6 +3439,7 @@
     const reportAircraftWrap = document.getElementById("reportAircraftWrap");
     const reportAircraftSelect = document.getElementById("reportAircraftSelect");
     const reportSourceMode = document.getElementById("reportSourceMode");
+    const includePriorRestToggle = document.getElementById("includePriorRestToggle");
     const generateReportBtn = document.getElementById("generateReportBtn");
     const generateAllAircraftBtn = document.getElementById("generateAllAircraftBtn");
     const reportExportCsvBtn = document.getElementById("reportExportCsvBtn");
@@ -5025,6 +5817,8 @@ function getAircraftLabel(index) {
         sourceMode: 'savedRows',
         previewData: null,
         lastGeneratedAt: null,
+        includePriorEmploymentRest: false,
+      priorEmployment: loadPriorEmploymentState(),
         sourceWarnings: [],
         previewMode: 'single',
         previewReports: []
@@ -5051,6 +5845,7 @@ function getAircraftLabel(index) {
       if (reportsWrap) reportsWrap.classList.toggle('active', isReports);
       weeklyViewBtn.classList.toggle('active', !isReports);
       reportsViewBtn.classList.toggle('active', isReports);
+      document.body.classList.toggle('reports-active', isReports);
       if (isReports) {
         generateCurrentReport().catch((err) => {
           console.error(err);
@@ -5447,11 +6242,138 @@ function getAircraftLabel(index) {
       return report;
     }
 
+    function buildQuarterlyRestFullYearReport(ledger, year) {
+      const pilotHeader = getPilotHeaderFromLedger(ledger);
+      const quarters = [
+        buildQuarterlyRestReport(ledger, Number(year) - 1, 4),
+        buildQuarterlyRestReport(ledger, Number(year), 1),
+        buildQuarterlyRestReport(ledger, Number(year), 2),
+        buildQuarterlyRestReport(ledger, Number(year), 3),
+        buildQuarterlyRestReport(ledger, Number(year), 4)
+      ];
+      quarters[0].displayLabel = `Previous 4th Quarter (${Number(year) - 1})`;
+      quarters[1].displayLabel = `1st Quarter (${Number(year)})`;
+      quarters[2].displayLabel = `2nd Quarter (${Number(year)})`;
+      quarters[3].displayLabel = `3rd Quarter (${Number(year)})`;
+      quarters[4].displayLabel = `4th Quarter (${Number(year)})`;
+      return {
+        reportType: 'quarterlyRest',
+        pilotName: pilotHeader.pilotName || '',
+        certificateNumber: pilotHeader.certificateNumber || '',
+        calendarYear: Number(year),
+        quarter: 0,
+        quarters,
+        overallTotal: quarters.reduce((sum, q) => sum + Number(q.totalQualifyingRestPeriods || 0), 0)
+      };
+    }
+
+    function buildQuarterlyFlightFullYearReport(ledger, year) {
+      const pilotHeader = getPilotHeaderFromLedger(ledger);
+      const quarterReports = [1, 2, 3, 4].map((q) => buildQuarterlyFlightSummary(ledger, Number(year), q));
+      const prevQ4 = buildQuarterlyFlightSummary(ledger, Number(year) - 1, 4);
+      const includePrior = !!reportsState.includePriorEmploymentRest;
+      const quarterIdMap = ['q1', 'q2', 'q3', 'q4'];
+      const manualPrevQ4Flight = includePrior ? Number(getPriorEmploymentFlightValue(reportsState, 'prevQ4') || 0) : 0;
+      const prevQ4Flight = Number((Number(prevQ4.quarterTotalFlight || 0) + manualPrevQ4Flight).toFixed(1));
+
+      const ytdByQuarter = [];
+      const consecutiveByQuarter = [];
+      let currentYearCumulative = 0;
+
+      quarterReports.forEach((q, idx) => {
+        const manualFlight = includePrior ? Number(getPriorEmploymentFlightValue(reportsState, quarterIdMap[idx]) || 0) : 0;
+        q.quarterTotalFlight = Number((Number(q.quarterTotalFlight || 0) + manualFlight).toFixed(1));
+        q.months = Array.isArray(q.months) ? q.months : [];
+        currentYearCumulative += Number(q.quarterTotalFlight || 0);
+        ytdByQuarter.push(Number(currentYearCumulative.toFixed(1)));
+        consecutiveByQuarter.push(Number((prevQ4Flight + currentYearCumulative).toFixed(1)));
+      });
+
+      const aircraftBreakdown = {};
+      quarterReports.forEach((q) => {
+        Object.entries(q.aircraftBreakdown || {}).forEach(([k, v]) => {
+          aircraftBreakdown[k] = Number(((aircraftBreakdown[k] || 0) + Number(v || 0)).toFixed(1));
+        });
+      });
+
+      return {
+        reportType: 'quarterlyFlightSummary',
+        pilotName: pilotHeader.pilotName || '',
+        certificateNumber: pilotHeader.certificateNumber || '',
+        calendarYear: Number(year),
+        previousYearQ4Flight: prevQ4Flight,
+        previousYearQ4Label: `4th Quarter (${Number(year) - 1})`,
+        quarters: quarterReports.map((q, idx) => ({
+          quarter: q.quarter,
+          label: `${q.quarter}${q.quarter === 1 ? 'st' : q.quarter === 2 ? 'nd' : q.quarter === 3 ? 'rd' : 'th'} Quarter`,
+          months: q.months,
+          quarterTotalFlight: q.quarterTotalFlight,
+          yearToDateFlight: ytdByQuarter[idx],
+          consecutiveQuarterTotal: consecutiveByQuarter[idx],
+          sourceDayCount: q.sourceDayCount
+        })),
+        aircraftBreakdown,
+        fullYearFlight: Number(currentYearCumulative.toFixed(1)),
+        fullConsecutiveFlight: Number((prevQ4Flight + currentYearCumulative).toFixed(1))
+      };
+    }
+
+    function sanitizePriorFlightInput(value) {
+      let raw = String(value == null ? '' : value).replace(/[^\d.]/g, '');
+      const firstDot = raw.indexOf('.');
+      if (firstDot !== -1) {
+        raw = raw.slice(0, firstDot + 1) + raw.slice(firstDot + 1).replace(/\./g, '');
+      }
+      if (raw.startsWith('.')) raw = `0${raw}`;
+      const match = raw.match(/^(\d{0,4})(?:\.(\d)?)?/);
+      let next = '';
+      if (match) {
+        next = match[1] || '';
+        if (match[2] !== undefined) next += `.${match[2]}`;
+        else if (raw.endsWith('.') && next) next += '.';
+      }
+      const num = next && next !== '.' ? Number(next) : 0;
+      return { raw: next, num: Number.isFinite(num) ? num : 0 };
+    }
+
+    function sanitizePriorRestInput(value) {
+      const rawDigits = String(value == null ? '' : value).replace(/[^\d]/g, '').slice(0, 2);
+      if (!rawDigits) return { raw: '', num: 0 };
+      const num = Number(rawDigits);
+      return { raw: String(num), num: Number.isFinite(num) ? num : 0 };
+    }
+
+    function formatPriorFlightTotal(value) {
+      const num = Number(value || 0);
+      return num ? num.toFixed(1) : '';
+    }
+
+    function calculatePriorQuarterFlightTotal(quarter) {
+      const m1 = sanitizePriorFlightInput(quarter?.m1).num;
+      const m2 = sanitizePriorFlightInput(quarter?.m2).num;
+      const m3 = sanitizePriorFlightInput(quarter?.m3).num;
+      return Number((m1 + m2 + m3).toFixed(1));
+    }
+
+    function getPriorEmploymentFlightValue(reportState, quarterId) {
+      const quarter = (reportState?.priorEmployment?.quarters || []).find((q) => q.id === quarterId);
+      if (!quarter) return 0;
+      return calculatePriorQuarterFlightTotal(quarter) || 0;
+    }
+
+    function getPriorEmploymentRestValue(reportState, quarterId) {
+      const quarter = (reportState?.priorEmployment?.quarters || []).find((q) => q.id === quarterId);
+      if (!quarter) return 0;
+      const raw = String(quarter?.restPeriods || '').trim();
+      const num = Number(raw);
+      return Number.isFinite(num) ? num : 0;
+    }
+
     function updateReportControlVisibility() {
       const type = reportsState.reportType || reportTypeSelect.value || 'monthlyByAircraft';
       const monthly = type === 'monthlyByAircraft';
       if (reportAircraftWrap) reportAircraftWrap.style.display = monthly ? '' : 'none';
-      if (reportQuarterWrap) reportQuarterWrap.style.display = monthly ? 'none' : '';
+      if (reportQuarterWrap) reportQuarterWrap.style.display = monthly ? 'none' : 'none';
       if (generateAllAircraftBtn) generateAllAircraftBtn.style.display = monthly ? '' : 'none';
     }
 
@@ -5468,6 +6390,7 @@ function getAircraftLabel(index) {
       reportAircraftSelect.value = preferredAircraft;
       reportQuarterSelect.value = String(reportsState.selectedQuarter || 1);
       reportSourceMode.value = reportsState.sourceMode;
+      if (includePriorRestToggle) includePriorRestToggle.checked = !!reportsState.includePriorEmploymentRest;
       reportTypeSelect.value = reportsState.reportType;
       updateReportControlVisibility();
     }
@@ -5478,21 +6401,34 @@ function getAircraftLabel(index) {
       const values = [reportSummaryPic, reportSummaryNight, reportSummaryTraining, reportSummaryLandings];
       const type = report?.reportType || reportsState.reportType || 'monthlyByAircraft';
       if (type === 'quarterlyRest') {
-        const total = Number(report?.totalQualifyingRestPeriods || 0);
-        const remaining = Number(report?.remaining || 0);
-        const status = report?.status || 'On Track';
-        ['Quarter Rest', 'Remaining', 'Quarter', 'Status'].forEach((txt, i) => { if (labels[i]) labels[i].textContent = txt; });
-        values[0].textContent = String(total);
-        values[1].textContent = String(remaining);
-        values[2].textContent = `Q${report?.quarter || reportsState.selectedQuarter}`;
-        values[3].textContent = status;
+        const quarters = Array.isArray(report?.quarters) ? report.quarters : [];
+        const currentTotal = quarters.slice(1).reduce((sum, q) => sum + Number(q.totalQualifyingRestPeriods || 0), 0);
+        const prevQ4 = Number(quarters[0]?.totalQualifyingRestPeriods || 0);
+        ['Current Year Rest', 'Prev Q4', 'Quarter Rows', 'Target'].forEach((txt, i) => { if (labels[i]) labels[i].textContent = txt; });
+        values[0].textContent = String(currentTotal);
+        values[1].textContent = String(prevQ4);
+        values[2].textContent = String(quarters.length);
+        values[3].textContent = '13 / quarter';
+        return;
+      }
+      if (type === 'priorEmploymentStatement') {
+        const cards = Array.isArray(report?.summaryCards) ? report.summaryCards : [];
+        cards.forEach((card, i) => {
+          if (labels[i]) labels[i].textContent = card.label || '—';
+          if (values[i]) values[i].textContent = card.value || '—';
+        });
+        for (let i = cards.length; i < values.length; i += 1) {
+          if (labels[i]) labels[i].textContent = '—';
+          if (values[i]) values[i].textContent = '—';
+        }
         return;
       }
       if (type === 'quarterlyFlightSummary') {
-        ['Quarter Flight', 'YTD Flight', 'Quarter', 'Aircraft Used'].forEach((txt, i) => { if (labels[i]) labels[i].textContent = txt; });
-        values[0].textContent = Number(report?.quarterTotalFlight || 0).toFixed(1);
-        values[1].textContent = Number(report?.yearToDateFlight || 0).toFixed(1);
-        values[2].textContent = `Q${report?.quarter || reportsState.selectedQuarter}`;
+        const quarterCount = Array.isArray(report?.quarters) ? report.quarters.length : 0;
+        ['Full Year Flight', 'Prev Q4', 'Quarter Rows', 'Aircraft Used'].forEach((txt, i) => { if (labels[i]) labels[i].textContent = txt; });
+        values[0].textContent = Number(report?.fullYearFlight || 0).toFixed(1);
+        values[1].textContent = Number(report?.previousYearQ4Flight || 0).toFixed(1);
+        values[2].textContent = String(quarterCount);
         values[3].textContent = String(Object.keys(report?.aircraftBreakdown || {}).length);
         return;
       }
@@ -5681,63 +6617,111 @@ function renderMonthlyAircraftReportPreview(report) {
     }
 
 
+    function getPriorEmploymentQuarterValue(reportState, quarterId) {
+      const quarter = (reportState?.priorEmployment?.quarters || []).find((q) => q.id === quarterId);
+      if (!quarter) return 0;
+      return parsePriorRestValue(quarter?.totalRest).num;
+    }
+
+    function applyPriorEmploymentRestToFullYearReport(report) {
+      if (!report || !Array.isArray(report.quarters)) return report;
+      const includePrior = !!reportsState.includePriorEmploymentRest;
+      const quarterIdMap = ['prevQ4', 'q1', 'q2', 'q3', 'q4'];
+      const nextQuarters = report.quarters.map((quarter, idx) => {
+        const temsco = Number(quarter.totalQualifyingRestPeriods || 0);
+        const prior = includePrior ? getPriorEmploymentRestValue(reportsState, quarterIdMap[idx]) : 0;
+        return {
+          ...quarter,
+          temscoRest: temsco,
+          priorEmploymentRest: prior,
+          combinedRest: temsco + prior
+        };
+      });
+      return {
+        ...report,
+        includePriorEmploymentRest: includePrior,
+        quarters: nextQuarters,
+        previousQ4CombinedTotal: Number(nextQuarters[0]?.combinedRest || 0),
+        overallTotalWithPrior: nextQuarters.reduce((sum, q) => sum + Number(q.combinedRest || 0), 0)
+      };
+    }
+
     function buildQuarterlyRestReportSection(report) {
-      const rows = report.months.map((row) => `
-        <tr>
-          <td class="month-label">${row.label}</td>
-          <td>${row.count}</td>
-          <td>${escapeHtml(row.dates.map((d) => d.slice(5)).join(', ') || '—')}</td>
-        </tr>`).join('');
+      const integratedReport = applyPriorEmploymentRestToFullYearReport(report);
+      const rows = (integratedReport.quarters || []).map((quarter, idx) => {
+        const monthText = (quarter.months || []).map((m) => `${m.label}: ${m.count}`).join(' | ');
+        const dateText = (quarter.sourceDates || []).map((d) => d.slice(5)).join(', ') || 'No qualifying days';
+        const isPrevQ4 = idx === 0;
+        const countValue = integratedReport.includePriorEmploymentRest
+          ? Number(quarter.combinedRest || 0)
+          : Number(quarter.totalQualifyingRestPeriods || 0);
+        const remainingValue = Math.max(0, Number(quarter.target || 13) - countValue);
+        const dateDisplay = integratedReport.includePriorEmploymentRest && Number(quarter.priorEmploymentRest || 0) > 0
+          ? `${dateText}${dateText && dateText !== 'No qualifying days' ? ' | ' : ''}Prior employment included`
+          : dateText;
+        return `
+          <tr class="quarter-order-row${isPrevQ4 ? ' previous-q4-row' : ''}">
+            <td class="month-label">${escapeHtml(quarter.displayLabel || `Q${quarter.quarter}`)}</td>
+            <td>${escapeHtml(quarter.quarterDateRange || '—')}</td>
+            <td>${escapeHtml(monthText || '—')}</td>
+            <td>${countValue}</td>
+            <td>${remainingValue}</td>
+            <td>${escapeHtml(dateDisplay)}</td>
+          </tr>`;
+      }).join('');
+      const focusQuarterNumber = Number(reportsState.selectedQuarter || 1);
+      const focusQuarter = (integratedReport.quarters || []).find((q) => Number(q.calendarYear) === Number(integratedReport.calendarYear) && Number(q.quarter) === focusQuarterNumber) || (integratedReport.quarters || [])[1] || null;
+      const progressCount = focusQuarter ? Number((integratedReport.includePriorEmploymentRest ? (focusQuarter.combinedRest || 0) : (focusQuarter.totalQualifyingRestPeriods || 0)) || 0) : 0;
       const progressBoxes = Array.from({ length: 13 }, (_, idx) => {
         const n = idx + 1;
-        const hit = n <= report.totalQualifyingRestPeriods;
-        const near = !hit && n === report.totalQualifyingRestPeriods + 1;
-        return `<div class="quarter-progress-box${hit ? ' hit' : (near ? ' remaining' : '')}">${hit ? n : n}</div>`;
+        const hit = n <= progressCount;
+        const near = !hit && n === progressCount + 1;
+        return `<div class="quarter-progress-box compact${hit ? ' hit' : (near ? ' remaining' : '')}">${n}</div>`;
       }).join('');
-      const monthCards = report.months.map((row) => `
-        <div class="quarter-month-card">
-          <div class="month">${row.label}</div>
-          <div class="value">${row.count}</div>
-          <div class="dates">${escapeHtml(row.dates.map((d) => d.slice(5)).join(', ') || 'No qualifying days')}</div>
-        </div>`).join('');
+      const currentYearTotal = (integratedReport.quarters || []).slice(1).reduce((sum, q) => sum + Number(integratedReport.includePriorEmploymentRest ? (q.combinedRest || 0) : (q.totalQualifyingRestPeriods || 0)), 0);
+      const flightReport = buildQuarterlyFlightFullYearReport(reportsState.currentLedger || [], integratedReport.calendarYear);
+      const flightRows = (flightReport.quarters || []).map((row) => `
+        <tr>
+          <td class="month-label">${escapeHtml(row.label)}</td>
+          <td>${Number(row.quarterTotalFlight || 0).toFixed(1)}</td>
+          <td>${Number(row.consecutiveQuarterTotal || 0).toFixed(1)}</td>
+          <td>${Number(row.yearToDateFlight || 0).toFixed(1)}</td>
+        </tr>`).join('');
       return `
-        <div class="report-sheet">
-          <div class="report-sheet-header">
+        <div class="report-sheet quarterly-rest-full quarterly-combined-page">
+          <div class="report-sheet-header compact-head">
             <div class="report-sheet-brand">
-              <div class="report-type-badge">Quarterly Rest Report</div>
-              <div class="report-sheet-company">TEMSCO HELICOPTERS INC.</div>
-              <div class="report-sheet-title">Rest Periods by Calendar Quarter</div>
-              <div class="report-sheet-sub">Quarter rollup based on qualifying OFF days from the weekly log. A qualifying day requires OFF in remarks with no duty and no flight.</div>
+              <div class="report-sheet-title">REST PERIODS BY CALENDAR QUARTER</div>
             </div>
-            <div class="report-mini-box"><div class="k">Pilot</div><div class="v">${escapeHtml(report.pilotName || '—')}</div></div>
-            <div class="report-mini-box"><div class="k">Certificate #</div><div class="v">${escapeHtml(report.certificateNumber || '—')}</div></div>
-            <div class="report-mini-box"><div class="k">Year / Quarter</div><div class="v">${report.calendarYear} / Q${report.quarter}</div></div>
+            <div class="report-mini-box"><div class="k">Pilot</div><div class="v">${escapeHtml(integratedReport.pilotName || '—')}</div></div>
+            <div class="report-mini-box"><div class="k">Certificate #</div><div class="v">${escapeHtml(integratedReport.certificateNumber || '—')}</div></div>
           </div>
-          <div class="report-quarter-meta">
-            <div class="meta-card"><div class="k">Quarter Range</div><div class="v">${escapeHtml(report.quarterDateRange)}</div></div>
-            <div class="meta-card"><div class="k">Status</div><div class="v">${escapeHtml(report.status)}</div></div>
+          <div class="report-quarter-meta compact-meta">
+            <div class="meta-card"><div class="k">Current Year Total</div><div class="v">${currentYearTotal}</div></div>
+            <div class="meta-card"><div class="k">Previous Q4</div><div class="v">${integratedReport.includePriorEmploymentRest ? Number(integratedReport.previousQ4CombinedTotal || 0) : Number((integratedReport.quarters || [])[0]?.totalQualifyingRestPeriods || 0)}</div></div>
+            <div class="meta-card"><div class="k">Selected Quarter</div><div class="v">Q${focusQuarter ? focusQuarter.quarter : focusQuarterNumber} / ${integratedReport.calendarYear}</div></div>
             <div class="meta-card"><div class="k">Generated</div><div class="v">${escapeHtml(formatGeneratedStamp(reportsState.lastGeneratedAt))}</div></div>
           </div>
-          <div class="quarter-progress-wrap">
-            <div class="quarter-progress-title">Progress Toward 13 Qualifying Rest Days</div>
-            <div class="quarter-progress-grid">${progressBoxes}</div>
+          <div class="quarter-progress-wrap compact">
+            <div class="quarter-progress-title">Selected Quarter Progress</div>
+            <div class="quarter-progress-grid compact">${progressBoxes}</div>
           </div>
-          <div class="report-sheet-subhead">
-            <div class="meta">
-              <div class="item"><div class="k">Qualifying OFF Days</div><div class="v">${report.totalQualifyingRestPeriods}</div></div>
-              <div class="item"><div class="k">Remaining</div><div class="v">${report.remaining}</div></div>
-              <div class="item"><div class="k">Target</div><div class="v">${report.target}</div></div>
-              <div class="item"><div class="k">Dates Counted</div><div class="v">${report.sourceDates.length}</div></div>
-            </div>
-          </div>
-          <div class="quarter-month-cards">${monthCards}</div>
-          <div class="report-data-note"><strong>Counting rule:</strong> a qualifying rest day is currently counted when the row contains OFF in remarks, has no flight, and has no duty. Use this as an operational tracking aid against the quarterly 13-day target.</div>
-          <table class="report-table">
-            <thead><tr><th>Month</th><th>Qualifying OFF Days</th><th>Dates Counted</th></tr></thead>
+          <table class="report-table quarterly-annual-table compact-rest-table">
+            <thead><tr><th>Quarter Entry</th><th>Date Range</th><th>Month Counts</th><th>Count</th><th>Remaining</th><th>Dates Counted</th></tr></thead>
             <tbody>${rows}</tbody>
-            <tfoot><tr><td>Total</td><td>${report.totalQualifyingRestPeriods}</td><td>${report.remaining} remaining to 13</td></tr></tfoot>
           </table>
-          <div class="report-footnote"><strong>Source:</strong> ${escapeHtml(getReportSourceLabel())} &nbsp; | &nbsp; <strong>Generated:</strong> ${escapeHtml(formatGeneratedStamp(reportsState.lastGeneratedAt))} &nbsp; | &nbsp; This quarterly report reflects the current app rule for qualifying OFF days and is intended to support quarterly rest review.</div>
+          <div class="report-panel compact-bottom-panel">
+            <div class="report-panel-title">Total Flight Time All Aircraft</div>
+            <table class="report-table quarterly-annual-table compact-flight-table">
+              <thead><tr><th>Calendar Quarter</th><th>Quarter Total</th><th>Consecutive Quarter Total</th><th>Year To Date</th></tr></thead>
+              <tbody>
+                <tr><td class="month-label">Previous 4th Quarter</td><td>${Number(flightReport.previousYearQ4Flight || 0).toFixed(1)}</td><td></td><td></td></tr>
+                ${flightRows}
+              </tbody>
+              <tfoot><tr><td>Total Flight Time</td><td>${Number(flightReport.fullYearFlight || 0).toFixed(1)}</td><td>${Number(flightReport.fullConsecutiveFlight || 0).toFixed(1)}</td><td>${Number(flightReport.fullYearFlight || 0).toFixed(1)}</td></tr></tfoot>
+            </table>
+          </div>
+          <div class="report-footnote"><strong>Source:</strong> ${escapeHtml(getReportSourceLabel())} &nbsp; | &nbsp; <strong>Generated:</strong> ${escapeHtml(formatGeneratedStamp(reportsState.lastGeneratedAt))}${integratedReport.includePriorEmploymentRest ? ' &nbsp; | &nbsp; <strong>Prior Employment:</strong> Quarter flight time and rest values included where entered.' : ''}</div>
         </div>`;
     }
 
@@ -5746,12 +6730,288 @@ function renderMonthlyAircraftReportPreview(report) {
       renderReportsSummaryStrip(report);
     }
 
+    
+    const PRIOR_EMPLOYMENT_STORAGE_KEY = 'pilotLog_priorEmployment_v44_fix10';
+
+    function getDefaultPriorEmploymentState() {
+      return {
+        pilotLast: '',
+        pilotFirst: '',
+        pilotMiddle: '',
+        certificateNumber: '',
+        statementDate: '',
+        signature: '',
+        quarters: [
+          { id: 'prevQ4', title: 'Previous 4th Calendar Quarter', shortTitle: 'Prev Q4', year: '', m1Label: 'OCT', m2Label: 'NOV', m3Label: 'DEC', m1: '', m2: '', m3: '', totalRest: '', restPeriods: '' },
+          { id: 'q1', title: 'First Calendar Quarter', shortTitle: 'Q1', year: '', m1Label: 'JAN', m2Label: 'FEB', m3Label: 'MAR', m1: '', m2: '', m3: '', totalRest: '', restPeriods: '' },
+          { id: 'q2', title: 'Second Calendar Quarter', shortTitle: 'Q2', year: '', m1Label: 'APR', m2Label: 'MAY', m3Label: 'JUN', m1: '', m2: '', m3: '', totalRest: '', restPeriods: '' },
+          { id: 'q3', title: 'Third Calendar Quarter', shortTitle: 'Q3', year: '', m1Label: 'JUL', m2Label: 'AUG', m3Label: 'SEP', m1: '', m2: '', m3: '', totalRest: '', restPeriods: '' },
+          { id: 'q4', title: 'Fourth Calendar Quarter', shortTitle: 'Q4', year: '', m1Label: 'OCT', m2Label: 'NOV', m3Label: 'DEC', m1: '', m2: '', m3: '', totalRest: '', restPeriods: '' }
+        ]
+      };
+    }
+
+    function loadPriorEmploymentState() {
+      try {
+        const raw = localStorage.getItem(PRIOR_EMPLOYMENT_STORAGE_KEY);
+        if (!raw) return getDefaultPriorEmploymentState();
+        const parsed = JSON.parse(raw);
+        return mergePriorEmploymentState(parsed);
+      } catch (err) {
+        return getDefaultPriorEmploymentState();
+      }
+    }
+
+    function mergePriorEmploymentState(value) {
+      const base = getDefaultPriorEmploymentState();
+      if (!value || typeof value !== 'object') return base;
+      const out = { ...base, ...value };
+      out.quarters = base.quarters.map((q, idx) => {
+        const merged = { ...q, ...(Array.isArray(value.quarters) ? (value.quarters[idx] || {}) : {}) };
+        merged.m1 = sanitizePriorFlightInput(merged.m1).raw;
+        merged.m2 = sanitizePriorFlightInput(merged.m2).raw;
+        merged.m3 = sanitizePriorFlightInput(merged.m3).raw;
+        merged.restPeriods = sanitizePriorRestInput(merged.restPeriods).raw;
+        merged.totalRest = String(calculatePriorQuarterFlightTotal(merged) || '');
+        return merged;
+      });
+      return out;
+    }
+
+    function savePriorEmploymentState() {
+      try {
+        localStorage.setItem(PRIOR_EMPLOYMENT_STORAGE_KEY, JSON.stringify(reportsState.priorEmployment));
+      } catch (err) {}
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(String(value == null ? '' : value)).replace(/"/g, '&quot;');
+    }
+
+    function buildPriorEmploymentStatementSection(state) {
+      const qHtml = (state.quarters || []).map((q, idx) => {
+        const status = getPriorQuarterValidation(q);
+        const totalValue = calculatePriorQuarterFlightTotal(q);
+        return `
+          <div class="prior-quarter-row" data-prior-row="${idx}">
+            <div class="prior-quarter-label">${escapeHtml(q.title)}</div>
+            <div><input class="prior-entry-input ${status.yearInvalid ? 'is-invalid' : ''}" data-prior-quarter="${idx}" data-prior-key="year" value="${escapeAttr(q.year)}" placeholder="YYYY" inputmode="numeric" maxlength="4" autocomplete="off" spellcheck="false" /></div>
+            <div class="prior-month-field"><span class="prior-month-label">${escapeHtml(q.m1Label)}</span><input class="prior-entry-input ${status.m1Invalid ? 'is-invalid' : ''}" data-prior-quarter="${idx}" data-prior-key="m1" value="${escapeAttr(q.m1)}" inputmode="decimal" maxlength="6" autocomplete="off" spellcheck="false" /></div>
+            <div class="prior-month-field"><span class="prior-month-label">${escapeHtml(q.m2Label)}</span><input class="prior-entry-input ${status.m2Invalid ? 'is-invalid' : ''}" data-prior-quarter="${idx}" data-prior-key="m2" value="${escapeAttr(q.m2)}" inputmode="decimal" maxlength="6" autocomplete="off" spellcheck="false" /></div>
+            <div class="prior-month-field"><span class="prior-month-label">${escapeHtml(q.m3Label)}</span><input class="prior-entry-input ${status.m3Invalid ? 'is-invalid' : ''}" data-prior-quarter="${idx}" data-prior-key="m3" value="${escapeAttr(q.m3)}" inputmode="decimal" maxlength="6" autocomplete="off" spellcheck="false" /></div>
+            <div><input class="prior-entry-input is-total" data-prior-quarter="${idx}" data-prior-key="totalRest" value="${escapeAttr(formatPriorFlightTotal(totalValue))}" readonly tabindex="-1" autocomplete="off" spellcheck="false" /></div>
+            <div><input class="prior-entry-input ${status.restInvalid ? 'is-invalid' : ''}" data-prior-quarter="${idx}" data-prior-key="restPeriods" value="${escapeAttr(q.restPeriods)}" placeholder="Rest periods" inputmode="numeric" maxlength="2" autocomplete="off" spellcheck="false" /></div>
+          </div>`;
+      }).join('');
+
+      return `
+        <div class="report-sheet prior-employment-page">
+          <div class="report-sheet-header">
+            <div class="report-sheet-brand">
+              <div class="report-type-badge">Prior Employment</div>
+              <div class="report-sheet-company">TEMSCO HELICOPTERS, INC.</div>
+              <div class="report-sheet-title">Prior Employment Rest Period Statement</div>
+              <div class="report-sheet-sub">Enter prior-employment flight time in the three monthly blocks and total rest periods in the far-right block for each quarter.</div>
+            </div>
+            <div class="report-mini-box"><div class="k">Pilot</div><div class="v">${escapeHtml([state.pilotLast, state.pilotFirst, state.pilotMiddle].filter(Boolean).join(', ') || '—')}</div></div>
+            <div class="report-mini-box"><div class="k">Certificate #</div><div class="v">${escapeHtml(state.certificateNumber || '—')}</div></div>
+          </div>
+          <div class="prior-employment-grid">
+            <div class="prior-row-header">
+              <div>Quarter</div><div>Year</div><div>Month 1</div><div>Month 2</div><div>Month 3</div><div>Total Flight</div><div>Total Rest Periods</div>
+            </div>
+            ${qHtml}
+          </div>
+          <div class="prior-root-grid">
+            <div class="prior-root-card">
+              <div class="k">Pilot's Name (Last / First / Middle)</div>
+              <input class="prior-root-input" data-prior-root="pilotFull" value="${escapeAttr([state.pilotLast, state.pilotFirst, state.pilotMiddle].filter(Boolean).join(' / '))}" placeholder="LAST / FIRST / MIDDLE" autocomplete="off" />
+            </div>
+            <div class="prior-root-card">
+              <div class="k">Pilot's Certificate #</div>
+              <input class="prior-root-input" data-prior-root="certificateNumber" value="${escapeAttr(state.certificateNumber || '')}" placeholder="Certificate #" autocomplete="off" />
+            </div>
+            <div class="prior-root-card">
+              <div class="k">Date / Signature</div>
+              <input class="prior-root-input" data-prior-root="statementDate" value="${escapeAttr(state.statementDate || '')}" placeholder="Date" autocomplete="off" />
+              <input class="prior-root-input" data-prior-root="signature" value="${escapeAttr(state.signature || '')}" placeholder="Pilot Signature" autocomplete="off" />
+            </div>
+          </div>
+          <div class="report-footnote">Use: Manual prior-employment quarter statement based on the paper form. Quarter flight entries auto-sum into total flight. Total rest periods are entered manually and are stored separately from weekly TEMSCO log entries.</div>
+        </div>`;
+    }
+
+    function parsePriorFlightValue(value) {
+      let raw = String(value == null ? '' : value).replace(/[^\d.]/g, '');
+      const firstDot = raw.indexOf('.');
+      if (firstDot !== -1) {
+        raw = raw.slice(0, firstDot + 1) + raw.slice(firstDot + 1).replace(/\./g, '');
+      }
+      
+      if (raw.startsWith('.')) raw = `0${raw}`;
+      const match = raw.match(/^(\d{0,4})(?:\.(\d)?)?/);
+      raw = match ? `${match[1]}${match[2] !== undefined ? '.' + match[2] : (raw.endsWith('.') ? '.' : '')}` : '';
+      if (raw === '.') raw = '0.';
+      
+      const num = raw && raw !== '.' ? Number(raw) : 0;
+      return { raw, num: Number.isFinite(num) ? num : 0 };
+    }
+
+    function parsePriorRestValue(value) {
+      const cleaned = String(value || '').replace(/[^\d]/g, '').slice(0, 2);
+      return { text: cleaned, num: cleaned ? Number(cleaned) : 0 };
+    }
+
+    function parsePriorMonthValue(value) {
+      return parsePriorRestValue(value);
+    }
+
+    function calculatePriorQuarterTotal(quarter) {
+      return parsePriorRestValue(quarter?.totalRest).num;
+    }
+
+    function getPriorQuarterValidation(quarter) {
+      const status = {
+        yearInvalid: false,
+        m1Invalid: false,
+        m2Invalid: false,
+        m3Invalid: false,
+        restInvalid: false,
+        level: '',
+        message: ''
+      };
+      const year = String(quarter?.year || '').trim();
+      if (year && !/^\d{4}$/.test(year)) {
+        status.yearInvalid = true;
+      }
+      const flightKeys = ['m1', 'm2', 'm3'];
+      for (const key of flightKeys) {
+        const raw = String(quarter?.[key] || '').trim();
+        if (!raw) continue;
+        if (!/^\d{1,4}(?:\.\d)?$/.test(raw)) {
+          status[`${key}Invalid`] = true;
+        }
+      }
+      const restRaw = String(quarter?.restPeriods || '').trim();
+      if (restRaw && !/^\d{1,2}$/.test(restRaw)) {
+        status.restInvalid = true;
+      }
+      if (status.yearInvalid || status.m1Invalid || status.m2Invalid || status.m3Invalid || status.restInvalid) {
+        status.level = 'error';
+        status.message = 'Check year, flight, or rest entry';
+        return status;
+      }
+      const restNum = sanitizePriorRestInput(restRaw).num;
+      if (restNum > 13) {
+        status.level = 'warn';
+        status.message = 'Rest periods exceed 13';
+      }
+      return status;
+    }
+
+    function updatePriorQuarterRowUI(quarterIndex) {
+      const quarter = reportsState.priorEmployment?.quarters?.[quarterIndex];
+      if (!quarter) return;
+      const status = getPriorQuarterValidation(quarter);
+      const totalValue = calculatePriorQuarterFlightTotal(quarter);
+      const yearInput = reportsPreview.querySelector(`[data-prior-quarter="${quarterIndex}"][data-prior-key="year"]`);
+      const m1Input = reportsPreview.querySelector(`[data-prior-quarter="${quarterIndex}"][data-prior-key="m1"]`);
+      const m2Input = reportsPreview.querySelector(`[data-prior-quarter="${quarterIndex}"][data-prior-key="m2"]`);
+      const m3Input = reportsPreview.querySelector(`[data-prior-quarter="${quarterIndex}"][data-prior-key="m3"]`);
+      const totalInput = reportsPreview.querySelector(`[data-prior-quarter="${quarterIndex}"][data-prior-key="totalRest"]`);
+      const restInput = reportsPreview.querySelector(`[data-prior-quarter="${quarterIndex}"][data-prior-key="restPeriods"]`);
+      if (yearInput) yearInput.classList.toggle('is-invalid', !!status.yearInvalid);
+      if (m1Input) m1Input.classList.toggle('is-invalid', !!status.m1Invalid);
+      if (m2Input) m2Input.classList.toggle('is-invalid', !!status.m2Invalid);
+      if (m3Input) m3Input.classList.toggle('is-invalid', !!status.m3Invalid);
+      if (restInput) restInput.classList.toggle('is-invalid', !!status.restInvalid || sanitizePriorRestInput(quarter.restPeriods).num > 13);
+      if (totalInput) totalInput.value = formatPriorFlightTotal(totalValue);
+    }
+
+    function getPriorEmploymentQuarterValue(reportState, quarterId) {
+      const quarter = (reportState?.priorEmployment?.quarters || []).find((q) => q.id === quarterId);
+      if (!quarter) return 0;
+      return parsePriorRestValue(quarter?.totalRest).num;
+    }
+
+    function getPriorEmploymentQuarterFlightValue(reportState, quarterId) {
+      const quarter = (reportState?.priorEmployment?.quarters || []).find((q) => q.id === quarterId);
+      if (!quarter) return 0;
+      return parsePriorFlightValue(quarter?.flightTime).num;
+    }
+
+
+    function renderPriorEmploymentStatementPreview() {
+      reportsPreview.innerHTML = buildPriorEmploymentStatementSection(reportsState.priorEmployment || getDefaultPriorEmploymentState());
+      reportsPreview.querySelectorAll('[data-prior-quarter]').forEach((el) => {
+        el.addEventListener('input', handlePriorEmploymentInput);
+      });
+      reportsPreview.querySelectorAll('[data-prior-root]').forEach((el) => {
+        el.addEventListener('input', handlePriorEmploymentRootInput);
+      });
+      renderReportsSummaryStrip({
+        reportType: 'priorEmploymentStatement',
+        summaryCards: [
+          { label: 'Quarter Rows', value: String((reportsState.priorEmployment.quarters || []).length) },
+          { label: 'Prior Flight Total', value: String((reportsState.priorEmployment.quarters || []).reduce((a, q) => a + calculatePriorQuarterFlightTotal(q), 0).toFixed(1)) },
+          { label: 'Prior Rest Total', value: String((reportsState.priorEmployment.quarters || []).reduce((a, q) => a + sanitizePriorRestInput(q.restPeriods).num, 0)) },
+          { label: 'Source', value: 'Manual Entry' }
+        ]
+      });
+    }
+
+    function handlePriorEmploymentInput(event) {
+      const input = event.target;
+      const quarterIndex = Number(input.dataset.priorQuarter);
+      const key = input.dataset.priorKey;
+      if (!reportsState.priorEmployment || !reportsState.priorEmployment.quarters[quarterIndex]) return;
+      if (key === 'totalRest') return;
+      const originalStart = typeof input.selectionStart === 'number' ? input.selectionStart : null;
+      let nextValue = input.value;
+      if (key === 'year') {
+        nextValue = String(nextValue || '').replace(/[^\d]/g, '').slice(0, 4);
+      } else if (key === 'm1' || key === 'm2' || key === 'm3') {
+        nextValue = sanitizePriorFlightInput(nextValue).raw;
+      } else if (key === 'restPeriods') {
+        nextValue = sanitizePriorRestInput(nextValue).raw;
+      }
+      if (input.value !== nextValue) input.value = nextValue;
+      const quarter = reportsState.priorEmployment.quarters[quarterIndex];
+      quarter[key] = nextValue;
+      quarter.totalRest = formatPriorFlightTotal(calculatePriorQuarterFlightTotal(quarter));
+      savePriorEmploymentState();
+      reportsState.lastGeneratedAt = new Date().toISOString();
+      updatePriorQuarterRowUI(quarterIndex);
+      if (document.activeElement !== input) input.focus({ preventScroll: true });
+      if (typeof originalStart === 'number' && document.activeElement === input) {
+        const pos = Math.min(nextValue.length, originalStart);
+        try { input.setSelectionRange(pos, pos); } catch (err) {}
+      }
+    }
+
+    function handlePriorEmploymentRootInput(event) {
+      const key = event.target.dataset.priorRoot;
+      if (key === 'pilotFull') {
+        const parts = String(event.target.value || '').split('/').map(s => s.trim());
+        reportsState.priorEmployment.pilotLast = parts[0] || '';
+        reportsState.priorEmployment.pilotFirst = parts[1] || '';
+        reportsState.priorEmployment.pilotMiddle = parts[2] || '';
+      } else {
+        reportsState.priorEmployment[key] = event.target.value;
+      }
+      savePriorEmploymentState();
+      reportsState.lastGeneratedAt = new Date().toISOString();
+    }
+
+
     function buildQuarterlyFlightSummarySection(report) {
-      const rows = report.months.map((row) => `
+      const rows = (report.quarters || []).map((row) => `
         <tr>
-          <td class="month-label">${row.label}</td>
-          <td>${row.totalFlight.toFixed(1)}</td>
-          <td>${row.daysWithFlight}</td>
+          <td class="month-label">${escapeHtml(row.label)}</td>
+          <td>${row.months.map((m) => `${m.label}: ${m.totalFlight.toFixed(1)}`).join(' | ')}</td>
+          <td>${row.quarterTotalFlight.toFixed(1)}</td>
+          <td>${row.yearToDateFlight.toFixed(1)}</td>
+          <td>${row.sourceDayCount}</td>
         </tr>`).join('');
       const aircraftItems = Object.keys(report.aircraftBreakdown || {}).length
         ? Object.entries(report.aircraftBreakdown)
@@ -5760,39 +7020,30 @@ function renderMonthlyAircraftReportPreview(report) {
             .join('')
         : '<div class="aircraft-breakdown-item"><div>No aircraft logged</div><div>0.0</div></div>';
       return `
-        <div class="report-sheet">
+        <div class="report-sheet quarterly-flight-full">
           <div class="report-sheet-header">
             <div class="report-sheet-brand">
               <div class="report-type-badge">Quarterly Flight Summary</div>
               <div class="report-sheet-company">TEMSCO HELICOPTERS INC.</div>
               <div class="report-sheet-title">Quarterly Flight Time Summary</div>
-              <div class="report-sheet-sub">All-aircraft quarter totals and year-to-date flight rollup generated from weekly log records.</div>
+              <div class="report-sheet-sub">Single-page annual flight summary showing all four quarters for the selected year with previous 4th quarter reference.</div>
             </div>
             <div class="report-mini-box"><div class="k">Pilot</div><div class="v">${escapeHtml(report.pilotName || '—')}</div></div>
             <div class="report-mini-box"><div class="k">Certificate #</div><div class="v">${escapeHtml(report.certificateNumber || '—')}</div></div>
-            <div class="report-mini-box"><div class="k">Year / Quarter</div><div class="v">${report.calendarYear} / Q${report.quarter}</div></div>
+            <div class="report-mini-box"><div class="k">Calendar Year</div><div class="v">${report.calendarYear}</div></div>
           </div>
           <div class="report-quarter-meta">
-            <div class="meta-card"><div class="k">Quarter Range</div><div class="v">${escapeHtml(report.quarterDateRange)}</div></div>
-            <div class="meta-card"><div class="k">Quarter Flight</div><div class="v">${report.quarterTotalFlight.toFixed(1)}</div></div>
-            <div class="meta-card"><div class="k">Year To Date</div><div class="v">${report.yearToDateFlight.toFixed(1)}</div></div>
+            <div class="meta-card"><div class="k">Previous Q4</div><div class="v">${report.previousYearQ4Label}: ${Number(report.previousYearQ4Flight || 0).toFixed(1)}</div></div>
+            <div class="meta-card"><div class="k">Full Year Flight</div><div class="v">${Number(report.fullYearFlight || 0).toFixed(1)}</div></div>
+            <div class="meta-card"><div class="k">Generated</div><div class="v">${escapeHtml(formatGeneratedStamp(reportsState.lastGeneratedAt))}</div></div>
           </div>
-          <div class="report-sheet-subhead">
-            <div class="meta">
-              <div class="item"><div class="k">Flight Days</div><div class="v">${report.sourceDayCount}</div></div>
-              <div class="item"><div class="k">Aircraft Used</div><div class="v">${Object.keys(report.aircraftBreakdown || {}).length}</div></div>
-              <div class="item"><div class="k">Quarter</div><div class="v">Q${report.quarter}</div></div>
-              <div class="item"><div class="k">Generated</div><div class="v">${escapeHtml(formatGeneratedStamp(reportsState.lastGeneratedAt))}</div></div>
-            </div>
-          </div>
-          <div class="report-data-note"><strong>Quarter basis:</strong> totals are rolled up from saved weekly entries by effective date. Year-to-date includes all flight totals from January 1 through the end of the selected quarter.</div>
           <div class="report-two-col">
             <div class="report-panel">
-              <div class="report-panel-title">Quarter Monthly Totals</div>
-              <table class="report-table">
-                <thead><tr><th>Month</th><th>Total Flight All Aircraft</th><th>Flight Days</th></tr></thead>
+              <div class="report-panel-title">All Four Quarters</div>
+              <table class="report-table quarterly-annual-table">
+                <thead><tr><th>Quarter</th><th>Month Totals</th><th>Quarter Total</th><th>Year To Date</th><th>Flight Days</th></tr></thead>
                 <tbody>${rows}</tbody>
-                <tfoot><tr><td>Quarter Total</td><td>${report.quarterTotalFlight.toFixed(1)}</td><td>${report.sourceDayCount}</td></tr><tr><td>Year To Date</td><td>${report.yearToDateFlight.toFixed(1)}</td><td>—</td></tr></tfoot>
+                <tfoot><tr><td>Full Year</td><td>—</td><td>${Number(report.fullYearFlight || 0).toFixed(1)}</td><td>${Number(report.fullYearFlight || 0).toFixed(1)}</td><td>${(report.quarters || []).reduce((sum, q) => sum + Number(q.sourceDayCount || 0), 0)}</td></tr></tfoot>
               </table>
             </div>
             <div class="report-panel">
@@ -5800,7 +7051,8 @@ function renderMonthlyAircraftReportPreview(report) {
               <div class="aircraft-breakdown-list">${aircraftItems}</div>
             </div>
           </div>
-          <div class="report-footnote"><strong>Source:</strong> ${escapeHtml(getReportSourceLabel())} &nbsp; | &nbsp; <strong>Generated:</strong> ${escapeHtml(formatGeneratedStamp(reportsState.lastGeneratedAt))} &nbsp; | &nbsp; Quarter flight totals roll up all aircraft from weekly entries. Aircraft breakdown uses the PIC values recorded on each aircraft band for the same saved days.</div>
+          <div class="report-data-note"><strong>Quarter basis:</strong> totals are rolled up from saved weekly entries by effective date. This page shows all four quarters for the selected year on one page, with previous 4th quarter included as a reference only.</div>
+          <div class="report-footnote"><strong>Source:</strong> ${escapeHtml(getReportSourceLabel())} &nbsp; | &nbsp; <strong>Generated:</strong> ${escapeHtml(formatGeneratedStamp(reportsState.lastGeneratedAt))} &nbsp; | &nbsp; Year-to-date resets each January 1 and accumulates through each quarter row shown above.</div>
         </div>`;
     }
 
@@ -5833,6 +7085,7 @@ function renderMonthlyAircraftReportPreview(report) {
       }
       const built = buildReportLedger(rows);
       const ledger = built.ledger;
+      reportsState.currentLedger = ledger;
       const years = getAvailableYearsFromLedger(ledger);
       reportsState.selectedYear = years.includes(currentYear) ? currentYear : years[years.length - 1];
       updateReportsSelectorsFromLedger(ledger);
@@ -5852,25 +7105,34 @@ function renderMonthlyAircraftReportPreview(report) {
       reportsState.previewMode = multiAircraft ? 'multi' : 'single';
 
       if (reportsState.reportType === 'quarterlyRest') {
-        const report = buildQuarterlyRestReport(ledger, reportsState.selectedYear, reportsState.selectedQuarter);
+        const report = buildQuarterlyRestFullYearReport(ledger, reportsState.selectedYear);
         reportsState.previewReports = [report];
         reportsState.previewData = { mode: 'single', report, reportType: 'quarterlyRest' };
         renderQuarterlyRestReportPreview(report);
         if (isManual) {
-          setReportGenerationStatus(`Generated Q${report.quarter} rest report at ${formatGeneratedStamp(reportsState.lastGeneratedAt)} from ${reportSourceMode.options[reportSourceMode.selectedIndex]?.text || reportsState.sourceMode}.`);
-          setStatus(`Generated quarterly rest report for Q${report.quarter}.`, 'ok');
+          setReportGenerationStatus(`Generated annual rest summary at ${formatGeneratedStamp(reportsState.lastGeneratedAt)} from ${reportSourceMode.options[reportSourceMode.selectedIndex]?.text || reportsState.sourceMode}.`);
+          setStatus(`Generated annual rest summary for ${report.calendarYear}.`, 'ok');
         }
         return;
       }
 
       if (reportsState.reportType === 'quarterlyFlightSummary') {
-        const report = buildQuarterlyFlightSummary(ledger, reportsState.selectedYear, reportsState.selectedQuarter);
+        const report = buildQuarterlyFlightFullYearReport(ledger, reportsState.selectedYear);
         reportsState.previewReports = [report];
         reportsState.previewData = { mode: 'single', report, reportType: 'quarterlyFlightSummary' };
         renderQuarterlyFlightSummaryPreview(report);
         if (isManual) {
-          setReportGenerationStatus(`Generated Q${report.quarter} flight summary at ${formatGeneratedStamp(reportsState.lastGeneratedAt)} from ${reportSourceMode.options[reportSourceMode.selectedIndex]?.text || reportsState.sourceMode}.`);
-          setStatus(`Generated quarterly flight summary for Q${report.quarter}.`, 'ok');
+          setReportGenerationStatus(`Generated annual flight summary at ${formatGeneratedStamp(reportsState.lastGeneratedAt)} from ${reportSourceMode.options[reportSourceMode.selectedIndex]?.text || reportsState.sourceMode}.`);
+          setStatus(`Generated annual flight summary for ${report.calendarYear}.`, 'ok');
+        }
+        return;
+      }
+
+      if (reportsState.reportType === 'priorEmploymentStatement') {
+        renderPriorEmploymentStatementPreview();
+        if (isManual) {
+          setReportGenerationStatus('Generated prior employment flight and rest statement. Manual entry page only.');
+          setStatus('Generated prior employment flight and rest statement.', 'ok');
         }
         return;
       }
@@ -5907,20 +7169,34 @@ function renderMonthlyAircraftReportPreview(report) {
       if (type === 'quarterlyRest') {
         const report = reportOrBundle.report || reportOrBundle;
         rows.push([csvEscape('Quarterly Rest Report')].join(','));
-        rows.push([csvEscape('Pilot'), csvEscape(report.pilotName || ''), csvEscape('Certificate #'), csvEscape(report.certificateNumber || ''), csvEscape('Year'), csvEscape(report.calendarYear), csvEscape('Quarter'), csvEscape(`Q${report.quarter}`)].join(','));
-        rows.push(['Month','Qualifying OFF Days','Dates'].map(csvEscape).join(','));
-        report.months.forEach((row) => rows.push([row.label, row.count, row.dates.join(' | ')].map(csvEscape).join(',')));
-        rows.push(['TOTAL', report.totalQualifyingRestPeriods, `${report.remaining} remaining to 13`].map(csvEscape).join(','));
-        filename = `quarterly_rest_q${report.quarter}_${report.calendarYear}.csv`;
+        rows.push([csvEscape('Pilot'), csvEscape(report.pilotName || ''), csvEscape('Certificate #'), csvEscape(report.certificateNumber || ''), csvEscape('Year'), csvEscape(report.calendarYear)].join(','));
+        rows.push(['Quarter Entry','Date Range','Month Counts','Qualifying OFF Days','Remaining','Dates Counted'].map(csvEscape).join(','));
+        (report.quarters || []).forEach((row) => {
+          rows.push([
+            row.displayLabel || `Q${row.quarter}`,
+            row.quarterDateRange || '',
+            (row.months || []).map((m) => `${m.label}: ${m.count}`).join(' | '),
+            row.totalQualifyingRestPeriods,
+            Math.max(0, row.target - row.totalQualifyingRestPeriods),
+            (row.sourceDates || []).join(' | ')
+          ].map(csvEscape).join(','));
+        });
+        filename = `quarterly_rest_full_${report.calendarYear}.csv`;
       } else if (type === 'quarterlyFlightSummary') {
         const report = reportOrBundle.report || reportOrBundle;
         rows.push([csvEscape('Quarterly Flight Summary')].join(','));
-        rows.push([csvEscape('Pilot'), csvEscape(report.pilotName || ''), csvEscape('Certificate #'), csvEscape(report.certificateNumber || ''), csvEscape('Year'), csvEscape(report.calendarYear), csvEscape('Quarter'), csvEscape(`Q${report.quarter}`)].join(','));
-        rows.push(['Month','Total Flight All Aircraft'].map(csvEscape).join(','));
-        report.months.forEach((row) => rows.push([row.label, row.totalFlight.toFixed(1)].map(csvEscape).join(',')));
-        rows.push(['Quarter Total', report.quarterTotalFlight.toFixed(1)].map(csvEscape).join(','));
-        rows.push(['Year To Date', report.yearToDateFlight.toFixed(1)].map(csvEscape).join(','));
-        filename = `quarterly_flight_q${report.quarter}_${report.calendarYear}.csv`;
+        rows.push([csvEscape('Pilot'), csvEscape(report.pilotName || ''), csvEscape('Certificate #'), csvEscape(report.certificateNumber || ''), csvEscape('Year'), csvEscape(report.calendarYear)].join(','));
+        rows.push(['Previous Q4', report.previousYearQ4Label || '', Number(report.previousYearQ4Flight || 0).toFixed(1)].map(csvEscape).join(','));
+        rows.push(['Quarter','Month Totals','Quarter Total','Year To Date','Flight Days'].map(csvEscape).join(','));
+        (report.quarters || []).forEach((row) => rows.push([
+          row.label,
+          row.months.map((m) => `${m.label}: ${m.totalFlight.toFixed(1)}`).join(' | '),
+          Number(row.quarterTotalFlight || 0).toFixed(1),
+          Number(row.yearToDateFlight || 0).toFixed(1),
+          row.sourceDayCount
+        ].map(csvEscape).join(',')));
+        rows.push(['Full Year','', Number(report.fullYearFlight || 0).toFixed(1), Number(report.fullYearFlight || 0).toFixed(1), (report.quarters || []).reduce((sum, q) => sum + Number(q.sourceDayCount || 0), 0)].map(csvEscape).join(','));
+        filename = `quarterly_flight_full_${report.calendarYear}.csv`;
       } else {
         const reports = Array.isArray(reportOrBundle?.reports) ? reportOrBundle.reports : [reportOrBundle?.report || reportOrBundle].filter(Boolean);
         reports.forEach((report, reportIndex) => {
@@ -5970,9 +7246,383 @@ function renderMonthlyAircraftReportPreview(report) {
     function printCurrentReportPreview() {
       if (!reportsState.previewData) return;
       setReportGenerationStatus(`Prepared print preview at ${formatGeneratedStamp(new Date().toISOString())}.`);
-      document.body.classList.add('print-reports');
-      window.print();
-      window.setTimeout(() => document.body.classList.remove('print-reports'), 400);
+
+      const styleTag = document.querySelector('style');
+      const baseStyles = styleTag ? styleTag.textContent : '';
+      const previewClone = reportsPreview.cloneNode(true);
+      previewClone.querySelectorAll('input, textarea, select').forEach((field) => {
+        const tag = (field.tagName || '').toLowerCase();
+        const type = String(field.getAttribute('type') || '').toLowerCase();
+        if (tag === 'input') {
+          if (type === 'checkbox' || type === 'radio') {
+            if (field.checked) field.setAttribute('checked', 'checked');
+            else field.removeAttribute('checked');
+          } else {
+            field.setAttribute('value', field.value || '');
+          }
+        } else if (tag === 'textarea') {
+          field.textContent = field.value || '';
+        } else if (tag === 'select') {
+          Array.from(field.options || []).forEach((opt) => {
+            if (opt.selected) opt.setAttribute('selected', 'selected');
+            else opt.removeAttribute('selected');
+          });
+        }
+      });
+      const reportHtml = previewClone.innerHTML;
+      const extraStyles = `
+        html, body { background: white !important; margin: 0 !important; padding: 0 !important; }
+        body { font-family: Arial, sans-serif; }
+        .reports-preview { padding: 0 !important; margin: 0 !important; }
+        .reports-toolbar, .reports-banner, .reports-summary-strip { display: none !important; }
+        .report-sheet { margin: 0 !important; }
+        .prior-employment-page input {
+          -webkit-appearance: none !important;
+          appearance: none !important;
+          color: #111827 !important;
+          opacity: 1 !important;
+        }
+        .prior-employment-page input[readonly] {
+          color: #111827 !important;
+          -webkit-text-fill-color: #111827 !important;
+        }
+        .quarterly-rest-full, .quarterly-flight-full, .report-sheet {
+          width: 100% !important;
+          max-width: none !important;
+          min-height: 0 !important;
+          height: auto !important;
+          box-sizing: border-box !important;
+          break-after: auto !important;
+          page-break-after: auto !important;
+        }
+        @page { size: letter landscape; margin: 0.15in; }
+      `;
+
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'fixed';
+      iframe.style.right = '0';
+      iframe.style.bottom = '0';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = '0';
+      iframe.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(iframe);
+
+      const doc = iframe.contentWindow.document;
+      doc.open();
+      doc.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Report Print</title><style>${baseStyles}\n${extraStyles}
+
+    @media print {
+      body.print-reports .quarterly-rest-full {
+        padding: 10px 12px !important;
+        transform: none !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-sheet-header {
+        padding: 8px 10px !important;
+        gap: 8px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-type-badge {
+        margin-bottom: 3px !important;
+        font-size: 8px !important;
+        padding: 2px 6px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-sheet-company {
+        font-size: 10px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-sheet-title {
+        font-size: 18px !important;
+        line-height: 1.05 !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-sheet-sub {
+        font-size: 10px !important;
+        margin-top: 2px !important;
+        line-height: 1.15 !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-quarter-meta {
+        margin-bottom: 6px !important;
+        gap: 6px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-quarter-meta .meta-card {
+        padding: 6px 8px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .meta-card .k {
+        font-size: 8px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .meta-card .v {
+        font-size: 12px !important;
+        line-height: 1.1 !important;
+      }
+
+      body.print-reports .quarterly-rest-full .quarter-progress-wrap {
+        padding: 8px 10px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .quarter-progress-title {
+        margin-bottom: 5px !important;
+        font-size: 10px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .quarter-progress-grid.compact {
+        gap: 3px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .quarter-progress-box.compact {
+        min-height: 22px !important;
+        font-size: 9px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .quarterly-annual-table {
+        font-size: 9px !important;
+      }
+
+      body.print-reports .quarterly-rest-full .quarterly-annual-table th,
+      body.print-reports .quarterly-rest-full .quarterly-annual-table td {
+        font-size: 8px !important;
+        padding: 3px 4px !important;
+        line-height: 1.2 !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-data-note,
+      body.print-reports .quarterly-rest-full .report-footnote {
+        font-size: 8px !important;
+        padding: 5px 7px !important;
+        line-height: 1.2 !important;
+      }
+
+      body.print-reports .quarterly-rest-full .report-footnote {
+        margin-top: 6px !important;
+      }
+    }
+
+
+
+    .quarterly-combined-page .compact-head { margin-bottom: 4px; padding: 6px 8px; grid-template-columns: 1fr 170px 150px; gap: 6px; align-items: center; }
+    .quarterly-combined-page .report-sheet-brand { gap: 1px; }
+    .quarterly-combined-page .report-type-badge { display: none; }
+    .quarterly-combined-page .report-sheet-company { display: none; }
+    .quarterly-combined-page .report-sheet-title { font-size: 14px; line-height: 1.05; white-space: nowrap; }
+    .quarterly-combined-page .report-sheet-sub { display: none; }
+    .quarterly-combined-page .report-mini-box { min-height: 34px; padding: 4px 6px; }
+    .quarterly-combined-page .report-mini-box .k { font-size: 9px; margin-bottom: 2px; }
+    .quarterly-combined-page .report-mini-box .v { font-size: 11px; }
+    .quarterly-combined-page .compact-meta { margin: 4px 0; padding: 6px 8px; gap: 6px; }
+    .quarterly-combined-page .compact-meta .meta-card { padding: 5px 6px; }
+    .quarterly-combined-page .compact-meta .meta-card .k { font-size: 9px; margin-bottom: 2px; }
+    .quarterly-combined-page .compact-meta .meta-card .v { font-size: 11px; }
+    .quarterly-combined-page .quarter-progress-wrap.compact { margin: 4px 0; padding: 0 8px 4px; }
+    .quarterly-combined-page .quarter-progress-title { font-size: 9px; margin-bottom: 2px; }
+    .quarterly-combined-page .compact-rest-table th,
+    .quarterly-combined-page .compact-rest-table td,
+    .quarterly-combined-page .compact-flight-table th,
+    .quarterly-combined-page .compact-flight-table td { padding: 2px 4px; font-size: 8.5px; line-height: 1.1; }
+    .quarterly-combined-page .compact-bottom-panel { margin-top: 4px; }
+    .quarterly-combined-page .report-panel-title { font-size: 10px; padding: 3px 6px; }
+    .quarterly-combined-page .report-footnote { margin-top: 4px; font-size: 8px; padding: 5px 8px; }
+    @media print {
+      .quarterly-combined-page { break-inside: avoid; page-break-inside: avoid; }
+      .quarterly-combined-page .compact-head { padding: 4px 6px; grid-template-columns: 1fr 150px 130px; gap: 4px; }
+      .quarterly-combined-page .report-sheet-title { font-size: 12px; }
+      .quarterly-combined-page .report-mini-box { min-height: 28px; padding: 3px 5px; }
+      .quarterly-combined-page .compact-meta { margin: 3px 0; padding: 4px 6px; gap: 4px; }
+      .quarterly-combined-page .compact-meta .meta-card { padding: 4px 5px; }
+      .quarterly-combined-page .quarter-progress-wrap.compact { padding: 0 6px 3px; margin: 3px 0; }
+      .quarterly-combined-page .quarter-progress-box.compact { min-height: 15px; font-size: 7px; }
+      .quarterly-combined-page .quarter-progress-title { font-size: 8px; margin-bottom: 1px; }
+      .quarterly-combined-page .compact-rest-table th,
+      .quarterly-combined-page .compact-rest-table td,
+      .quarterly-combined-page .compact-flight-table th,
+      .quarterly-combined-page .compact-flight-table td { font-size: 7.5px; padding: 1px 2px; line-height: 1.05; }
+      .quarterly-combined-page .report-panel-title { font-size: 9px; padding: 2px 5px; }
+      .quarterly-combined-page .report-footnote { font-size: 7px; padding: 4px 6px; margin-top: 3px; }
+    }
+
+    .prior-employment-grid {
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+    }
+
+    .prior-row-header,
+    .prior-quarter-row {
+      display: grid;
+      grid-template-columns: 210px 70px repeat(3, minmax(70px, 1fr)) 100px 220px;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .prior-row-header {
+      border: 1px solid var(--soft-line);
+      background: #f8fafc;
+      padding: 6px 8px;
+      font-size: 10px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #334155;
+    }
+
+    .prior-quarter-row {
+      border: 1px solid var(--soft-line);
+      background: white;
+      padding: 8px;
+    }
+
+    .prior-quarter-label {
+      font-size: 11px;
+      font-weight: bold;
+      color: #0f172a;
+    }
+
+    .prior-entry-input {
+      width: 100%;
+      min-height: 30px;
+      border: 1px solid var(--soft-line);
+      background: white;
+      font-size: 11px;
+      padding: 5px 6px;
+      text-align: center;
+    }
+
+    .prior-entry-input.is-total {
+      font-weight: bold;
+      background: #f8fafc;
+    }
+
+    .prior-entry-input.is-invalid {
+      border-color: #b91c1c;
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .prior-row-status {
+      font-size: 10px;
+      line-height: 1.25;
+      color: #475569;
+      min-height: 30px;
+    }
+
+    .prior-row-status.warn {
+      color: #92400e;
+      font-weight: bold;
+    }
+
+    .prior-row-status.error {
+      color: #991b1b;
+      font-weight: bold;
+    }
+
+    .prior-entry-help {
+      padding: 0 10px 8px;
+      font-size: 10px;
+      color: #475569;
+    }
+
+    .prior-cert-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr;
+      gap: 8px;
+      padding: 0 10px 10px;
+    }
+
+    .prior-cert-box {
+      border: 1px solid var(--soft-line);
+      background: #f8fafc;
+      padding: 8px;
+    }
+
+    .prior-cert-box .k {
+      font-size: 10px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #475569;
+      margin-bottom: 4px;
+    }
+
+    .prior-cert-box .v input {
+      width: 100%;
+      min-height: 30px;
+      border: 1px solid var(--soft-line);
+      background: white;
+      padding: 5px 6px;
+      font-size: 11px;
+    }
+
+    @media print {
+      .prior-employment-grid {
+        gap: 5px;
+        padding: 8px;
+      }
+
+      .prior-row-header,
+      .prior-quarter-row {
+        grid-template-columns: 170px 58px repeat(3, minmax(54px, 1fr)) 82px 150px;
+        gap: 4px;
+      }
+
+      .prior-row-header {
+        padding: 4px 6px;
+        font-size: 8px;
+      }
+
+      .prior-quarter-row {
+        padding: 5px 6px;
+      }
+
+      .prior-quarter-label,
+      .prior-entry-input,
+      .prior-row-status,
+      .prior-cert-box .v input {
+        font-size: 9px;
+      }
+
+      .prior-entry-help {
+        font-size: 8px;
+        padding: 0 8px 6px;
+      }
+    }
+
+    .prior-month-field {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .prior-month-label {
+      font-size: 10px;
+      font-weight: bold;
+      color: #475569;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .prior-month-field .prior-entry-input {
+      min-width: 0;
+    }
+
+  </style></head><body class="print-reports report-only-print">${reportHtml}</body></html>`);
+      doc.close();
+
+      iframe.onload = () => {
+        window.setTimeout(() => {
+          try {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+          } finally {
+            window.setTimeout(() => {
+              try { document.body.removeChild(iframe); } catch (e) {}
+            }, 1000);
+          }
+        }, 300);
+      };
     }
 
     document.addEventListener("mouseup", () => {
@@ -6049,6 +7699,7 @@ function renderMonthlyAircraftReportPreview(report) {
     reportYearSelect.addEventListener("change", () => { reportsState.selectedYear = Number(reportYearSelect.value || new Date().getFullYear()); generateCurrentReport({ manual: false, multiAircraft: reportsState.reportType === 'monthlyByAircraft' && reportsState.previewMode === 'multi' }).catch((err) => { console.error(err); }); });
     reportAircraftSelect.addEventListener("change", () => { reportsState.selectedAircraft = reportAircraftSelect.value; generateCurrentReport({ manual: false, multiAircraft: false }).catch((err) => { console.error(err); }); });
     reportQuarterSelect.addEventListener("change", () => { reportsState.selectedQuarter = Number(reportQuarterSelect.value || 1); generateCurrentReport({ manual: false, multiAircraft: false }).catch((err) => { console.error(err); }); });
+    if (includePriorRestToggle) includePriorRestToggle.addEventListener("change", () => { reportsState.includePriorEmploymentRest = !!includePriorRestToggle.checked; if (reportsState.reportType === 'quarterlyRest') { generateCurrentReport({ manual: false, multiAircraft: false }).catch((err) => { console.error(err); }); } });
     reportTypeSelect.addEventListener("change", () => { reportsState.reportType = reportTypeSelect.value; updateReportControlVisibility(); generateCurrentReport({ manual: false, multiAircraft: false }).catch((err) => { console.error(err); }); });
     reportSourceMode.addEventListener("change", () => { reportsState.sourceMode = reportSourceMode.value; generateCurrentReport({ manual: false, multiAircraft: reportsState.previewMode === 'multi' }).catch((err) => { console.error(err); }); });
     reportExportCsvBtn.addEventListener("click", () => exportCurrentReportCsv(reportsState.previewData));
@@ -6083,6 +7734,7 @@ function renderMonthlyAircraftReportPreview(report) {
   <div id="remarksMeasurer" class="remarks-measurer remarks-cell-clone"></div>
 </body>
 </html>
+
 
 
 
